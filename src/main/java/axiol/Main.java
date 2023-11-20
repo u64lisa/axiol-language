@@ -9,7 +9,7 @@ public class Main {
 
     public static void main(String[] args) {
         LanguageParser languageParser = new LanguageParser();
-        languageParser.parseSource("/test/syntax.ax", readFile("/test/syntax.ax"));
+        languageParser.parseSource("/test/expressions.ax", readFile("/test/expressions.ax"));
     }
 
     public static String readFile(String file) {

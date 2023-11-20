@@ -14,6 +14,7 @@ import java.util.Scanner;
 
 public class LanguageParser extends Parser {
 
+    private ExpressionParser expressionParser;
     private TokenStream tokenStream;
     private String source;
     private String path;
@@ -39,12 +40,12 @@ public class LanguageParser extends Parser {
         this.source = content;
         this.path = path;
 
+        this.expressionParser = new ExpressionParser(this);
+
         while (tokenStream.hasMoreTokens()) {
             Statement statement = this.parseStatement();
 
-            System.out.println(tokenStream.current());
-
-            createSyntaxError("test");
+            expressionParser.parserExpression();
 
             if (statement != null)
                 treeRootNode.getStatements().add(statement);
@@ -76,5 +77,9 @@ public class LanguageParser extends Parser {
     public void createSyntaxError(Position start, Position end, String message, Object... args) {
         ParseException parseException = new ParseException(source, start, end, path, message, args);
         parseException.throwError();
+    }
+
+    public TokenStream getTokenStream() {
+        return tokenStream;
     }
 }
