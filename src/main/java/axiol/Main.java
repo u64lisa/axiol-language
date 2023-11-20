@@ -21,9 +21,11 @@ public class Main {
     public static String readFile(String file) {
         Scanner scanner = new Scanner(Objects.requireNonNull(Main.class.getResourceAsStream(file)));
         StringBuilder fileContents = new StringBuilder();
+
         while (scanner.hasNextLine()) {
             fileContents.append(scanner.nextLine()).append("\n");
         }
+
         scanner.close();
         return fileContents.toString();
     }
