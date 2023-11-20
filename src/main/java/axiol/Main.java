@@ -60,6 +60,12 @@ public class Main {
         LEXER.addRule(TokenType.STRING, lexerRule ->  lexerRule.addMultiline("\"", "\\", "\""));
         LEXER.addRule(TokenType.LITERAL, lexerRule -> lexerRule.addRegexes("[a-zA-Z_][a-zA-Z0-9_]*"));
 
+        // numbers
+        LEXER.addRule(TokenType.FLOAT, lexerRule -> lexerRule.addRegexes("[0-9]+(\\.[0-9]+)?[fF]"));
+        LEXER.addRule(TokenType.LONG, lexerRule -> lexerRule.addRegexes("[0-9]+[Ll]"));
+        LEXER.addRule(TokenType.INT, lexerRule -> lexerRule.addRegexes("[0-9]+"));
+        LEXER.addRule(TokenType.DOUBLE, lexerRule -> lexerRule.addRegexes("[0-9]+(\\.[0-9]+)?[dD]?"));
+
         // brackets
         LEXER.addRule(TokenType.L_CURLY, lexerRule ->   lexerRule.addString("{"));
         LEXER.addRule(TokenType.R_CURLY, lexerRule ->   lexerRule.addString("}"));
