@@ -29,6 +29,9 @@ public class Lexer {
 
 
     public List<Token> tokenize(String input, boolean skipWhiteSpace) {
+        currentColumn = 1;
+        currentLine = 1;
+
         while (!input.isEmpty()) {
             int matchedLength = 0;
             TokenType matchedType = null;

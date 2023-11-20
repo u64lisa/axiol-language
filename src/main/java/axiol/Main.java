@@ -54,17 +54,17 @@ public class Main {
         LEXER.addRule(TokenType.EQUAL, lexerRule ->     lexerRule.addString("="));
         LEXER.addRule(TokenType.QUESTION, lexerRule ->  lexerRule.addString("?"));
 
-        // literals, types
+        // types
         LEXER.addRule(TokenType.BOOLEAN, lexerRule -> lexerRule.addString("true", "false"));
         LEXER.addRule(TokenType.CHAR, lexerRule ->    lexerRule.addMultiline("'", "\\", "'"));
         LEXER.addRule(TokenType.STRING, lexerRule ->  lexerRule.addMultiline("\"", "\\", "\""));
-        LEXER.addRule(TokenType.LITERAL, lexerRule -> lexerRule.addRegexes("[a-zA-Z_][a-zA-Z0-9_]*"));
 
         // numbers
-        LEXER.addRule(TokenType.FLOAT, lexerRule -> lexerRule.addRegexes("[0-9]+(\\.[0-9]+)?[fF]"));
-        LEXER.addRule(TokenType.LONG, lexerRule -> lexerRule.addRegexes("[0-9]+[Ll]"));
-        LEXER.addRule(TokenType.INT, lexerRule -> lexerRule.addRegexes("[0-9]+"));
-        LEXER.addRule(TokenType.DOUBLE, lexerRule -> lexerRule.addRegexes("[0-9]+(\\.[0-9]+)?[dD]?"));
+        LEXER.addRule(TokenType.FLOAT, lexerRule ->   lexerRule.addRegexes("[0-9]+(\\.[0-9]+)?[fF]"));
+        LEXER.addRule(TokenType.LONG, lexerRule ->    lexerRule.addRegexes("[0-9]+[Ll]"));
+        LEXER.addRule(TokenType.INT, lexerRule ->     lexerRule.addRegexes("[0-9]+"));
+        LEXER.addRule(TokenType.DOUBLE, lexerRule ->  lexerRule.addRegexes("[0-9]+(\\.[0-9]+)?[dD]?"));
+        LEXER.addRule(TokenType.HEX_NUM, lexerRule -> lexerRule.addRegexes("0x[0-9a-fA-F]+"));
 
         // brackets
         LEXER.addRule(TokenType.L_CURLY, lexerRule ->   lexerRule.addString("{"));
@@ -83,8 +83,46 @@ public class Main {
         LEXER.addRule(TokenType.UNDERSCORE, lexerRule -> lexerRule.addString("_"));
         LEXER.addRule(TokenType.COLON, lexerRule ->      lexerRule.addString(":"));
 
-        // keywords
+        // keywords control-flow
+        LEXER.addRule(TokenType.IF, lexerRule ->          lexerRule.addString("if"));
+        LEXER.addRule(TokenType.ELSE, lexerRule ->        lexerRule.addString("else"));
+        LEXER.addRule(TokenType.FOR, lexerRule ->         lexerRule.addString("for"));
+        LEXER.addRule(TokenType.WHILE, lexerRule ->       lexerRule.addString("while"));
+        LEXER.addRule(TokenType.MATCH, lexerRule ->       lexerRule.addString("match"));
+        LEXER.addRule(TokenType.SWITCH, lexerRule ->      lexerRule.addString("switch"));
+        LEXER.addRule(TokenType.DEFAULT, lexerRule ->     lexerRule.addString("default"));
+        LEXER.addRule(TokenType.LOOP, lexerRule ->        lexerRule.addString("loop"));
+        LEXER.addRule(TokenType.CASE, lexerRule ->        lexerRule.addString("case"));
+        LEXER.addRule(TokenType.BREAK, lexerRule ->       lexerRule.addString("break"));
+        LEXER.addRule(TokenType.RETURN, lexerRule ->      lexerRule.addString("return"));
+        LEXER.addRule(TokenType.CONTINUE, lexerRule ->    lexerRule.addString("continue"));
+        LEXER.addRule(TokenType.UNREACHABLE, lexerRule -> lexerRule.addString("unreachable"));
 
+        // access modifier
+        LEXER.addRule(TokenType.PUBLIC, lexerRule ->     lexerRule.addString("public"));
+        LEXER.addRule(TokenType.PRIVATE, lexerRule ->    lexerRule.addString("private"));
+        LEXER.addRule(TokenType.PROTECTED, lexerRule ->  lexerRule.addString("protected"));
+        LEXER.addRule(TokenType.INLINE, lexerRule ->     lexerRule.addString("inline"));
+        LEXER.addRule(TokenType.CONST, lexerRule ->      lexerRule.addString("const"));
+        LEXER.addRule(TokenType.EXTERN, lexerRule ->     lexerRule.addString("extern"));
+
+        // custom
+        LEXER.addRule(TokenType.ASM, lexerRule ->        lexerRule.addString("asm"));
+        LEXER.addRule(TokenType.LINKED, lexerRule ->     lexerRule.addString("linked"));
+        LEXER.addRule(TokenType.INSET, lexerRule ->      lexerRule.addString("inset"));  // keyword to edits IN-struction-SET
+        LEXER.addRule(TokenType.UNSAFE, lexerRule ->      lexerRule.addString("unsafe"));
+
+        // classes, functions
+        LEXER.addRule(TokenType.FUNCTION, lexerRule ->   lexerRule.addString("function"));
+        LEXER.addRule(TokenType.CLASS, lexerRule ->      lexerRule.addString("class"));
+        LEXER.addRule(TokenType.PARENT, lexerRule ->     lexerRule.addString("parent"));
+        LEXER.addRule(TokenType.CONSTRUCT, lexerRule ->  lexerRule.addString("construct"));
+        LEXER.addRule(TokenType.STRUCTURE, lexerRule ->  lexerRule.addString("structure"));
+        LEXER.addRule(TokenType.USING, lexerRule ->      lexerRule.addString("using"));
+        LEXER.addRule(TokenType.OVERRIDE, lexerRule ->   lexerRule.addString("override"));
+
+        // literals ! last element or else many things are broken
+        LEXER.addRule(TokenType.LITERAL, lexerRule -> lexerRule.addRegexes("[a-zA-Z_][a-zA-Z0-9_]*"));
     }
 
     public static void main(String[] args) {
