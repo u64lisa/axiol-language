@@ -14,7 +14,8 @@ public class Lexer {
     private int currentColumn;
 
     public Lexer addRule(TokenType type, Consumer<LexerRule> ruleConsumer) {
-        LexerRule rule = new LexerRule(type.ordinal());
+        LexerRule rule = tokenRules.stream()
+                .filter(lexerRule -> lexerRule.getHead() == type.ordinal()).findFirst().orElse(new LexerRule(type.ordinal()));
         ruleConsumer.accept(rule);
 
         this.tokenRules.add(rule);

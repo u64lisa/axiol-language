@@ -1,8 +1,10 @@
 package axiol;
 
 import axiol.lexer.Lexer;
+import axiol.lexer.Token;
 import axiol.lexer.TokenType;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -10,13 +12,14 @@ public class Main {
     public static void main(String[] args) {
 
         Lexer lexer = new Lexer();
-        lexer.addRule(TokenType.A, lexerRule -> lexerRule.addString("="));
-        lexer.addRule(TokenType.B, lexerRule -> lexerRule.addRegexes("[a-zA-Z_][a-zA-Z0-9_]*"));
-        lexer.addRule(TokenType.C, lexerRule -> lexerRule.addRegexes("[ \t\r\n]+"));
-        lexer.addRule(TokenType.D, lexerRule -> lexerRule.addRegexes("\n"));
+        lexer.addRule(TokenType.LITERAL, lexerRule -> lexerRule.addRegexes("[a-zA-Z_][a-zA-Z0-9_]*"));
 
+        lexer.addRule(TokenType.WHITESPACE, lexerRule -> lexerRule.addRegexes("[ \t\r\n]+"));
 
-        System.out.println(lexer.tokenize(readFile("/test/syntax.ax")));
+        List<Token> tokens = lexer.tokenize(readFile("/test/syntax.ax"));
+        for (Token token : tokens) {
+            System.out.println(token);
+        }
     }
 
     public static String readFile(String file) {
