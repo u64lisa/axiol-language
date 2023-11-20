@@ -15,7 +15,7 @@ public class ParseException extends IllegalStateException {
     private final Position from, to;
     private final String message;
 
-    public ParseException(String content, String path, Position from, Position to, String message, Object... arguments) {
+    public ParseException(String content, Position from, Position to, String path,  String message, Object... arguments) {
         this.content = content;
         this.path = path;
         this.from = from;
@@ -23,7 +23,7 @@ public class ParseException extends IllegalStateException {
         this.message = message.formatted(arguments);
     }
 
-    public ParseException(String content, String path, Position from, Position to, String message) {
+    public ParseException(String content, Position from, Position to, String path, String message) {
         this.content = content;
         this.path = path;
         this.from = from;
@@ -32,6 +32,14 @@ public class ParseException extends IllegalStateException {
     }
 
     public ParseException(String content, Token token, String path, String message) {
+        this.content = content;
+        this.path = path;
+        this.from = token.getPosition();
+        this.to = token.getEnd();
+        this.message = message;
+    }
+
+    public ParseException(String content, Token token, String path, String message, Object... arguments) {
         this.content = content;
         this.path = path;
         this.from = token.getPosition();
@@ -50,15 +58,17 @@ public class ParseException extends IllegalStateException {
                 .append(from.column() + 1)
                 .append("): ");
 
-        errorMessage = appendHighlighter(errorMessage);
+        appendHighlighter(errorMessage);
 
         System.err.println(errorMessage);
+
+        throw this;
     }
 
-    StringBuilder appendHighlighter(StringBuilder stringBuilder) {
-        int errorLine = to.line() + 1;
-        int errorStart = from.column();
-        int errorEnd = to.column();
+    void appendHighlighter(StringBuilder stringBuilder) {
+        int errorLine = to.line();
+        int errorStart = from.column() - 1;
+        int errorEnd = to.column() - 1;
         int columns = Math.max(1, errorEnd - errorStart);
         int padSize = Math.max(1, (int) Math.floor(Math.log10(errorLine)) + 1);
 
@@ -66,24 +76,20 @@ public class ParseException extends IllegalStateException {
         String numFormat = "%" + padSize + "d";
         String errPadding = " ".repeat(errorStart);
 
-        StringBuilder sb = new StringBuilder();
-
         if (content != null) {
             List<String> lines = content.lines().toList();
             String errString = lines.get(errorLine - 1);
 
-            sb.append('\n').append("%s |".formatted(numPadding)).append('\n');
-            sb.append("%s | %s\n".formatted(numFormat.formatted(errorLine), errString));
-            sb.append("%s | %s%s\n".formatted(numPadding, errPadding, "^".repeat(columns)));
-            sb.append("%s | %s%s".formatted(numPadding, errPadding, message));
-            sb.append('\n').append("%s |".formatted(numPadding));
+            stringBuilder.append('\n').append("%s |".formatted(numPadding)).append('\n');
+            stringBuilder.append("%s | %s\n".formatted(numFormat.formatted(errorLine), errString));
+            stringBuilder.append("%s | %s%s\n".formatted(numPadding, errPadding, "^".repeat(columns)));
+            stringBuilder.append("%s | %s%s".formatted(numPadding, errPadding, message));
+            stringBuilder.append('\n').append("%s |".formatted(numPadding));
         } else {
-            sb.append('\n').append("%s |".formatted(numPadding)).append('\n');
-            sb.append("%s | %s".formatted(numFormat.formatted(errorLine), message));
-            sb.append('\n').append("%s |".formatted(numPadding));
+            stringBuilder.append('\n').append("%s |".formatted(numPadding)).append('\n');
+            stringBuilder.append("%s | %s".formatted(numFormat.formatted(errorLine), message));
+            stringBuilder.append('\n').append("%s |".formatted(numPadding));
         }
-
-        return sb;
     }
 
 }
