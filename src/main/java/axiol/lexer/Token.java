@@ -1,6 +1,6 @@
 package axiol.lexer;
 
-import axiol.parser.error.Position;
+import axiol.parser.util.error.Position;
 
 public class Token {
     private final TokenType type;

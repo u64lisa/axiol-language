@@ -1,9 +1,8 @@
-package axiol.parser.error;
+package axiol.parser.util.error;
 
 import axiol.lexer.Token;
 
 import java.util.List;
-import java.util.Objects;
 
 public class ParseException extends IllegalStateException {
 

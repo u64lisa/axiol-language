@@ -1,6 +1,6 @@
 package axiol.lexer;
 
-import axiol.parser.error.Position;
+import axiol.parser.util.error.Position;
 
 import java.util.ArrayList;
 import java.util.List;

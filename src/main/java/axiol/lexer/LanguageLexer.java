@@ -1,6 +1,6 @@
 package axiol.lexer;
 
-import axiol.parser.error.Position;
+import axiol.parser.util.error.Position;
 
 import java.util.List;
 
@@ -13,6 +13,9 @@ public class LanguageLexer {
         LEXER.addRule(TokenType.WHITESPACE, lexerRule -> lexerRule.addRegexes("[ \t\r\n]+"));
         LEXER.addRule(TokenType.WHITESPACE, lexerRule -> lexerRule.addRegexes("//[^\\r\\n]*"));           // comment
         LEXER.addRule(TokenType.WHITESPACE, lexerRule -> lexerRule.addMultiline("/*", "*/")); // comment
+
+        // lambda
+        LEXER.addRule(TokenType.LAMBDA, lexerRule ->      lexerRule.addString("->"));
 
         // math dual char
         LEXER.addRule(TokenType.EQUAL_EQUAL, lexerRule ->    lexerRule.addString("=="));
@@ -34,9 +37,6 @@ public class LanguageLexer {
         LEXER.addRule(TokenType.SHIFT_LEFT, lexerRule ->     lexerRule.addString("<<"));
         LEXER.addRule(TokenType.SHIFT_RIGHT, lexerRule ->    lexerRule.addString(">>"));
         LEXER.addRule(TokenType.FN_ACCESS, lexerRule ->      lexerRule.addString("::"));
-
-        // lambda
-        LEXER.addRule(TokenType.LAMBDA, lexerRule ->      lexerRule.addString("->"));
 
         // math basic
         LEXER.addRule(TokenType.PLUS, lexerRule ->      lexerRule.addString("+"));

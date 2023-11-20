@@ -1,6 +1,7 @@
 package axiol.parser;
 
 import axiol.lexer.TokenType;
+import axiol.parser.LanguageParser;
 
 public class ExpressionParser {
 

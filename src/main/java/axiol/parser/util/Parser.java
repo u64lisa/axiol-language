@@ -1,4 +1,4 @@
-package axiol.parser;
+package axiol.parser.util;
 
 import axiol.parser.tree.TreeRootNode;
 import axiol.parser.tree.Expression;

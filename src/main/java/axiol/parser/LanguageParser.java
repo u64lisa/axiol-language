@@ -2,9 +2,10 @@ package axiol.parser;
 
 import axiol.lexer.LanguageLexer;
 import axiol.lexer.Token;
-import axiol.parser.error.ParseException;
-import axiol.parser.error.Position;
-import axiol.parser.stream.TokenStream;
+import axiol.parser.util.Parser;
+import axiol.parser.util.error.ParseException;
+import axiol.parser.util.error.Position;
+import axiol.parser.util.stream.TokenStream;
 import axiol.parser.tree.TreeRootNode;
 import axiol.parser.tree.Expression;
 import axiol.parser.tree.Statement;

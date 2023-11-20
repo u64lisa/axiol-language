@@ -1,4 +1,4 @@
-package axiol.parser.stream;
+package axiol.parser.util.stream;
 
 import axiol.lexer.Token;
 import axiol.lexer.TokenType;
