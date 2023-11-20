@@ -1,19 +1,19 @@
 package axiol.lexer;
 
 public class Token {
-    private final int type;
+    private final TokenType type;
     private final String value;
     private final int line;
     private final int column;
 
-    public Token(int type, String value, int line, int column) {
+    public Token(TokenType type, String value, int line, int column) {
         this.type = type;
         this.value = value;
         this.line = line;
         this.column = column;
     }
 
-    public int getType() {
+    public TokenType getType() {
         return type;
     }
 

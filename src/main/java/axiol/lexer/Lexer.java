@@ -28,7 +28,43 @@ public class Lexer {
 
 
     public List<Token> tokenize(String input) {
-        return null;
+        while (!input.isEmpty()) {
+            int matchedLength = 0;
+            TokenType matchedType = null;
+
+            for (LexerRule rule : tokenRules) {
+                List<Pattern> patterns = rule.getPatterns();
+                for (Pattern pattern : patterns) {
+                    Matcher matcher = pattern.matcher(input);
+                    if (matcher.lookingAt() && matcher.start() == 0) {
+                        int length = matcher.end();
+                        if (length > matchedLength) {
+                            matchedLength = length;
+                            matchedType = TokenType.values()[rule.getHead()];
+                        }
+                    }
+                }
+            }
+
+            if (matchedLength > 0) {
+                String substring = input.substring(0, matchedLength);
+                Token token = new Token(matchedType, substring, currentLine, currentColumn);
+                tokens.add(token);
+                for (char c : substring.toCharArray()) {
+                    if (c == '\n') {
+                        currentLine++;
+                        currentColumn = 1;
+                    } else {
+                        currentColumn++;
+                    }
+                }
+                input = input.substring(matchedLength);
+            } else {
+                throw new UnknownTokenException("Unknown token encountered at line %s, column %s".formatted(currentLine, currentColumn, ));
+            }
+        }
+
+        return tokens;
     }
 
 }

@@ -1,6 +1,9 @@
 package axiol.lexer;
 
 public enum TokenType {
-    NEW_LINE
+    A,
+    B,
+    C,
+    D
 
 }

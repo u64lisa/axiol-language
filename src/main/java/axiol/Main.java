@@ -10,12 +10,12 @@ public class Main {
     public static void main(String[] args) {
 
         Lexer lexer = new Lexer();
-        lexer.addRule(TokenType.NEW_LINE, lexerRule -> lexerRule.addRegexes("\n"));
+        lexer.addRule(TokenType.A, lexerRule -> lexerRule.addString("="));
 
         System.out.println(lexer.tokenize(readFile("/test/syntax.ax")));
     }
 
-    public static final String readFile(String file) {
+    public static String readFile(String file) {
         Scanner scanner = new Scanner(Objects.requireNonNull(Main.class.getResourceAsStream(file)));
         StringBuilder fileContents = new StringBuilder();
         while (scanner.hasNextLine()) {
