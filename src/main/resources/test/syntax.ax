@@ -36,4 +36,27 @@ comment*/
 ~     
 ^     
 =     
-?     
+?
+
+LITERAL literal
+
+true false
+
+"String"
+
+'A'
+
+{
+}
+(
+)
+[
+]
+
+;
+.
+...
+,
+@
+_
+:

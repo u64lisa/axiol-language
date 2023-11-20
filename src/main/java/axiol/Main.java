@@ -29,7 +29,7 @@ public class Main {
         LEXER.addRule(TokenType.DIVIDE_EQUAL, lexerRule ->   lexerRule.addString("/="));
         LEXER.addRule(TokenType.XOR_EQUAL, lexerRule ->      lexerRule.addString("^="));
         LEXER.addRule(TokenType.NOR_EQUAL, lexerRule ->      lexerRule.addString("~="));
-        LEXER.addRule(TokenType.QEUSTION_EQUAL, lexerRule -> lexerRule.addString("?="));
+        LEXER.addRule(TokenType.QUESTION_EQUAL, lexerRule -> lexerRule.addString("?="));
         LEXER.addRule(TokenType.OR_EQUAL, lexerRule ->       lexerRule.addString("|="));
         LEXER.addRule(TokenType.AND_AND, lexerRule ->        lexerRule.addString("&&"));
         LEXER.addRule(TokenType.PLUS_PLUS, lexerRule ->      lexerRule.addString("++"));
@@ -54,10 +54,31 @@ public class Main {
         LEXER.addRule(TokenType.EQUAL, lexerRule ->     lexerRule.addString("="));
         LEXER.addRule(TokenType.QUESTION, lexerRule ->  lexerRule.addString("?"));
 
-
-
-        // literal
+        // literals, types
+        LEXER.addRule(TokenType.BOOLEAN, lexerRule -> lexerRule.addString("true", "false"));
+        LEXER.addRule(TokenType.CHAR, lexerRule ->    lexerRule.addMultiline("'", "\\", "'"));
+        LEXER.addRule(TokenType.STRING, lexerRule ->  lexerRule.addMultiline("\"", "\\", "\""));
         LEXER.addRule(TokenType.LITERAL, lexerRule -> lexerRule.addRegexes("[a-zA-Z_][a-zA-Z0-9_]*"));
+
+        // brackets
+        LEXER.addRule(TokenType.L_CURLY, lexerRule ->   lexerRule.addString("{"));
+        LEXER.addRule(TokenType.R_CURLY, lexerRule ->   lexerRule.addString("}"));
+        LEXER.addRule(TokenType.L_PAREN, lexerRule ->   lexerRule.addString("("));
+        LEXER.addRule(TokenType.R_PAREN, lexerRule ->   lexerRule.addString(")"));
+        LEXER.addRule(TokenType.L_SQUARE, lexerRule ->  lexerRule.addString("["));
+        LEXER.addRule(TokenType.R_SQUARE, lexerRule ->  lexerRule.addString("]"));
+
+        // dot, coma, others
+        LEXER.addRule(TokenType.SEMICOLON, lexerRule ->  lexerRule.addString(";"));
+        LEXER.addRule(TokenType.VARARGS, lexerRule ->    lexerRule.addString("..."));
+        LEXER.addRule(TokenType.DOT, lexerRule ->        lexerRule.addString("."));
+        LEXER.addRule(TokenType.COMMA, lexerRule ->      lexerRule.addString(","));
+        LEXER.addRule(TokenType.AT, lexerRule ->         lexerRule.addString("@"));
+        LEXER.addRule(TokenType.UNDERSCORE, lexerRule -> lexerRule.addString("_"));
+        LEXER.addRule(TokenType.COLON, lexerRule ->      lexerRule.addString(":"));
+
+        // keywords
+
     }
 
     public static void main(String[] args) {
