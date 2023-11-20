@@ -1,1 +1,20 @@
-Test
+linked std.math;
+
+function main(argc: i32, *args: u8[]) -> i32 {
+    test: i32 = 4;
+
+    subFunction(test);
+
+    return 1;
+}
+
+function subFunction(test: i32) -> u0 {
+    [asm] {
+        "mov rsi, $" <- test
+    }
+
+    [inset] {
+        "mov 1"
+    }
+
+}
