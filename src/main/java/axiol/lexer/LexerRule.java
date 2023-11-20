@@ -33,6 +33,9 @@ public class LexerRule {
     public void addMultiline(String open, String escape, String close) {
         addDelimiter(open, escape, close, Pattern.DOTALL);
     }
+    public void addMultiline(String open, String close) {
+        this.addMultiline(open, "", close);
+    }
 
     private void addDelimiter(String open, String escape, String close, int flags) {
         String startingSymbol = regexEscape(open);
