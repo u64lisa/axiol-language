@@ -31,6 +31,6 @@ public class Token {
 
     @Override
     public String toString() {
-        return "[" + type + ": " + value + " at line " + line + ", column " + column + "]";
+        return "[" + type + " at line " + line + ", column " + column + "]";
     }
 }

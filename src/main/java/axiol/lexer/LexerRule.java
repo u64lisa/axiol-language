@@ -8,8 +8,8 @@ public class LexerRule {
     private static final String ESCAPED_PATTERN = "%s.*?%s";
     private static final String UNESCAPED_PATTERN = "%s(?:%s(?:%s|%s|(?!%s).)|(?!%s|%s).)*%s";
 
-    private int head;
-    private List<Pattern> patterns;
+    private final int head;
+    private final List<Pattern> patterns;
 
     public LexerRule(int head) {
         this.head = head;
@@ -17,26 +17,24 @@ public class LexerRule {
         this.patterns = new ArrayList<>();
     }
 
-    public LexerRule addString(String... values) {
+    public void addString(String... values) {
         for (String value : values) {
             this.patterns.add(Pattern.compile(this.regexEscape(value)));
         }
 
-        return this;
     }
-    public LexerRule addRegexes(String... regexes) {
+    public void addRegexes(String... regexes) {
         for (String regex : regexes) {
-            this.patterns.add(Pattern.compile(this.regexEscape(regex)));
+            this.patterns.add(Pattern.compile(regex));
         }
 
-        return this;
     }
 
-    public LexerRule addMultiline(String open, String escape, String close) {
-        return addDelimiter(open, escape, close, Pattern.DOTALL);
+    public void addMultiline(String open, String escape, String close) {
+        addDelimiter(open, escape, close, Pattern.DOTALL);
     }
 
-    private LexerRule addDelimiter(String open, String escape, String close, int flags) {
+    private void addDelimiter(String open, String escape, String close, int flags) {
         String startingSymbol = regexEscape(open);
         String closingSymbol = regexEscape(close);
         String escapeRegex = regexEscape(escape);
@@ -50,7 +48,6 @@ public class LexerRule {
                 );
 
         this.patterns.add(Pattern.compile(regex, flags));
-        return this;
     }
 
     String regexEscape(String string) {
@@ -82,4 +79,6 @@ public class LexerRule {
     public int getHead() {
         return head;
     }
+
+
 }

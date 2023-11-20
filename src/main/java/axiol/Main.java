@@ -11,6 +11,10 @@ public class Main {
 
         Lexer lexer = new Lexer();
         lexer.addRule(TokenType.A, lexerRule -> lexerRule.addString("="));
+        lexer.addRule(TokenType.B, lexerRule -> lexerRule.addRegexes("[a-zA-Z_][a-zA-Z0-9_]*"));
+        lexer.addRule(TokenType.C, lexerRule -> lexerRule.addRegexes("[ \t\r\n]+"));
+        lexer.addRule(TokenType.D, lexerRule -> lexerRule.addRegexes("\n"));
+
 
         System.out.println(lexer.tokenize(readFile("/test/syntax.ax")));
     }

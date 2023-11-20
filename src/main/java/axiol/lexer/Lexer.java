@@ -60,7 +60,8 @@ public class Lexer {
                 }
                 input = input.substring(matchedLength);
             } else {
-                throw new UnknownTokenException("Unknown token encountered at line %s, column %s".formatted(currentLine, currentColumn, ));
+                throw new UnknownTokenException("Unknown token encountered at line %s, column %s, token: %s"
+                        .formatted(currentLine, currentColumn, input.charAt(0)));
             }
         }
 
