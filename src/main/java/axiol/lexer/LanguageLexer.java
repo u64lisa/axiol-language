@@ -1,5 +1,7 @@
 package axiol.lexer;
 
+import axiol.parser.error.Position;
+
 import java.util.List;
 
 public class LanguageLexer {
@@ -125,7 +127,7 @@ public class LanguageLexer {
     public List<Token> tokenizeString(final String content) {
         List<Token> tokens = LEXER.tokenize(content, true);
 
-        tokens.add(new Token(TokenType.EOF, "EOF", -1, -1));
+        tokens.add(new Token(TokenType.EOF, "EOF", new Position(-1, -1)));
 
         return tokens;
     }

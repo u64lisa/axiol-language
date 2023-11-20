@@ -2,6 +2,9 @@ package axiol;
 
 import axiol.lexer.LanguageLexer;
 import axiol.lexer.Token;
+import axiol.lexer.TokenType;
+import axiol.parser.error.ParseException;
+import axiol.parser.error.Position;
 
 import java.util.List;
 import java.util.Objects;
@@ -16,6 +19,9 @@ public class Main {
         for (Token token : tokens) {
             System.out.println(token);
         }
+
+        ParseException parseException = new ParseException("TEST TEST TEST\nTEST TEST TEST", new Token(TokenType.STRING, "TEST", new Position(1, 5)), "error", "owo");
+        parseException.throwError();
     }
 
     public static String readFile(String file) {

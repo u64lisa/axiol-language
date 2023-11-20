@@ -1,5 +1,7 @@
 package axiol.lexer;
 
+import axiol.parser.error.Position;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -52,7 +54,7 @@ public class Lexer {
 
             if (matchedLength > 0) {
                 String substring = input.substring(0, matchedLength);
-                Token token = new Token(matchedType, substring, currentLine, currentColumn);
+                Token token = new Token(matchedType, substring, new Position(currentLine, currentColumn));
                 tokens.add(token);
                 for (char c : substring.toCharArray()) {
                     if (c == '\n') {
