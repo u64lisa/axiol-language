@@ -123,7 +123,11 @@ public class LanguageLexer {
     }
 
     public List<Token> tokenizeString(final String content) {
-        return LEXER.tokenize(content, true);
+        List<Token> tokens = LEXER.tokenize(content, true);
+
+        tokens.add(new Token(TokenType.EOF, "EOF", -1, -1));
+
+        return tokens;
     }
 
 }

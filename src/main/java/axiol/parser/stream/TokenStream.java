@@ -15,6 +15,10 @@ public class TokenStream {
         this.index = 0;
     }
 
+    public boolean hasMoreTokens() {
+        return index < tokens.size();
+    }
+
     public boolean matches(TokenType type) {
         Token current = this.current();
         return current != null && current.getType() == type;
@@ -26,15 +30,15 @@ public class TokenStream {
     }
 
     public Token current() {
-        return tokens.get(index);
+        return hasMoreTokens() ? tokens.get(index) : null;
     }
 
     public Token prev() {
-        return tokens.get(index - 1);
+        return hasMoreTokens() ? tokens.get(index - 1) : null;
     }
 
     public Token peak(int amount) {
-        return tokens.get(index + amount);
+        return hasMoreTokens() ? tokens.get(index + amount) : null;
     }
 
     public void advance() {
