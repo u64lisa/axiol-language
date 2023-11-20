@@ -1,6 +1,7 @@
 package axiol;
 
 import axiol.lexer.Lexer;
+import axiol.lexer.TokenType;
 
 import java.util.Objects;
 import java.util.Scanner;
@@ -9,13 +10,7 @@ public class Main {
     public static void main(String[] args) {
 
         Lexer lexer = new Lexer();
-
-        lexer.addTokenRule("NUMBER", "\\d+");
-        lexer.addTokenRule("IDENTIFIER", "[a-zA-Z_]+");
-        lexer.addTokenRule("PLUS", "\\+");
-        lexer.addTokenRule("MINUS", "\\-");
-        lexer.addTokenRule("EQUALS", "\\=");
-        lexer.addTokenRule("WHITESPACE", "\\s+");
+        lexer.addRule(TokenType.NEW_LINE, lexerRule -> lexerRule.addRegexes("\n"));
 
         System.out.println(lexer.tokenize(readFile("/test/syntax.ax")));
     }

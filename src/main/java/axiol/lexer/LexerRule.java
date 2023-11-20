@@ -17,6 +17,25 @@ public class LexerRule {
         this.patterns = new ArrayList<>();
     }
 
+    public LexerRule addString(String... values) {
+        for (String value : values) {
+            this.patterns.add(Pattern.compile(this.regexEscape(value)));
+        }
+
+        return this;
+    }
+    public LexerRule addRegexes(String... regexes) {
+        for (String regex : regexes) {
+            this.patterns.add(Pattern.compile(this.regexEscape(regex)));
+        }
+
+        return this;
+    }
+
+    public LexerRule addMultiline(String open, String escape, String close) {
+        return addDelimiter(open, escape, close, Pattern.DOTALL);
+    }
+
     private LexerRule addDelimiter(String open, String escape, String close, int flags) {
         String startingSymbol = regexEscape(open);
         String closingSymbol = regexEscape(close);
