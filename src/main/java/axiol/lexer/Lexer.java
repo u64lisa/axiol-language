@@ -28,7 +28,7 @@ public class Lexer {
     }
 
 
-    public List<Token> tokenize(String input) {
+    public List<Token> tokenize(String input, boolean skipWhiteSpace) {
         while (!input.isEmpty()) {
             int matchedLength = 0;
             TokenType matchedType = null;
@@ -66,6 +66,7 @@ public class Lexer {
             }
         }
 
+        tokens.removeIf(token -> skipWhiteSpace && token.getType().equals(TokenType.WHITESPACE));
         return tokens;
     }
 
