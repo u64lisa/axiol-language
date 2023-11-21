@@ -1,16 +1,13 @@
 package axiol;
 
-import axiol.parser.LanguageParser;
-
-import java.util.Objects;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
 
     public static void main(String[] args) {
-        LanguageParser languageParser = new LanguageParser();
-
-        languageParser.parseSource("/test/expressions.ax", readFile("/test/expressions.ax"));
+       // LanguageParser languageParser = new LanguageParser();
+       //
+       // languageParser.parseSource("/test/expressions.ax", readFile("/test/expressions.ax"));
     }
 
     public static String readFile(String file) {
