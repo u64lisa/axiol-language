@@ -47,7 +47,8 @@ public class LanguageParser extends Parser {
         while (tokenStream.hasMoreTokens()) {
             Statement statement = this.parseStatement();
 
-            expressionParser.parseExpression(Operator.MAX_PRIORITY);
+            Expression expression = expressionParser.parseExpression(Operator.MAX_PRIORITY);
+            System.out.printf("finished parsing single expression %s%n", expression);
 
             if (statement != null)
                 treeRootNode.getStatements().add(statement);

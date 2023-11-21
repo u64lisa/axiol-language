@@ -7,6 +7,7 @@ import axiol.parser.tree.expressions.BinaryExpression;
 import axiol.parser.tree.expressions.UnaryExpression;
 import axiol.parser.tree.expressions.sub.BooleanExpression;
 import axiol.parser.tree.expressions.sub.NumberExpression;
+import axiol.parser.tree.expressions.sub.StringExpression;
 import axiol.parser.util.stream.TokenStream;
 
 import java.util.Arrays;
@@ -144,6 +145,28 @@ public class ExpressionParser {
 
             this.tokenStream.advance();
             return numberExpression;
+        }
+        if (tokenStream.matches(TokenType.CHAR)) {
+            String singletonChar = this.tokenStream.current().getValue()
+                    .substring(1, tokenStream.current().getValue().length() - 1);
+
+            int value = singletonChar.charAt(0);
+
+            NumberExpression numberExpression = new NumberExpression(
+                    this.tokenStream.current().getPosition(), value, false);
+
+            this.tokenStream.advance();
+            return numberExpression;
+        }
+        if (tokenStream.matches(TokenType.STRING)) {
+            String singletonString = this.tokenStream.current().getValue()
+                    .substring(1, tokenStream.current().getValue().length() - 1);
+
+            StringExpression stringExpression = new StringExpression(
+                    this.tokenStream.current().getPosition(), singletonString);
+
+            this.tokenStream.advance();
+            return stringExpression;
         }
         if (tokenStream.matches(TokenType.BOOLEAN)) {
             BooleanExpression expression = new BooleanExpression(tokenStream.current().getPosition(),
