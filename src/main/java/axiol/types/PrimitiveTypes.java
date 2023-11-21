@@ -39,6 +39,10 @@ public enum PrimitiveTypes {
         return null;
     }
 
+    public Type toType() {
+        return new Type(this.name().toLowerCase(),this, 0);
+    }
+
     public int getBits() {
         return bits;
     }
