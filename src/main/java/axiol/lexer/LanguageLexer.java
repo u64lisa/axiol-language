@@ -22,9 +22,9 @@ public class LanguageLexer {
         LEXER.addRule(TokenType.EQUAL_NOT, lexerRule ->      lexerRule.addString("!="));
         LEXER.addRule(TokenType.LESS_EQUAL, lexerRule ->     lexerRule.addString("<="));
         LEXER.addRule(TokenType.MORE_EQUAL, lexerRule ->     lexerRule.addString(">="));
-        LEXER.addRule(TokenType.PLU_EQUAL, lexerRule ->      lexerRule.addString("+="));
-        LEXER.addRule(TokenType.MIN_EQUAL, lexerRule ->      lexerRule.addString("-="));
-        LEXER.addRule(TokenType.MUL_EQUAL, lexerRule ->      lexerRule.addString("*="));
+        LEXER.addRule(TokenType.PLUS_EQUAL, lexerRule ->      lexerRule.addString("+="));
+        LEXER.addRule(TokenType.MINUS_EQUAL, lexerRule ->      lexerRule.addString("-="));
+        LEXER.addRule(TokenType.MULTIPLY_EQUAL, lexerRule ->      lexerRule.addString("*="));
         LEXER.addRule(TokenType.DIVIDE_EQUAL, lexerRule ->   lexerRule.addString("/="));
         LEXER.addRule(TokenType.XOR_EQUAL, lexerRule ->      lexerRule.addString("^="));
         LEXER.addRule(TokenType.NOR_EQUAL, lexerRule ->      lexerRule.addString("~="));
@@ -41,7 +41,7 @@ public class LanguageLexer {
         // math basic
         LEXER.addRule(TokenType.PLUS, lexerRule ->      lexerRule.addString("+"));
         LEXER.addRule(TokenType.MINUS, lexerRule ->     lexerRule.addString("-"));
-        LEXER.addRule(TokenType.MULTIPLE, lexerRule ->  lexerRule.addString("*"));
+        LEXER.addRule(TokenType.MULTIPLY, lexerRule ->  lexerRule.addString("*"));
         LEXER.addRule(TokenType.DIVIDE, lexerRule ->    lexerRule.addString("/"));
         LEXER.addRule(TokenType.AND, lexerRule ->       lexerRule.addString("&"));
         LEXER.addRule(TokenType.MOD, lexerRule ->       lexerRule.addString("%"));

@@ -4,43 +4,50 @@ import axiol.lexer.TokenType;
 
 public enum Operator {
 
-    //// math dual char
-    //LEXER.addRule(TokenType.EQUAL_EQUAL, lexerRule ->    lexerRule.addString("=="));
-    //LEXER.addRule(TokenType.EQUAL_NOT, lexerRule ->      lexerRule.addString("!="));
-    //LEXER.addRule(TokenType.LESS_EQUAL, lexerRule ->     lexerRule.addString("<="));
-    //LEXER.addRule(TokenType.MORE_EQUAL, lexerRule ->     lexerRule.addString(">="));
-    //LEXER.addRule(TokenType.PLU_EQUAL, lexerRule ->      lexerRule.addString("+="));
-    //LEXER.addRule(TokenType.MIN_EQUAL, lexerRule ->      lexerRule.addString("-="));
-    //LEXER.addRule(TokenType.MUL_EQUAL, lexerRule ->      lexerRule.addString("*="));
-    //LEXER.addRule(TokenType.DIVIDE_EQUAL, lexerRule ->   lexerRule.addString("/="));
-    //LEXER.addRule(TokenType.XOR_EQUAL, lexerRule ->      lexerRule.addString("^="));
-    //LEXER.addRule(TokenType.NOR_EQUAL, lexerRule ->      lexerRule.addString("~="));
-    //LEXER.addRule(TokenType.QUESTION_EQUAL, lexerRule -> lexerRule.addString("?="));
-    //LEXER.addRule(TokenType.OR_EQUAL, lexerRule ->       lexerRule.addString("|=")); // todo remove this is only used as spread sheet
-    //LEXER.addRule(TokenType.AND_AND, lexerRule ->        lexerRule.addString("&&"));
-    //LEXER.addRule(TokenType.PLUS_PLUS, lexerRule ->      lexerRule.addString("++"));
-    //LEXER.addRule(TokenType.MINUS_MINUS, lexerRule ->    lexerRule.addString("--"));
-    //LEXER.addRule(TokenType.OR_OR, lexerRule ->          lexerRule.addString("||"));
-    //LEXER.addRule(TokenType.SHIFT_LEFT, lexerRule ->     lexerRule.addString("<<"));
-    //LEXER.addRule(TokenType.SHIFT_RIGHT, lexerRule ->    lexerRule.addString(">>"));
-    //
-    //// math basic
-    //LEXER.addRule(TokenType.PLUS, lexerRule ->      lexerRule.addString("+"));
-    //LEXER.addRule(TokenType.MINUS, lexerRule ->     lexerRule.addString("-"));
-    //LEXER.addRule(TokenType.MULTIPLE, lexerRule ->  lexerRule.addString("*"));
-    //LEXER.addRule(TokenType.DIVIDE, lexerRule ->    lexerRule.addString("/"));
-    //LEXER.addRule(TokenType.AND, lexerRule ->       lexerRule.addString("&"));
-    //LEXER.addRule(TokenType.MOD, lexerRule ->       lexerRule.addString("%"));
-    //LEXER.addRule(TokenType.OR, lexerRule ->        lexerRule.addString("|"));
-    //LEXER.addRule(TokenType.LESS_THAN, lexerRule -> lexerRule.addString("<"));
-    //LEXER.addRule(TokenType.MORE_THAN, lexerRule -> lexerRule.addString(">"));
-    //LEXER.addRule(TokenType.NOR, lexerRule ->       lexerRule.addString("~"));
-    //LEXER.addRule(TokenType.XOR, lexerRule ->       lexerRule.addString("^"));
-    //LEXER.addRule(TokenType.EQUAL, lexerRule ->     lexerRule.addString("="));
-    //LEXER.addRule(TokenType.QUESTION, lexerRule ->  lexerRule.addString("?"));
+    // Basic Assignment
+    ASSIGN(        "=",  TokenType.EQUAL,          false, false),
 
-    ASSIGN("=", TokenType.EQUAL, false, false),
+    // Logical Operators
+    AND(           "&&", TokenType.EQUAL_EQUAL,    false, false),
+    OR(            "||", TokenType.OR_OR,          false, false),
 
+    // Increment and Decrement
+    DECREASE(      "--", TokenType.MINUS_MINUS,    true, false), // unary
+    INCREASE(      "++", TokenType.PLUS_PLUS,      true, false), // unary
+
+    // Basic Arithmetic
+    PLUS(          "+",  TokenType.PLUS,           false, false),
+    MINUS(         "-",  TokenType.MINUS,          false, false),
+    MULTIPLE(      "*",  TokenType.MULTIPLY,       false, false),
+    DIVIDE(        "/",  TokenType.DIVIDE,         false, false),
+    MOD(           "%",  TokenType.MOD,            false, false),
+    XOR(           "^",  TokenType.XOR,            false, false),
+    QUESTION(      "?",  TokenType.QUESTION,       false, false),
+    NOT(           "!",  TokenType.QUESTION,       true,  true), // unary
+
+    // Comparison
+    LESS_THAN(     "<",  TokenType.LESS_THAN,      false, false),
+    MORE_THAN(     ">",  TokenType.MORE_THAN,      false, false),
+    EQUAL_EQUAL(   "==", TokenType.EQUAL_EQUAL,    false, false),
+
+    // Comparison with Assignment
+    LESS_EQUAL(    "<=", TokenType.LESS_EQUAL,     false, false),
+    MORE_EQUAL(    ">=", TokenType.MORE_EQUAL,     false, false),
+
+    // Arithmetic with Assignment
+    MIN_EQUAL(     "-=", TokenType.MINUS_EQUAL,    false, false),
+    MUL_EQUAL(     "*=", TokenType.MULTIPLY_EQUAL, false, false),
+    DIVIDE_EQUAL(  "/=", TokenType.DIVIDE_EQUAL,   false, false),
+    XOR_EQUAL(     "^=", TokenType.XOR_EQUAL,      false, false),
+    NOR_EQUAL(     "~=", TokenType.NOR_EQUAL,      false, false),
+    QUESTION_EQUAL("?=", TokenType.QUESTION_EQUAL, false, false),
+    OR_EQUAL(      "|=", TokenType.OR_EQUAL,       false, false),
+
+    // Bitwise and Shift Operators
+    BIT_OR(        "|",  TokenType.OR,             false, false),
+    SHIFT_LEFT(    "<<", TokenType.SHIFT_LEFT,     false, false),
+    SHIFT_RIGHT(   ">>", TokenType.SHIFT_RIGHT,    false, false),
+    NOR(           "~",  TokenType.NOR,            true,  false), // unary
     ;
 
     private final String text;

@@ -9,7 +9,7 @@ public enum TokenType {
 
     PLUS,
     MINUS,
-    MULTIPLE,
+    MULTIPLY,
     DIVIDE,
     AND,
     MOD,
@@ -33,10 +33,10 @@ public enum TokenType {
     AND_AND,
     MINUS_MINUS,
     SHIFT_RIGHT,
-    MUL_EQUAL,
-    MIN_EQUAL,
+    MULTIPLY_EQUAL,
+    MINUS_EQUAL,
     LESS_EQUAL,
-    PLU_EQUAL,
+    PLUS_EQUAL,
     NOR_EQUAL,
     QUESTION,
 
