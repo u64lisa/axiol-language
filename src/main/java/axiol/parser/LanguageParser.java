@@ -4,6 +4,7 @@ import axiol.lexer.LanguageLexer;
 import axiol.lexer.Token;
 import axiol.lexer.TokenType;
 import axiol.parser.expression.Operator;
+import axiol.parser.statement.Accessibility;
 import axiol.parser.tree.statements.VariableStatement;
 import axiol.parser.util.Parser;
 import axiol.parser.util.error.ParseException;
@@ -18,9 +19,15 @@ import axiol.types.Type;
 import axiol.types.TypeCollection;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class LanguageParser extends Parser {
+
+    private final TokenType[] accessModifier = {
+            TokenType.PUBLIC, TokenType.PRIVATE, TokenType.INLINE, TokenType.CONST,
+            TokenType.EXTERN, TokenType.PROTECTED
+    };
 
     private ExpressionParser expressionParser;
     private TokenStream tokenStream;
@@ -62,17 +69,19 @@ public class LanguageParser extends Parser {
 
     @Override
     public Statement parseStatement() {
-        if (isVariable())
+        if (isVariable(this.getTokenStream().current())) {
             return this.parseVariableStatement();
+        }
+        if (isAccessModifier() && isVariable(this.tokenStream.peak(1))) {
+            return this.parseVariableStatement(this.parseAccess());
+        }
 
         this.createSyntaxError("not statement parsable from token '%s'", this.tokenStream.current());
         return null;
     }
 
-    public Statement parseVariableStatement() {
+    public Statement parseVariableStatement(Accessibility... accessibility) {
         ParsedType type = this.parseType();
-
-        // todo add access modifier
 
         boolean pointer = false;
         if (this.tokenStream.matches(TokenType.MULTIPLY)) {
@@ -97,11 +106,37 @@ public class LanguageParser extends Parser {
             return null;
         this.tokenStream.advance();
 
-        return new VariableStatement(name, type, expression, pointer);
+        return new VariableStatement(name, type, expression, pointer, accessibility);
     }
 
-    public boolean isVariable() {
-        return !TypeCollection.typeByToken(this.tokenStream.current()).equals(TypeCollection.NONE);
+    public Accessibility parseAccess() {
+        Accessibility accessibility = switch (this.tokenStream.current().getType()) {
+            case PUBLIC -> Accessibility.PUBLIC;
+            case PRIVATE -> Accessibility.PRIVATE;
+            case PROTECTED -> Accessibility.PROTECTED;
+            case CONST -> Accessibility.CONST;
+            case INLINE -> Accessibility.INLINE;
+            case EXTERN -> Accessibility.EXTERN;
+
+            // cover all tokens by default
+            default -> {
+                createSyntaxError(
+                        "expected access modifier but got '%s'",
+                        this.tokenStream.current().getValue());
+                yield Accessibility.PRIVATE;
+            }
+        };
+        this.tokenStream.advance();
+
+        return accessibility;
+    }
+
+    public boolean isVariable(Token token) {
+        return !TypeCollection.typeByToken(token).equals(TypeCollection.NONE);
+    }
+
+    public boolean isAccessModifier() {
+        return Arrays.stream(this.accessModifier).anyMatch(type -> type == this.tokenStream.current().getType());
     }
 
     public ParsedType parseType() {
