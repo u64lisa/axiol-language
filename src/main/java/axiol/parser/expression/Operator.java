@@ -2,12 +2,8 @@ package axiol.parser.expression;
 
 import axiol.lexer.TokenType;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public enum Operator {
 
@@ -57,6 +53,8 @@ public enum Operator {
     NOR(           "~",  TokenType.NOR,            7,  true,  false), // unary
     ;
 
+    private static final Map<Integer, List<Operator>> SORTED_PRIORITY = new ConcurrentHashMap<>();
+
     public static final Operator[] VALUES = Operator.values();
     public static final int MAX_PRIORITY = 13;
     public static final int MIN_PRIORITY = 1;
@@ -75,8 +73,19 @@ public enum Operator {
         this.leftAssociated = leftAssociated;
     }
 
-    public static Operator[] getOperatorsByPriority(int priority) {
-        return Arrays.stream(VALUES).filter(operator -> operator.priority == priority).toArray(Operator[]::new);
+    public static List<Operator> getOperatorsByPriority(int priority) {
+        if (SORTED_PRIORITY.containsKey(priority))
+            return SORTED_PRIORITY.get(priority);
+
+        List<Operator> operators = new ArrayList<>();
+        for (Operator value : VALUES) {
+            if (value.priority == priority)
+                operators.add(value);
+        }
+
+        SORTED_PRIORITY.put(priority, operators);
+
+        return operators;
     }
 
     public String getText() {

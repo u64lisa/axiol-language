@@ -9,14 +9,10 @@ import java.util.*;
 public class Main {
 
     public static void main(String[] args) {
-       // LanguageParser languageParser = new LanguageParser();
-       //
-       // languageParser.parseSource("/test/expressions.ax", readFile("/test/expressions.ax"));
+        LanguageParser languageParser = new LanguageParser();
 
-        LanguageLexer lexer = new LanguageLexer();
-        for (Token token : lexer.tokenizeString(readFile("/test/tokens.ax"))) {
-            System.out.println(token);
-        }
+        languageParser.parseSource("/test/expressions.ax", readFile("/test/expressions.ax"));
+
     }
 
     public static String readFile(String file) {

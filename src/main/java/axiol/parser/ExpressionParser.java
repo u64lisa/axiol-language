@@ -39,7 +39,7 @@ public class ExpressionParser {
     }
 
     public Expression parseExpression(int priority) {
-        Operator[] operators = Operator.getOperatorsByPriority(priority);
+        Operator[] operators = Operator.getOperatorsByPriority(priority).toArray(new Operator[0]);
 
         if (priority == 0) {
             if (Arrays.stream(valueContainingTypes)
@@ -67,8 +67,9 @@ public class ExpressionParser {
         // unary
         for (Operator operator : operators) {
             if (!operator.isUnary() || operator.isLeftAssociated() ||
-                    this.tokenStream.matches(operator.getType()))
+                    !this.tokenStream.matches(operator.getType()))
                 continue;
+
             this.tokenStream.advance();
 
             leftAssociated = new UnaryExpression(operator, this.parseExpression(priority));
@@ -83,7 +84,7 @@ public class ExpressionParser {
 
             for (Operator operator : operators) {
                 if (!operator.isUnary() || !operator.isLeftAssociated() ||
-                        this.tokenStream.matches(operator.getType()))
+                        !this.tokenStream.matches(operator.getType()))
                     continue;
 
                 tokenStream.advance();
@@ -100,7 +101,7 @@ public class ExpressionParser {
             operatorCycles = 1;
 
             for (Operator operator : operators) {
-                if (operator.isUnary() || tokenStream.matches(operator.getType())) {
+                if (operator.isUnary() || !tokenStream.matches(operator.getType())) {
                     continue;
                 }
 
@@ -129,8 +130,8 @@ public class ExpressionParser {
             if (this.tokenStream.matches(TokenType.HEX_NUM)) {
                 value = Long.parseUnsignedLong(tokenValue.substring(2), 16);
             } else {
-                if (tokenValue.charAt(tokenValue.length()) == 'u' ||
-                        tokenValue.charAt(tokenValue.length()) == 'U') {
+                if (tokenValue.charAt(tokenValue.length() - 1) == 'u' ||
+                        tokenValue.charAt(tokenValue.length() - 1) == 'U') {
                     signed = false;
 
                     tokenValue = tokenValue.substring(0, tokenValue.length() - 1);
@@ -149,6 +150,10 @@ public class ExpressionParser {
             this.tokenStream.advance();
             return expression;
         }
+
+        this.languageParser.createSyntaxError(
+                "invalid token for expression parsing: '%s'",
+                this.tokenStream.current().getType());
         return null;
     }
 

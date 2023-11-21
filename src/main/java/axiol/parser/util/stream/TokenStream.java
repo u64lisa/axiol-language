@@ -16,7 +16,14 @@ public class TokenStream {
     }
 
     public boolean hasMoreTokens() {
-        return index < tokens.size();
+        if (tokens.size() <= index)
+            return false;
+
+        Token token = tokens.get(index);
+        if (token == null)
+            return false;
+
+        return token.getType() != TokenType.EOF;
     }
 
     public boolean matches(TokenType type) {

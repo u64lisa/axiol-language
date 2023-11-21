@@ -43,7 +43,7 @@ public class ParseException extends IllegalStateException {
         this.path = path;
         this.from = token.getPosition();
         this.to = token.getEnd();
-        this.message = message;
+        this.message = message.formatted(arguments);
     }
 
     public void throwError() {
