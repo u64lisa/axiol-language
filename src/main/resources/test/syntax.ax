@@ -1,4 +1,5 @@
 linked std.math;
+linked owo.taw.wtw_ta.as1;
 
 const i32 *owo = 1;
 

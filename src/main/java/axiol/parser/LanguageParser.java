@@ -5,16 +5,16 @@ import axiol.lexer.Token;
 import axiol.lexer.TokenType;
 import axiol.parser.expression.Operator;
 import axiol.parser.statement.Accessibility;
+import axiol.parser.tree.Expression;
+import axiol.parser.tree.Statement;
+import axiol.parser.tree.TreeRootNode;
+import axiol.parser.tree.statements.LinkedNoticeStatement;
 import axiol.parser.tree.statements.VariableStatement;
 import axiol.parser.util.Parser;
 import axiol.parser.util.error.ParseException;
 import axiol.parser.util.error.Position;
 import axiol.parser.util.stream.TokenStream;
-import axiol.parser.tree.TreeRootNode;
-import axiol.parser.tree.Expression;
-import axiol.parser.tree.Statement;
 import axiol.types.ParsedType;
-import axiol.types.PrimitiveTypes;
 import axiol.types.Type;
 import axiol.types.TypeCollection;
 
@@ -73,12 +73,12 @@ public class LanguageParser extends Parser {
     /**
      * Parse body statements for global scope.
      * contains:
-     *  - functions
-     *  - structures
-     *  - class
-     *  - global var
-     *  - import
-     *  - attributes
+     * - functions
+     * - structures
+     * - class
+     * - global var
+     * - import
+     * - attributes
      *
      * @return the statement parsed
      */
@@ -91,6 +91,19 @@ public class LanguageParser extends Parser {
             return this.parseVariableStatement();
         }
 
+        if ((isAccessModifier() && this.tokenStream.peak(1).getType().equals(TokenType.FUNCTION))
+                || this.tokenStream.current().getType().equals(TokenType.FUNCTION)) {
+            if (isAccessModifier()) {
+                return this.parseFunction(this.parseAccess());
+            }
+            return this.parseFunction();
+        }
+        if (this.tokenStream.current().getType().equals(TokenType.LINKED)) {
+            this.tokenStream.advance();
+
+            return this.parseLinkingNotice();
+        }
+
         this.createSyntaxError("not statement parsable from token '%s'", this.tokenStream.current());
         return null;
     }
@@ -98,18 +111,59 @@ public class LanguageParser extends Parser {
     /**
      * Parse body statements for scoped areas like functions bodies.
      * contains:
-     *  - if, else if, else
-     *  - switch
-     *  - match
-     *  - loop
-     *  - for
-     *  - while
-     *  - unreachable
+     * - if, else if, else
+     * - switch
+     * - match
+     * - loop
+     * - for
+     * - while
+     * - unreachable
      *
      * @return the statement parsed
      */
     public Statement parseBodyStatement() {
         return null; // todo write this
+    }
+
+    public Statement parseLinkingNotice() {
+        if (!this.expected(TokenType.LITERAL))
+            return null;
+
+        StringBuilder path = new StringBuilder(this.tokenStream.current().getValue());
+        this.tokenStream.advance();
+
+        if (this.tokenStream.current().getType().equals(TokenType.DOT)) {
+            this.tokenStream.advance();
+            path.append("/");
+
+            while (tokenStream.current().getType() != TokenType.SEMICOLON) {
+                if (!this.expected(TokenType.LITERAL))
+                    return null;
+
+                path.append(this.tokenStream.current().getValue());
+                this.tokenStream.advance();
+
+                if (this.tokenStream.current().getType() == TokenType.SEMICOLON)
+                    continue;
+
+                if (!this.expected(TokenType.DOT))
+                    return null;
+                this.tokenStream.advance();
+
+                path.append("/");
+            }
+        }
+
+        if (!this.expected(TokenType.SEMICOLON))
+            return null;
+        this.tokenStream.advance();
+
+        System.out.println(path);
+        return new LinkedNoticeStatement(path.toString());
+    }
+
+    public Statement parseFunction(Accessibility... accessibility) {
+        return null;
     }
 
     public Statement parseVariableStatement(Accessibility... accessibility) {
