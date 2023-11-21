@@ -22,6 +22,9 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Scanner;
 
+/**
+ * The type Language parser.
+ */
 public class LanguageParser extends Parser {
 
     private final TokenType[] accessModifier = {
@@ -67,7 +70,18 @@ public class LanguageParser extends Parser {
         return treeRootNode;
     }
 
-    @Override
+    /**
+     * Parse body statements for global scope.
+     * contains:
+     *  - functions
+     *  - structures
+     *  - class
+     *  - global var
+     *  - import
+     *  - attributes
+     *
+     * @return the statement parsed
+     */
     public Statement parseStatement() {
         if ((isAccessModifier() && isVariable(this.tokenStream.peak(1)))
                 || isVariable(this.tokenStream.current())) {
@@ -79,6 +93,23 @@ public class LanguageParser extends Parser {
 
         this.createSyntaxError("not statement parsable from token '%s'", this.tokenStream.current());
         return null;
+    }
+
+    /**
+     * Parse body statements for scoped areas like functions bodies.
+     * contains:
+     *  - if, else if, else
+     *  - switch
+     *  - match
+     *  - loop
+     *  - for
+     *  - while
+     *  - unreachable
+     *
+     * @return the statement parsed
+     */
+    public Statement parseBodyStatement() {
+        return null; // todo write this
     }
 
     public Statement parseVariableStatement(Accessibility... accessibility) {

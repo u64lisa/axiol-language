@@ -33,18 +33,18 @@ function owo(test: i32 = 1) -> i32 {
     while (true) {
     }
 
-switch (5 + 19) {
-    case 4 -> debug("Hello World");
-    case 24, 4 -> {
-        debug("TEST");
+    switch (5 + 19) {
+        case 4 -> debug("Hello World");
+        case 24, 4 -> {
+            debug("TEST");
+        }
+        case 50 - 4: {
+            debug("test with colon");
+        }
+        default -> {
+            debug("default call");
+        }
     }
-    case 50 - 4: {
-        debug("test with colon");
-    }
-    default -> {
-        debug("default call");
-    }
-}
 
     for (i32 i = 15; i >= 0; i = i - 1) {
          continue;
@@ -64,7 +64,7 @@ switch (5 + 19) {
     }
 
     if (false) {
-      unreachable;
+        unreachable;
     }
 
 }
