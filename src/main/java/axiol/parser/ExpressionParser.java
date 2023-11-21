@@ -22,6 +22,10 @@ public class ExpressionParser {
             // other
             TokenType.LITERAL
     };
+    private final TokenType[] numberContainingTypes = {
+            TokenType.INT, TokenType.LONG, TokenType.DOUBLE,
+            TokenType.FLOAT, TokenType.HEX_NUM,
+    };
 
     private final LanguageParser languageParser;
     private final TokenStream tokenStream;
@@ -113,6 +117,11 @@ public class ExpressionParser {
     }
 
     private Expression parseTypeExpression() {
+        if (Arrays.stream(numberContainingTypes)
+                .anyMatch(type -> type.equals(tokenStream.current().getType()))) {
+
+
+        }
         return null;
     }
 

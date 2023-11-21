@@ -1,5 +1,9 @@
 package axiol;
 
+import axiol.lexer.LanguageLexer;
+import axiol.lexer.Token;
+import axiol.parser.LanguageParser;
+
 import java.util.*;
 
 public class Main {
@@ -8,6 +12,11 @@ public class Main {
        // LanguageParser languageParser = new LanguageParser();
        //
        // languageParser.parseSource("/test/expressions.ax", readFile("/test/expressions.ax"));
+
+        LanguageLexer lexer = new LanguageLexer();
+        for (Token token : lexer.tokenizeString(readFile("/test/tokens.ax"))) {
+            System.out.println(token);
+        }
     }
 
     public static String readFile(String file) {

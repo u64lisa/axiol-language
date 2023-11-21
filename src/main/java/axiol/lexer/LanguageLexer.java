@@ -59,10 +59,10 @@ public class LanguageLexer {
         LEXER.addRule(TokenType.STRING, lexerRule ->  lexerRule.addMultiline("\"", "\\", "\""));
 
         // numbers
-        LEXER.addRule(TokenType.FLOAT, lexerRule ->   lexerRule.addRegexes("[0-9]+(\\.[0-9]+)?[fF]"));
-        LEXER.addRule(TokenType.LONG, lexerRule ->    lexerRule.addRegexes("[0-9]+[Ll]"));
-        LEXER.addRule(TokenType.INT, lexerRule ->     lexerRule.addRegexes("[0-9]+"));
-        LEXER.addRule(TokenType.DOUBLE, lexerRule ->  lexerRule.addRegexes("[0-9]+(\\.[0-9]+)?[dD]?"));
+        LEXER.addRule(TokenType.FLOAT, lexerRule ->   lexerRule.addRegexes("[0-9]+(\\.[0-9]+)?[fF][uU]?"));
+        LEXER.addRule(TokenType.LONG, lexerRule ->    lexerRule.addRegexes("[0-9]+[Ll][uU]?"));
+        LEXER.addRule(TokenType.INT, lexerRule ->     lexerRule.addRegexes("[0-9]+?[uU][uU]?"));
+        LEXER.addRule(TokenType.DOUBLE, lexerRule ->  lexerRule.addRegexes("[0-9]+(\\.[0-9]+)?[dD]?[uU]?"));
         LEXER.addRule(TokenType.HEX_NUM, lexerRule -> lexerRule.addRegexes("0x[0-9a-fA-F]+"));
 
         // brackets
