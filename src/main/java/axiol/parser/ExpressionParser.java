@@ -5,6 +5,8 @@ import axiol.parser.expression.Operator;
 import axiol.parser.tree.Expression;
 import axiol.parser.tree.expressions.BinaryExpression;
 import axiol.parser.tree.expressions.UnaryExpression;
+import axiol.parser.tree.expressions.sub.BooleanExpression;
+import axiol.parser.tree.expressions.sub.NumberExpression;
 import axiol.parser.util.stream.TokenStream;
 
 import java.util.Arrays;
@@ -32,7 +34,7 @@ public class ExpressionParser {
 
     public ExpressionParser(LanguageParser languageParser) {
         this.languageParser = languageParser;
-        
+
         this.tokenStream = languageParser.getTokenStream();
     }
 
@@ -120,7 +122,32 @@ public class ExpressionParser {
         if (Arrays.stream(numberContainingTypes)
                 .anyMatch(type -> type.equals(tokenStream.current().getType()))) {
 
+            String tokenValue = this.tokenStream.current().getValue();
+            double value = 0; // default init 0
+            boolean signed = true;
 
+            if (this.tokenStream.matches(TokenType.HEX_NUM)) {
+                value = Long.parseUnsignedLong(tokenValue.substring(2), 16);
+            } else {
+                if (tokenValue.charAt(tokenValue.length()) == 'u' ||
+                        tokenValue.charAt(tokenValue.length()) == 'U') {
+                    signed = false;
+
+                    tokenValue = tokenValue.substring(0, tokenValue.length() - 1);
+                }
+
+                value = Double.parseDouble(tokenValue);
+            }
+            NumberExpression numberExpression = new NumberExpression(this.tokenStream.current().getPosition(), value);
+            this.tokenStream.advance();
+            return numberExpression;
+        }
+        if (tokenStream.matches(TokenType.BOOLEAN)) {
+            BooleanExpression expression = new BooleanExpression(tokenStream.current().getPosition(),
+                    tokenStream.current().getValue().equals("true"));
+
+            this.tokenStream.advance();
+            return expression;
         }
         return null;
     }

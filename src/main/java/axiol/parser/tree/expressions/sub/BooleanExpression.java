@@ -3,21 +3,21 @@ package axiol.parser.tree.expressions.sub;
 import axiol.parser.tree.Expression;
 import axiol.parser.util.error.Position;
 
-public class NumberExpression extends Expression {
+public class BooleanExpression extends Expression {
 
     private final Position position;
-    private final double numberValue;
+    private final boolean value;
 
-    public NumberExpression(Position position, double numberValue) {
+    public BooleanExpression(Position position, boolean value) {
         this.position = position;
-        this.numberValue = numberValue;
+        this.value = value;
     }
 
     public Position getPosition() {
         return position;
     }
 
-    public double getNumberValue() {
-        return numberValue;
+    public boolean isValue() {
+        return value;
     }
 }
