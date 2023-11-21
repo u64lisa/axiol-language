@@ -94,6 +94,7 @@ public class LanguageLexer {
         LEXER.addRule(TokenType.CASE, lexerRule ->        lexerRule.addString("case"));
         LEXER.addRule(TokenType.BREAK, lexerRule ->       lexerRule.addString("break"));
         LEXER.addRule(TokenType.RETURN, lexerRule ->      lexerRule.addString("return"));
+        LEXER.addRule(TokenType.YIELD, lexerRule ->      lexerRule.addString("yield"));
         LEXER.addRule(TokenType.CONTINUE, lexerRule ->    lexerRule.addString("continue"));
         LEXER.addRule(TokenType.UNREACHABLE, lexerRule -> lexerRule.addString("unreachable"));
 

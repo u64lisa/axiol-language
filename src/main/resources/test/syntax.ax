@@ -2,7 +2,7 @@ linked std.math;
 
 const i32 *owo = 1;
 
-struct Test {
+structure Test {
     i32 owo
     i64 uwu
     u8[] qwq
@@ -33,9 +33,18 @@ function owo(test: i32 = 1) -> i32 {
     while (true) {
     }
 
-    switch (test) {
-        case 4 -
+switch (5 + 19) {
+    case 4 -> debug("Hello World");
+    case 24, 4 -> {
+        debug("TEST");
     }
+    case 50 - 4: {
+        debug("test with colon");
+    }
+    default -> {
+        debug("default call");
+    }
+}
 
     for (i32 i = 15; i >= 0; i = i - 1) {
          continue;
@@ -50,9 +59,17 @@ function owo(test: i32 = 1) -> i32 {
         default -> 1;
     };
 
+    loop {
+        break;
+    }
+
     if (false) {
       unreachable;
     }
+
+}
+
+function debug(*string: str) {
 
 }
 

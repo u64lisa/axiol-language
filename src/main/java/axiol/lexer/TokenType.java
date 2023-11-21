@@ -76,6 +76,7 @@ public enum TokenType {
     CASE,
     BREAK,
     RETURN,
+    YIELD,
     CONTINUE,
     UNREACHABLE,
     SWITCH,
