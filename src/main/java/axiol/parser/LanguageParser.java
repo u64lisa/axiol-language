@@ -69,11 +69,12 @@ public class LanguageParser extends Parser {
 
     @Override
     public Statement parseStatement() {
-        if (isVariable(this.getTokenStream().current())) {
+        if ((isAccessModifier() && isVariable(this.tokenStream.peak(1)))
+                || isVariable(this.tokenStream.current())) {
+            if (isAccessModifier()) {
+                return this.parseVariableStatement(this.parseAccess());
+            }
             return this.parseVariableStatement();
-        }
-        if (isAccessModifier() && isVariable(this.tokenStream.peak(1))) {
-            return this.parseVariableStatement(this.parseAccess());
         }
 
         this.createSyntaxError("not statement parsable from token '%s'", this.tokenStream.current());
