@@ -4,6 +4,7 @@ import axiol.lexer.LanguageLexer;
 import axiol.lexer.Token;
 import axiol.lexer.TokenType;
 import axiol.parser.expression.Operator;
+import axiol.parser.tree.statements.VariableStatement;
 import axiol.parser.util.Parser;
 import axiol.parser.util.error.ParseException;
 import axiol.parser.util.error.Position;
@@ -11,7 +12,10 @@ import axiol.parser.util.stream.TokenStream;
 import axiol.parser.tree.TreeRootNode;
 import axiol.parser.tree.Expression;
 import axiol.parser.tree.Statement;
+import axiol.types.ParsedType;
 import axiol.types.PrimitiveTypes;
+import axiol.types.Type;
+import axiol.types.TypeCollection;
 
 import java.io.File;
 import java.util.Scanner;
@@ -58,19 +62,58 @@ public class LanguageParser extends Parser {
 
     @Override
     public Statement parseStatement() {
+        if (isVariable())
+            return this.parseVariableStatement();
 
-        this.parseType();
-
+        this.createSyntaxError("not statement parsable from token '%s'", this.tokenStream.current());
         return null;
     }
 
-    public void parseType() {
+    public Statement parseVariableStatement() {
+        ParsedType type = this.parseType();
+
+        // todo add access modifier
+
+        boolean pointer = false;
+        if (this.tokenStream.matches(TokenType.MULTIPLY)) {
+            pointer = true;
+            this.tokenStream.advance();
+        }
+
+        if (!expected(TokenType.LITERAL))
+            return null;
+
+        String name = this.tokenStream.current().getValue();
+        this.tokenStream.advance();
+
+        if (!expected(TokenType.EQUAL))
+            return null;
+
+        this.tokenStream.advance();
+
+        Expression expression = this.parseExpression();
+
+        if (!expected(TokenType.SEMICOLON))
+            return null;
+        this.tokenStream.advance();
+
+        return new VariableStatement(name, type, expression, pointer);
+    }
+
+    public boolean isVariable() {
+        return !TypeCollection.typeByToken(this.tokenStream.current()).equals(TypeCollection.NONE);
+    }
+
+    public ParsedType parseType() {
         Token current = this.tokenStream.current();
 
-        PrimitiveTypes primitiveTypes = PrimitiveTypes.fromToken(current);
-        if (primitiveTypes == null) {
+        Type type = TypeCollection.typeByToken(current);
+        if (type == TypeCollection.NONE) {
+            String value = current.getValue();
+            this.tokenStream.advance();
+
             // todo classes structs and other
-            return;
+            return null;
         }
         this.tokenStream.advance();
 
@@ -83,8 +126,7 @@ public class LanguageParser extends Parser {
             arrayDepth++;
         }
 
-        System.out.println(primitiveTypes + " " + arrayDepth);
-
+        return new ParsedType(type, arrayDepth);
     }
 
     @Override
@@ -96,7 +138,7 @@ public class LanguageParser extends Parser {
         if (this.tokenStream.matches(type)) {
             return true;
         }
-        createSyntaxError("unexpected token expected '%s' but got '%s'", type, this.tokenStream.current());
+        createSyntaxError("unexpected token expected '%s' but got '%s'", type, this.tokenStream.current().getType());
         return false;
     }
 

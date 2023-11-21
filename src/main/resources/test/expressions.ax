@@ -7,3 +7,7 @@ i32
 f32
 
 str
+
+char[]
+
+boolean[]

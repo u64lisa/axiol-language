@@ -47,6 +47,12 @@ public class ExpressionParser {
                     .anyMatch(type -> type.equals(tokenStream.current().getType()))) {
                 return parseTypeExpression();
             }
+            if (tokenStream.matches(TokenType.AND)) {
+                this.tokenStream.advance();
+
+                // todo parse assignment of pointer address
+                return null;
+            }
             if (tokenStream.matches(TokenType.L_PAREN)) {
                 this.tokenStream.advance();
                 Expression expression = parseExpression(Operator.MAX_PRIORITY);

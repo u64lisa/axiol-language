@@ -1,5 +1,7 @@
 package axiol.types;
 
+import axiol.lexer.Token;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -8,6 +10,8 @@ public class TypeCollection {
     public static final Type STRING = new Type("str", PrimitiveTypes.U8, 1);
     public static final Type CHAR = new Type("char", PrimitiveTypes.U8, 0);
     public static final Type BOOLEAN = new Type("boolean", PrimitiveTypes.I8, 0);
+
+    public static final Type NONE = new Type("_none_", PrimitiveTypes.U0, -1);
 
     public static final Type[] TYPES = {
             PrimitiveTypes.I8.toType(),
@@ -29,5 +33,9 @@ public class TypeCollection {
     };
 
     public static final List<Type> TYPE_LIST = Arrays.stream(TYPES).toList();
+
+    public static Type typeByToken(Token token) {
+        return TYPE_LIST.stream().filter(type -> type.getName().equalsIgnoreCase(token.getValue())).findFirst().orElse(NONE);
+    }
 
 }
