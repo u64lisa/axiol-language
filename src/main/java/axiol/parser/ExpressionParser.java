@@ -139,7 +139,9 @@ public class ExpressionParser {
 
                 value = Double.parseDouble(tokenValue);
             }
-            NumberExpression numberExpression = new NumberExpression(this.tokenStream.current().getPosition(), value);
+            NumberExpression numberExpression = new NumberExpression(
+                    this.tokenStream.current().getPosition(), value, signed);
+
             this.tokenStream.advance();
             return numberExpression;
         }
