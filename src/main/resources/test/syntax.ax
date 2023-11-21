@@ -1,24 +1,68 @@
-i32[] test = 1 + 1 / 34;
+linked std.math;
 
 const i32 *owo = 1;
 
-//linked std.math;
-//
-//function main(argc: i32, *args: u8[]) -> i32 {
-//    i32 test = 4;
-//
-//    subFunction(test);
-//
-//    return 1;
-//}
-//
-//function subFunction(test: i32) -> u0 {
-//    [asm] {
-//        "mov rsi, $" <- test
-//    }
-//
-//    [inset] {
-//        "mov 1"
-//    }
-//
-//}
+struct Test {
+    i32 owo
+    i64 uwu
+    u8[] qwq
+}
+
+function main(argc: i32, *args: str[]) -> i32 {
+    i32 test = 4 / 2 * 4;
+
+    subFunction(test);
+
+    owo()
+    owo(1)
+
+    return 1;
+}
+
+function owo(test: i32 = 1) -> i32 {
+    str string = "Test";
+
+    if (10 - test == 4) {
+
+    } else if (test == 1) {
+
+    } else {
+
+    }
+
+    while (true) {
+    }
+
+    switch (test) {
+        case 4 -
+    }
+
+    for (i32 i = 15; i >= 0; i = i - 1) {
+         continue;
+    }
+
+    for (u8 element -> string) {
+    }
+
+    i32 owo = match(test) {
+        case 2 -> 1;
+        case 5 -> 4;
+        default -> 1;
+    };
+
+    if (false) {
+      unreachable;
+    }
+
+}
+
+function subFunction(test: i32) -> u0 {
+    [asm] {
+        "mov rsi, $" <- test
+    }
+
+    [inset] {
+        "mov 1"
+    }
+
+}
