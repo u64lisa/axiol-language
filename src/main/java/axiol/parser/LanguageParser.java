@@ -2,6 +2,7 @@ package axiol.parser;
 
 import axiol.lexer.LanguageLexer;
 import axiol.lexer.Token;
+import axiol.parser.expression.Operator;
 import axiol.parser.util.Parser;
 import axiol.parser.util.error.ParseException;
 import axiol.parser.util.error.Position;
@@ -46,7 +47,7 @@ public class LanguageParser extends Parser {
         while (tokenStream.hasMoreTokens()) {
             Statement statement = this.parseStatement();
 
-            expressionParser.parserExpression();
+            expressionParser.parseExpression(Operator.MAX_PRIORITY);
 
             if (statement != null)
                 treeRootNode.getStatements().add(statement);
