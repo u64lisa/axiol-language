@@ -11,10 +11,7 @@ import axiol.parser.tree.TreeRootNode;
 import axiol.parser.tree.statements.BodyStatement;
 import axiol.parser.tree.statements.LinkedNoticeStatement;
 import axiol.parser.tree.statements.VariableStatement;
-import axiol.parser.tree.statements.control.DoWhileStatement;
-import axiol.parser.tree.statements.control.IfStatement;
-import axiol.parser.tree.statements.control.UnreachableStatement;
-import axiol.parser.tree.statements.control.WhileStatement;
+import axiol.parser.tree.statements.control.*;
 import axiol.parser.util.Parser;
 import axiol.parser.util.error.ParseException;
 import axiol.parser.util.error.Position;
@@ -145,7 +142,7 @@ public class LanguageParser extends Parser {
      * x if, else if, else
      * - switch
      * - match
-     * - loop
+     * x loop
      * - for
      * x var
      * x while
@@ -170,9 +167,19 @@ public class LanguageParser extends Parser {
         if (this.tokenStream.matches(TokenType.DO)) {
             return this.parseDoWhileStatement();
         }
-
+        if (this.tokenStream.matches(TokenType.LOOP)) {
+            return this.parseLoopStatement();
+        }
 
         return null; // todo write this
+    }
+
+    public Statement parseLoopStatement() {
+        this.tokenStream.advance();
+
+        BodyStatement bodyStatement = (BodyStatement) this.parseBodyStatement();
+
+        return new LoopStatement(bodyStatement);
     }
 
     public Statement parseDoWhileStatement() {
