@@ -51,11 +51,11 @@ function owo(test: i32 = 1) -> i32 {
         }
     }
 
-    for (i32 i = 15; i >= 0; i = i - 1) {
+    for (i32: i = 15; i >= 0; i = i - 1) {
          continue;
     }
 
-    for (u8 element -> string) {
+    for (element: u8 -> string) {
     }
 
     i32 owo = match(test) {

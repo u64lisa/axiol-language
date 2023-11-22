@@ -88,8 +88,8 @@ public class LanguageParser extends Parser {
      * @return the statement parsed
      */
     public Statement parseStatement() {
-        if ((isAccessModifier() && isVariable(this.tokenStream.peak(1)))
-                || isVariable(this.tokenStream.current())) {
+        if ((isAccessModifier() && isType(this.tokenStream.peak(1)))
+                || isType(this.tokenStream.current())) {
             if (isAccessModifier()) {
                 return this.parseVariableStatement(this.parseAccess());
             }
@@ -113,7 +113,7 @@ public class LanguageParser extends Parser {
         return null;
     }
 
-    public Statement parseBodyStatement() {
+    public BodyStatement parseBodyStatement() {
         if (!this.expected(TokenType.L_CURLY))
             return null;
 
@@ -152,7 +152,7 @@ public class LanguageParser extends Parser {
      * @return the statement parsed
      */
     public Statement parseStatementForBody() {
-        if (isVariable(this.tokenStream.current())) {
+        if (isType(this.tokenStream.current())) {
             return this.parseVariableStatement();
         }
         if (this.tokenStream.matches(TokenType.IF)) {
@@ -174,10 +174,72 @@ public class LanguageParser extends Parser {
         return null; // todo write this
     }
 
+    // for (expr; expr; expr) { body }
+
+    public Statement parseForStatement() {
+        this.tokenStream.advance();
+
+        if (!this.expected(TokenType.L_PAREN))
+            return null;
+        this.tokenStream.advance();
+
+        ForStatement.ForCondition forCondition = null;
+
+        // for (name: type -> expr)
+        if (this.tokenStream.matches(TokenType.LITERAL) &&
+                this.tokenStream.peak(1).getType().equals(TokenType.COLON)) {
+
+            String name = this.tokenStream.current().getValue();
+            this.tokenStream.advance();
+
+            if (!this.expected(TokenType.COLON))
+                return null;
+            this.tokenStream.advance();
+
+            if (!this.isType(this.tokenStream.current())) {
+                createSyntaxError("expected type but got '%s'", this.tokenStream.current());
+                return null;
+            }
+            ParsedType type = this.parseType();
+
+            if (!this.expected(TokenType.LAMBDA))
+                return null;
+            this.tokenStream.advance();
+
+            Expression expression = this.parseExpression();
+
+            if (!this.expected(TokenType.L_PAREN))
+                return null;
+            this.tokenStream.advance();
+
+            forCondition = new ForStatement.IterateCondition(type, name, expression);
+        } else { // for (var; expr; expr)
+            Statement start = this.parseVariableStatement(Accessibility.PRIVATE);
+
+            if (!this.expected(TokenType.SEMICOLON))
+                return null;
+            this.tokenStream.advance();
+
+            Expression condition = this.parseExpression();
+
+            if (!this.expected(TokenType.SEMICOLON))
+                return null;
+            this.tokenStream.advance();
+
+            Expression appliedAction = this.parseExpression();
+
+            forCondition = new ForStatement.NumberRangeCondition(start, condition, appliedAction);
+        }
+
+        BodyStatement bodyStatement = this.parseBodyStatement();
+
+        return new ForStatement(forCondition, bodyStatement);
+    }
+
     public Statement parseLoopStatement() {
         this.tokenStream.advance();
 
-        BodyStatement bodyStatement = (BodyStatement) this.parseBodyStatement();
+        BodyStatement bodyStatement = this.parseBodyStatement();
 
         return new LoopStatement(bodyStatement);
     }
@@ -185,7 +247,7 @@ public class LanguageParser extends Parser {
     public Statement parseDoWhileStatement() {
         this.tokenStream.advance();
 
-        BodyStatement bodyStatement = (BodyStatement) this.parseBodyStatement();
+        BodyStatement bodyStatement = this.parseBodyStatement();
 
         if (!expected(TokenType.WHILE))
             return null;
@@ -217,7 +279,7 @@ public class LanguageParser extends Parser {
             return null;
         this.tokenStream.advance();
 
-        BodyStatement bodyStatement = (BodyStatement) this.parseBodyStatement();
+        BodyStatement bodyStatement = this.parseBodyStatement();
 
         return new WhileStatement(condition, bodyStatement);
     }
@@ -233,7 +295,7 @@ public class LanguageParser extends Parser {
     }
 
     public Statement parseIfStatement() {
-        this.tokenStream.advance(); // skipping "if"
+        this.tokenStream.advance();
 
         if (!this.expected(TokenType.L_PAREN))
             return null;
@@ -245,7 +307,7 @@ public class LanguageParser extends Parser {
             return null;
         this.tokenStream.advance();
 
-        BodyStatement bodyStatement = (BodyStatement) this.parseBodyStatement();
+        BodyStatement bodyStatement = this.parseBodyStatement();
 
         if (this.tokenStream.matches(TokenType.ELSE)) {
             this.tokenStream.advance();
@@ -357,7 +419,7 @@ public class LanguageParser extends Parser {
         return accessibility;
     }
 
-    public boolean isVariable(Token token) {
+    public boolean isType(Token token) {
         return !TypeCollection.typeByToken(token).equals(TypeCollection.NONE);
     }
 
