@@ -139,6 +139,7 @@ public class LanguageParser extends Parser {
     /**
      * Parse body statements for scoped areas like functions bodies.
      * contains:
+
      * x if, else if, else
      * - switch
      * - match
@@ -148,7 +149,12 @@ public class LanguageParser extends Parser {
      * x while
      * x do-while
      * x unreachable
-     *
+
+     * - return
+     * - yield
+     * - continue
+     * - break
+
      * @return the statement parsed
      */
     public Statement parseStatementForBody() {
@@ -173,8 +179,100 @@ public class LanguageParser extends Parser {
         if (this.tokenStream.matches(TokenType.FOR)) {
             return this.parseForStatement();
         }
+        if (this.tokenStream.matches(TokenType.SWITCH)) {
+            return this.parseSwitchStatement();
+        }
 
         return null; // todo write this
+    }
+
+    private SwitchStatement parseSwitchStatement() throws ParseException {
+        this.tokenStream.advance();
+
+        Token start = this.tokenStream.current();
+
+        if (!this.expected(TokenType.L_PAREN))
+            return null;
+        this.tokenStream.advance();
+
+        Expression expression = parseExpression();
+
+        if (!this.expected(TokenType.R_PAREN))
+            return null;
+        this.tokenStream.advance();
+
+        if (!this.expected(TokenType.L_CURLY))
+            return null;
+        this.tokenStream.advance();
+        List<SwitchStatement.CaseElement> caseElements = new ArrayList<>();
+
+        while (this.tokenStream.matches(TokenType.R_CURLY)) {
+            if (this.tokenStream.current().getType().equals(TokenType.DEFAULT) ||
+                    this.tokenStream.current().getType().equals(TokenType.CASE)) {
+                List<Expression> conditions = new ArrayList<>();
+                boolean defaultState = false;
+
+                if (this.tokenStream.matches(TokenType.CASE)) {
+                    this.tokenStream.advance();
+
+                    while (!this.tokenStream.current().getType().equals(TokenType.LAMBDA) &&
+                            !this.tokenStream.current().getType().equals(TokenType.COLON)) {
+                        conditions.add(parseExpression());
+
+                        if (!this.tokenStream.current().getType().equals(TokenType.LAMBDA) &&
+                                !this.tokenStream.current().getType().equals(TokenType.COLON)) {
+                            if (!this.expected(TokenType.COMMA))
+                                return null;
+                            this.tokenStream.advance();
+                        }
+                    }
+                }
+                if (this.tokenStream.matches(TokenType.DEFAULT)) {
+                    if (caseElements.stream().anyMatch(SwitchStatement.CaseElement::isDefaultState)) {
+                        createSyntaxError("default statement already defined!");
+                    }
+
+                    this.tokenStream.advance();
+                    defaultState = true;
+                    // we don't have any conditions!
+                }
+
+                Statement body = null;
+                if (this.tokenStream.current().getType().equals(TokenType.LAMBDA) ||
+                        this.tokenStream.current().getType().equals(TokenType.COLON)) {
+                    this.tokenStream.advance();
+
+                    if (this.expected(TokenType.L_CURLY)) {
+                        body = parseBodyStatement();
+                    } else {
+                        body = parseStatementForBody();
+                    }
+                }
+
+                caseElements.add(new SwitchStatement.CaseElement(defaultState,
+                        conditions.toArray(new Expression[0]), body));
+
+                continue;
+            }
+
+            createSyntaxError(start, "expected 'case' or 'default' but got '%s'",
+                    this.tokenStream.current().getType());
+        }
+
+        if (!this.expected(TokenType.R_CURLY))
+            return null;
+        this.tokenStream.advance();
+
+        if (caseElements.isEmpty()) {
+            createSyntaxError(start, "can't compile switch statement with no cases!");
+            return null;
+        }
+        if (caseElements.size() == 1 && caseElements.stream().anyMatch(SwitchStatement.CaseElement::isDefaultState)) {
+            createSyntaxError(start, "can't compile switch statement with only default case!");
+            return null;
+        }
+
+        return new SwitchStatement(expression, caseElements.toArray(new SwitchStatement.CaseElement[0]));
     }
 
     public Statement parseForStatement() {
