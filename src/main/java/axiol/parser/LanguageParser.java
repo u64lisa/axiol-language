@@ -141,8 +141,8 @@ public class LanguageParser extends Parser {
      * contains:
 
      * x if, else if, else
-     * - switch
-     * - match
+     * x switch
+     * - match is expression
      * x loop
      * x for
      * x var
@@ -181,6 +181,35 @@ public class LanguageParser extends Parser {
         }
         if (this.tokenStream.matches(TokenType.SWITCH)) {
             return this.parseSwitchStatement();
+        }
+
+        if (this.tokenStream.matches(TokenType.RETURN)) {
+            this.tokenStream.advance();
+
+            Expression value = this.parseExpression();
+
+            expectLineEnd();
+            return new ReturnStatement(value);
+        }
+        if (this.tokenStream.matches(TokenType.YIELD)) {
+            this.tokenStream.advance();
+
+            Expression value = this.parseExpression();
+
+            expectLineEnd();
+            return new YieldStatement(value);
+        }
+        if (this.tokenStream.matches(TokenType.CONTINUE)) {
+            this.tokenStream.advance();
+
+            expectLineEnd();
+            return new ContinueStatement();
+        }
+        if (this.tokenStream.matches(TokenType.BREAK)) {
+            this.tokenStream.advance();
+
+            expectLineEnd();
+            return new BreakStatement();
         }
 
         return null; // todo write this
@@ -549,6 +578,11 @@ public class LanguageParser extends Parser {
         }
 
         return new ParsedType(type, arrayDepth);
+    }
+
+    public void expectLineEnd() {
+        if (this.expected(TokenType.SEMICOLON))
+            this.tokenStream.advance();
     }
 
     @Override
