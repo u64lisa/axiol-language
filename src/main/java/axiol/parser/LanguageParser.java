@@ -11,6 +11,7 @@ import axiol.parser.tree.TreeRootNode;
 import axiol.parser.tree.statements.BodyStatement;
 import axiol.parser.tree.statements.LinkedNoticeStatement;
 import axiol.parser.tree.statements.VariableStatement;
+import axiol.parser.tree.statements.control.IfStatement;
 import axiol.parser.util.Parser;
 import axiol.parser.util.error.ParseException;
 import axiol.parser.util.error.Position;
@@ -153,7 +154,43 @@ public class LanguageParser extends Parser {
         if (isVariable(this.tokenStream.current())) {
             return this.parseVariableStatement();
         }
+        if (this.tokenStream.matches(TokenType.IF)) {
+            return this.parseIfStatement();
+        }
         return null; // todo write this
+    }
+
+    public Statement parseIfStatement() {
+        this.tokenStream.advance(); // skipping "if"
+
+        if (!this.expected(TokenType.L_PAREN))
+            return null;
+        this.tokenStream.advance();
+
+        Expression condition = this.parseExpression();
+
+        if (!this.expected(TokenType.R_PAREN))
+            return null;
+        this.tokenStream.advance();
+
+        BodyStatement bodyStatement = (BodyStatement) this.parseBodyStatement();
+
+        if (this.tokenStream.matches(TokenType.ELSE)) {
+            this.tokenStream.advance();
+
+            Statement elseStatement = null;
+
+            if (this.tokenStream.matches(TokenType.L_CURLY)) {
+                elseStatement = this.parseBodyStatement();
+            }
+            if (this.tokenStream.matches(TokenType.IF)) {
+                elseStatement = this.parseIfStatement(); // loop
+            }
+
+            return new IfStatement(condition, bodyStatement, elseStatement);
+        }
+        // no else statement :C
+        return new IfStatement(condition, bodyStatement, null);
     }
 
     public Statement parseLinkingNotice() {
