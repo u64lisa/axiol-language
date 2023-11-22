@@ -12,6 +12,7 @@ import axiol.parser.tree.statements.BodyStatement;
 import axiol.parser.tree.statements.LinkedNoticeStatement;
 import axiol.parser.tree.statements.VariableStatement;
 import axiol.parser.tree.statements.control.IfStatement;
+import axiol.parser.tree.statements.control.UnreachableStatement;
 import axiol.parser.util.Parser;
 import axiol.parser.util.error.ParseException;
 import axiol.parser.util.error.Position;
@@ -139,14 +140,14 @@ public class LanguageParser extends Parser {
     /**
      * Parse body statements for scoped areas like functions bodies.
      * contains:
-     * - if, else if, else
+     * x if, else if, else
      * - switch
      * - match
      * - loop
      * - for
      * x var
      * - while
-     * - unreachable
+     * x unreachable
      *
      * @return the statement parsed
      */
@@ -157,7 +158,20 @@ public class LanguageParser extends Parser {
         if (this.tokenStream.matches(TokenType.IF)) {
             return this.parseIfStatement();
         }
+        if (this.tokenStream.matches(TokenType.UNREACHABLE)) {
+            return this.parseUnreachable();
+        }
         return null; // todo write this
+    }
+
+    public Statement parseUnreachable() {
+        this.tokenStream.advance();
+
+        if (!this.expected(TokenType.SEMICOLON))
+            return null;
+        this.tokenStream.advance();
+
+        return new UnreachableStatement();
     }
 
     public Statement parseIfStatement() {
