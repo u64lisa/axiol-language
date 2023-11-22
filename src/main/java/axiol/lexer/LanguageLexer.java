@@ -87,6 +87,7 @@ public class LanguageLexer {
         LEXER.addRule(TokenType.ELSE, lexerRule ->        lexerRule.addString("else"));
         LEXER.addRule(TokenType.FOR, lexerRule ->         lexerRule.addString("for"));
         LEXER.addRule(TokenType.WHILE, lexerRule ->       lexerRule.addString("while"));
+        LEXER.addRule(TokenType.DO, lexerRule ->          lexerRule.addString("do"));
         LEXER.addRule(TokenType.MATCH, lexerRule ->       lexerRule.addString("match"));
         LEXER.addRule(TokenType.SWITCH, lexerRule ->      lexerRule.addString("switch"));
         LEXER.addRule(TokenType.DEFAULT, lexerRule ->     lexerRule.addString("default"));

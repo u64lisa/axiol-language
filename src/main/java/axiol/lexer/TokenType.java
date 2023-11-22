@@ -69,6 +69,7 @@ public enum TokenType {
 
     ELSE,
     WHILE,
+    DO,
     FOR,
     IF,
     MATCH,

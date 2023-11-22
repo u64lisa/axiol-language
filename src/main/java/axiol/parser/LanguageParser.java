@@ -11,6 +11,7 @@ import axiol.parser.tree.TreeRootNode;
 import axiol.parser.tree.statements.BodyStatement;
 import axiol.parser.tree.statements.LinkedNoticeStatement;
 import axiol.parser.tree.statements.VariableStatement;
+import axiol.parser.tree.statements.control.DoWhileStatement;
 import axiol.parser.tree.statements.control.IfStatement;
 import axiol.parser.tree.statements.control.UnreachableStatement;
 import axiol.parser.tree.statements.control.WhileStatement;
@@ -148,7 +149,7 @@ public class LanguageParser extends Parser {
      * - for
      * x var
      * x while
-     * - do-while
+     * x do-while
      * x unreachable
      *
      * @return the statement parsed
@@ -166,9 +167,34 @@ public class LanguageParser extends Parser {
         if (this.tokenStream.matches(TokenType.WHILE)) {
             return this.parseWhileStatement();
         }
+        if (this.tokenStream.matches(TokenType.DO)) {
+            return this.parseDoWhileStatement();
+        }
 
 
         return null; // todo write this
+    }
+
+    public Statement parseDoWhileStatement() {
+        this.tokenStream.advance();
+
+        BodyStatement bodyStatement = (BodyStatement) this.parseBodyStatement();
+
+        if (!expected(TokenType.WHILE))
+            return null;
+        this.tokenStream.advance();
+
+        if (!this.expected(TokenType.L_PAREN))
+            return null;
+        this.tokenStream.advance();
+
+        Expression condition = this.parseExpression();
+
+        if (!this.expected(TokenType.R_PAREN))
+            return null;
+        this.tokenStream.advance();
+
+        return new DoWhileStatement(condition, bodyStatement);
     }
 
     public Statement parseWhileStatement() {
