@@ -13,6 +13,7 @@ import axiol.parser.tree.statements.LinkedNoticeStatement;
 import axiol.parser.tree.statements.VariableStatement;
 import axiol.parser.tree.statements.control.IfStatement;
 import axiol.parser.tree.statements.control.UnreachableStatement;
+import axiol.parser.tree.statements.control.WhileStatement;
 import axiol.parser.util.Parser;
 import axiol.parser.util.error.ParseException;
 import axiol.parser.util.error.Position;
@@ -146,7 +147,8 @@ public class LanguageParser extends Parser {
      * - loop
      * - for
      * x var
-     * - while
+     * x while
+     * - do-while
      * x unreachable
      *
      * @return the statement parsed
@@ -161,7 +163,30 @@ public class LanguageParser extends Parser {
         if (this.tokenStream.matches(TokenType.UNREACHABLE)) {
             return this.parseUnreachable();
         }
+        if (this.tokenStream.matches(TokenType.WHILE)) {
+            return this.parseWhileStatement();
+        }
+
+
         return null; // todo write this
+    }
+
+    public Statement parseWhileStatement() {
+        this.tokenStream.advance();
+
+        if (!this.expected(TokenType.L_PAREN))
+            return null;
+        this.tokenStream.advance();
+
+        Expression condition = this.parseExpression();
+
+        if (!this.expected(TokenType.R_PAREN))
+            return null;
+        this.tokenStream.advance();
+
+        BodyStatement bodyStatement = (BodyStatement) this.parseBodyStatement();
+
+        return new WhileStatement(condition, bodyStatement);
     }
 
     public Statement parseUnreachable() {

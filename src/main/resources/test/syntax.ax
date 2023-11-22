@@ -34,6 +34,10 @@ function owo(test: i32 = 1) -> i32 {
     while (true) {
     }
 
+    do {
+
+    } while (true);
+
     switch (5 + 19) {
         case 4 -> debug("Hello World");
         case 24, 4 -> {
