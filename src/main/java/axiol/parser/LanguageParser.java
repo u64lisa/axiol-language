@@ -148,12 +148,12 @@ public class LanguageParser extends Parser {
      * x var
      * x while
      * x do-while
-     * x unreachable
 
-     * - return
-     * - yield
-     * - continue
-     * - break
+     * x unreachable
+     * x return
+     * x yield
+     * x continue
+     * x break
 
      * @return the statement parsed
      */
@@ -163,9 +163,6 @@ public class LanguageParser extends Parser {
         }
         if (this.tokenStream.matches(TokenType.IF)) {
             return this.parseIfStatement();
-        }
-        if (this.tokenStream.matches(TokenType.UNREACHABLE)) {
-            return this.parseUnreachable();
         }
         if (this.tokenStream.matches(TokenType.WHILE)) {
             return this.parseWhileStatement();
@@ -183,6 +180,10 @@ public class LanguageParser extends Parser {
             return this.parseSwitchStatement();
         }
 
+        // one line statements
+        if (this.tokenStream.matches(TokenType.UNREACHABLE)) {
+            return this.parseUnreachable();
+        }
         if (this.tokenStream.matches(TokenType.RETURN)) {
             this.tokenStream.advance();
 
