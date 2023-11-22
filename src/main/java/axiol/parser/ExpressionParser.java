@@ -1,16 +1,21 @@
 package axiol.parser;
 
+import axiol.lexer.Token;
 import axiol.lexer.TokenType;
 import axiol.parser.expression.Operator;
 import axiol.parser.tree.Expression;
 import axiol.parser.tree.expressions.BinaryExpression;
 import axiol.parser.tree.expressions.UnaryExpression;
+import axiol.parser.tree.expressions.control.MatchExpression;
 import axiol.parser.tree.expressions.sub.BooleanExpression;
 import axiol.parser.tree.expressions.sub.NumberExpression;
 import axiol.parser.tree.expressions.sub.StringExpression;
+import axiol.parser.tree.statements.control.SwitchStatement;
 import axiol.parser.util.stream.TokenStream;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class ExpressionParser {
 
@@ -52,6 +57,9 @@ public class ExpressionParser {
 
                 // todo parse assignment of pointer address
                 return null;
+            }
+            if (tokenStream.matches(TokenType.MATCH)) {
+                return this.parseMatchExpression();
             }
             if (tokenStream.matches(TokenType.L_PAREN)) {
                 this.tokenStream.advance();
@@ -187,5 +195,95 @@ public class ExpressionParser {
                 this.tokenStream.current().getType());
         return null;
     }
+
+    private MatchExpression parseMatchExpression() {
+        this.tokenStream.advance();
+
+        Token start = this.tokenStream.current();
+
+        if (!languageParser.expected(TokenType.L_PAREN))
+            return null;
+        this.tokenStream.advance();
+
+        Expression expression = parseExpression(Operator.MAX_PRIORITY);
+
+        if (!languageParser.expected(TokenType.R_PAREN))
+            return null;
+        this.tokenStream.advance();
+
+        if (!languageParser.expected(TokenType.L_CURLY))
+            return null;
+        this.tokenStream.advance();
+
+        List<MatchExpression.CaseElement> caseElements = new ArrayList<>();
+
+        while (this.tokenStream.matches(TokenType.R_CURLY)) {
+            if (this.tokenStream.current().getType().equals(TokenType.DEFAULT) ||
+                    this.tokenStream.current().getType().equals(TokenType.CASE)) {
+                List<Expression> conditions = new ArrayList<>();
+                boolean defaultState = false;
+
+                if (this.tokenStream.matches(TokenType.CASE)) {
+                    this.tokenStream.advance();
+
+                    while (!this.tokenStream.current().getType().equals(TokenType.LAMBDA) &&
+                            !this.tokenStream.current().getType().equals(TokenType.COLON)) {
+                        conditions.add(parseExpression(Operator.MAX_PRIORITY));
+
+                        if (!this.tokenStream.current().getType().equals(TokenType.LAMBDA) &&
+                                !this.tokenStream.current().getType().equals(TokenType.COLON)) {
+                            if (!languageParser.expected(TokenType.COMMA))
+                                return null;
+                            this.tokenStream.advance();
+                        }
+                    }
+                }
+                if (this.tokenStream.matches(TokenType.DEFAULT)) {
+                    if (caseElements.stream().anyMatch(MatchExpression.CaseElement::isDefaultState)) {
+                        this.languageParser.createSyntaxError("default statement already defined!");
+                    }
+
+                    this.tokenStream.advance();
+                    defaultState = true;
+                    // we don't have any conditions!
+                }
+
+                Expression body = null;
+                if (this.tokenStream.current().getType().equals(TokenType.LAMBDA)) {
+                    this.tokenStream.advance();
+
+                    body = parseExpression(Operator.MAX_PRIORITY);
+                }
+
+                if (this.tokenStream.current().getType().equals(TokenType.SEMICOLON)) {
+                    this.tokenStream.advance();
+                }
+
+                    caseElements.add(new MatchExpression.CaseElement(defaultState, conditions.toArray(new Expression[0]), body));
+
+                continue;
+            }
+
+            languageParser.createSyntaxError(start, "expected 'case' or 'default' but got '%s'",
+                    this.tokenStream.current().getType());
+        }
+
+        if (!languageParser.expected(TokenType.R_CURLY))
+            return null;
+        this.tokenStream.advance();
+
+        if (caseElements.isEmpty()) {
+            languageParser.createSyntaxError(start, "can't compile match expression with no cases!");
+            return null;
+        }
+        if (caseElements.size() == 1 && caseElements.stream().anyMatch(MatchExpression.CaseElement::isDefaultState)) {
+            languageParser.createSyntaxError(start, "can't compile match expression with only default case!");
+            return null;
+        }
+
+
+        return new MatchExpression(expression, caseElements.toArray(new MatchExpression.CaseElement[0]));
+    }
+
 
 }

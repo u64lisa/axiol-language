@@ -142,7 +142,6 @@ public class LanguageParser extends Parser {
 
      * x if, else if, else
      * x switch
-     * - match is expression
      * x loop
      * x for
      * x var
@@ -154,6 +153,11 @@ public class LanguageParser extends Parser {
      * x yield
      * x continue
      * x break
+
+     * - asm
+     * - inset
+     * - stack-alloc
+     * - malloc
 
      * @return the statement parsed
      */
@@ -213,7 +217,8 @@ public class LanguageParser extends Parser {
             return new BreakStatement();
         }
 
-        return null; // todo write this
+        createSyntaxError("no matching statement found for '%s'", this.tokenStream.current().getType());
+        return null;
     }
 
     private SwitchStatement parseSwitchStatement() throws ParseException {
@@ -277,6 +282,8 @@ public class LanguageParser extends Parser {
                     } else {
                         body = parseStatementForBody();
                     }
+                } else {
+                    expected(TokenType.LAMBDA);
                 }
 
                 caseElements.add(new SwitchStatement.CaseElement(defaultState,
