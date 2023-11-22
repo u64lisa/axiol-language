@@ -143,7 +143,7 @@ public class LanguageParser extends Parser {
      * - switch
      * - match
      * x loop
-     * - for
+     * x for
      * x var
      * x while
      * x do-while
@@ -170,11 +170,12 @@ public class LanguageParser extends Parser {
         if (this.tokenStream.matches(TokenType.LOOP)) {
             return this.parseLoopStatement();
         }
+        if (this.tokenStream.matches(TokenType.FOR)) {
+            return this.parseForStatement();
+        }
 
         return null; // todo write this
     }
-
-    // for (expr; expr; expr) { body }
 
     public Statement parseForStatement() {
         this.tokenStream.advance();
