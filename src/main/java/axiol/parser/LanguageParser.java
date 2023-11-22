@@ -8,6 +8,7 @@ import axiol.parser.statement.Accessibility;
 import axiol.parser.tree.Expression;
 import axiol.parser.tree.Statement;
 import axiol.parser.tree.TreeRootNode;
+import axiol.parser.tree.statements.BodyStatement;
 import axiol.parser.tree.statements.LinkedNoticeStatement;
 import axiol.parser.tree.statements.VariableStatement;
 import axiol.parser.util.Parser;
@@ -19,7 +20,9 @@ import axiol.types.Type;
 import axiol.types.TypeCollection;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -109,6 +112,29 @@ public class LanguageParser extends Parser {
         return null;
     }
 
+    public Statement parseBodyStatement() {
+        if (!this.expected(TokenType.L_CURLY))
+            return null;
+
+        Token opening = this.tokenStream.current();
+        this.tokenStream.advance();
+
+        List<Statement> statements = new ArrayList<>();
+        while (this.tokenStream.matches(TokenType.R_CURLY)) {
+            Statement statement = this.parseStatementForBody();
+            if (statement == null)
+                continue;
+
+            statements.add(statement);
+        }
+
+        this.expected(TokenType.R_CURLY);
+        Token closing = this.tokenStream.current();
+        this.tokenStream.advance();
+
+        return new BodyStatement(opening.getPosition(),closing.getPosition(), statements);
+    }
+
     /**
      * Parse body statements for scoped areas like functions bodies.
      * contains:
@@ -123,7 +149,7 @@ public class LanguageParser extends Parser {
      *
      * @return the statement parsed
      */
-    public Statement parseBodyStatement() {
+    public Statement parseStatementForBody() {
         if (isVariable(this.tokenStream.current())) {
             return this.parseVariableStatement();
         }
