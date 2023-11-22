@@ -14,8 +14,8 @@ function main(argc: i32, *args: str[]) -> i32 {
 
     subFunction(test);
 
-    owo()
-    owo(1)
+    owo();
+    owo(7);
 
     return 1;
 }

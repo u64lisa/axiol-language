@@ -76,9 +76,10 @@ public class LanguageParser extends Parser {
      * - functions
      * - structures
      * - class
-     * - global var
-     * - import
+     * x global var
+     * x import
      * - attributes
+     * - constructor
      *
      * @return the statement parsed
      */
@@ -116,12 +117,16 @@ public class LanguageParser extends Parser {
      * - match
      * - loop
      * - for
+     * x var
      * - while
      * - unreachable
      *
      * @return the statement parsed
      */
     public Statement parseBodyStatement() {
+        if (isVariable(this.tokenStream.current())) {
+            return this.parseVariableStatement();
+        }
         return null; // todo write this
     }
 
