@@ -4,6 +4,7 @@ import axiol.lexer.Token;
 import axiol.lexer.TokenType;
 import axiol.parser.expression.Operator;
 import axiol.parser.tree.Expression;
+import axiol.parser.tree.expressions.ArrayInitExpression;
 import axiol.parser.tree.expressions.BinaryExpression;
 import axiol.parser.tree.expressions.UnaryExpression;
 import axiol.parser.tree.expressions.control.MatchExpression;
@@ -11,8 +12,10 @@ import axiol.parser.tree.expressions.control.TernaryExpression;
 import axiol.parser.tree.expressions.sub.BooleanExpression;
 import axiol.parser.tree.expressions.sub.NumberExpression;
 import axiol.parser.tree.expressions.sub.StringExpression;
+import axiol.parser.util.error.Position;
 import axiol.parser.util.stream.TokenStream;
 
+import javax.swing.text.ViewFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -45,9 +48,9 @@ public class ExpressionParser {
     }
 
     /* todo
-     * - array = {expr, expr}
-     * - array = [10];
-     * - array = [_];
+     * x array = {expr, expr}
+     * x array = [10];
+     * x array = [_];
      *
      * x var = expr ? expr : expr;
      *
@@ -77,6 +80,52 @@ public class ExpressionParser {
                 Expression ifFalse = this.parseExpression(Operator.MAX_PRIORITY);
 
                 return new TernaryExpression(ifTrue, ifFalse);
+            }
+            // [_] empty array 0 elements
+            // [expression] sized empty array
+            if (tokenStream.matches(TokenType.L_SQUARE)) {
+                this.tokenStream.advance();
+
+                if (this.tokenStream.matches(TokenType.UNDERSCORE)) {
+                    this.tokenStream.advance();
+
+                    this.languageParser.expected(TokenType.R_SQUARE);
+                    Token current = this.tokenStream.current();
+                    this.tokenStream.advance();
+
+                    return new ArrayInitExpression(new ArrayList<>(), new NumberExpression(
+                            current.getPosition(), 0, true));
+                }
+                Expression expression = this.parseExpression(0);
+
+                this.languageParser.expected(TokenType.R_SQUARE);
+                this.tokenStream.advance();
+
+                return new ArrayInitExpression(new ArrayList<>(), expression);
+            }
+            // {expr, expr, expr, ...}
+            if (tokenStream.matches(TokenType.L_CURLY)) {
+                this.tokenStream.advance();
+
+                List<Expression> expressions = new ArrayList<>();
+
+                while (!tokenStream.matches(TokenType.R_CURLY)) {
+                    Expression element = this.parseExpression(0);
+                    expressions.add(element);
+
+                    if (this.tokenStream.matches(TokenType.R_CURLY))
+                        continue;
+
+                    if (!this.languageParser.expected(TokenType.COMMA)) {
+                        return null;
+                    }
+                    tokenStream.advance();
+                }
+                this.languageParser.expected(TokenType.R_CURLY);
+                this.tokenStream.advance();
+
+                return new ArrayInitExpression(expressions, new NumberExpression(
+                        tokenStream.prev().getPosition(), expressions.size(), true));
             }
             if (Arrays.stream(valueContainingTypes)
                     .anyMatch(type -> type.equals(this.tokenStream.current().getType()))) {
