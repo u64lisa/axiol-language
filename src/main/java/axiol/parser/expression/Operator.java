@@ -25,8 +25,7 @@ public enum Operator {
     DIVIDE(        "/",  TokenType.DIVIDE,         9,  false, false),
     MOD(           "%",  TokenType.MOD,            9,  false, false),
     XOR(           "^",  TokenType.XOR,            7,  false, false),
-    QUESTION(      "?",  TokenType.QUESTION,       10, false, false),
-    NOT(           "!",  TokenType.QUESTION,       10, true,  true), // unary
+    NOT(           "!",  TokenType.NOT,       10, true,  true), // unary
 
     // Comparison
     LESS_THAN(     "<",  TokenType.LESS_THAN,      4,  false, false),

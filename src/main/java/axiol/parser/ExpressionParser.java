@@ -7,10 +7,10 @@ import axiol.parser.tree.Expression;
 import axiol.parser.tree.expressions.BinaryExpression;
 import axiol.parser.tree.expressions.UnaryExpression;
 import axiol.parser.tree.expressions.control.MatchExpression;
+import axiol.parser.tree.expressions.control.TernaryExpression;
 import axiol.parser.tree.expressions.sub.BooleanExpression;
 import axiol.parser.tree.expressions.sub.NumberExpression;
 import axiol.parser.tree.expressions.sub.StringExpression;
-import axiol.parser.tree.statements.control.SwitchStatement;
 import axiol.parser.util.stream.TokenStream;
 
 import java.util.ArrayList;
@@ -44,12 +44,42 @@ public class ExpressionParser {
         this.tokenStream = languageParser.getTokenStream();
     }
 
+    /* todo
+     * - array = {expr, expr}
+     * - array = [10];
+     * - array = [_];
+     *
+     * x var = expr ? expr : expr;
+     *
+     * - ref = &expression;
+     *
+     * - var = test.t;
+     * - var = test.*t;
+     **/
     public Expression parseExpression(int priority) {
+        if (priority < 0)
+            priority = 0;
+
         Operator[] operators = Operator.getOperatorsByPriority(priority).toArray(new Operator[0]);
 
         if (priority == 0) {
+            // expr ? expr : expr;
+            if (tokenStream.matches(TokenType.QUESTION)) {
+                this.tokenStream.advance();
+
+                Expression ifTrue = this.parseExpression(Operator.MAX_PRIORITY);
+
+                if (!this.languageParser.expected(TokenType.COLON)) {
+                    return null;
+                }
+                tokenStream.advance();
+
+                Expression ifFalse = this.parseExpression(Operator.MAX_PRIORITY);
+
+                return new TernaryExpression(ifTrue, ifFalse);
+            }
             if (Arrays.stream(valueContainingTypes)
-                    .anyMatch(type -> type.equals(tokenStream.current().getType()))) {
+                    .anyMatch(type -> type.equals(this.tokenStream.current().getType()))) {
                 return parseTypeExpression();
             }
             if (tokenStream.matches(TokenType.AND)) {

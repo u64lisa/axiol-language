@@ -39,6 +39,7 @@ public enum TokenType {
     PLUS_EQUAL,
     NOR_EQUAL,
     QUESTION,
+    NOT,
 
     LAMBDA,
 
@@ -103,13 +104,5 @@ public enum TokenType {
     EOF,
 
     ;
-
-    public boolean isNumber() {
-        TokenType type = this;
-        return switch (type) {
-            case INT, DOUBLE, FLOAT, LONG -> true;
-            default -> false;
-        };
-    }
 
 }

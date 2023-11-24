@@ -65,10 +65,12 @@ public class LanguageParser extends Parser {
         this.expressionParser = new ExpressionParser(this);
 
         while (tokenStream.hasMoreTokens()) {
-            Statement statement = this.parseStatement();
+            this.expressionParser.parseExpression(Operator.MAX_PRIORITY);
 
-            if (statement != null)
-                treeRootNode.getStatements().add(statement);
+            //Statement statement = this.parseStatement();
+
+            //if (statement != null)
+            //    treeRootNode.getStatements().add(statement);
         }
 
         return treeRootNode;

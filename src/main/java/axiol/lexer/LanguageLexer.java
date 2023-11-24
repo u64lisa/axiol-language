@@ -52,6 +52,7 @@ public class LanguageLexer {
         LEXER.addRule(TokenType.XOR, lexerRule ->       lexerRule.addString("^"));
         LEXER.addRule(TokenType.EQUAL, lexerRule ->     lexerRule.addString("="));
         LEXER.addRule(TokenType.QUESTION, lexerRule ->  lexerRule.addString("?"));
+        LEXER.addRule(TokenType.NOT, lexerRule ->  lexerRule.addString("!"));
 
         // types
         LEXER.addRule(TokenType.BOOLEAN, lexerRule -> lexerRule.addString("true", "false"));
