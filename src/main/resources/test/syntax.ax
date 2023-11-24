@@ -3,6 +3,8 @@ linked owo.taw.wtw_ta.as1;
 
 const i32 *owo = 1;
 
+//const i32 TEST = 3 * 2 == 6 ? 69 : 420; todo this has a smoll bug
+
 structure Test {
     i32 owo
     i64 uwu

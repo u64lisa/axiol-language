@@ -12,6 +12,7 @@ import axiol.parser.tree.statements.BodyStatement;
 import axiol.parser.tree.statements.LinkedNoticeStatement;
 import axiol.parser.tree.statements.VariableStatement;
 import axiol.parser.tree.statements.control.*;
+import axiol.parser.tree.statements.oop.StructTypeStatement;
 import axiol.parser.util.Parser;
 import axiol.parser.util.error.ParseException;
 import axiol.parser.util.error.Position;
@@ -65,12 +66,10 @@ public class LanguageParser extends Parser {
         this.expressionParser = new ExpressionParser(this);
 
         while (tokenStream.hasMoreTokens()) {
-            this.expressionParser.parseExpression(Operator.MAX_PRIORITY);
+            Statement statement = this.parseStatement();
 
-            //Statement statement = this.parseStatement();
-
-            //if (statement != null)
-            //    treeRootNode.getStatements().add(statement);
+            if (statement != null)
+                treeRootNode.getStatements().add(statement);
         }
 
         return treeRootNode;
@@ -97,6 +96,9 @@ public class LanguageParser extends Parser {
             }
             return this.parseVariableStatement();
         }
+        if (this.tokenStream.matches(TokenType.STRUCTURE)) {
+            return this.parseStructStatement();
+        }
 
         if ((isAccessModifier() && this.tokenStream.peak(1).getType().equals(TokenType.FUNCTION))
                 || this.tokenStream.current().getType().equals(TokenType.FUNCTION)) {
@@ -111,9 +113,45 @@ public class LanguageParser extends Parser {
             return this.parseLinkingNotice();
         }
 
-        this.createSyntaxError("not statement parsable from token '%s'", this.tokenStream.current());
+        this.createSyntaxError("statement not suited for parsing with token '%s'", this.tokenStream.current());
         return null;
     }
+
+    private Statement parseStructStatement() throws ParseException {
+        this.tokenStream.advance();
+
+        if (!this.tokenStream.matches(TokenType.LITERAL)) {
+            return null;
+        }
+        String structName = this.tokenStream.current().getValue();
+        this.tokenStream.advance();
+
+        if (!this.expected(TokenType.L_CURLY))
+            return null;
+        this.tokenStream.advance();
+
+        List<StructTypeStatement.FieldEntry> entries = new ArrayList<>();
+        while (!this.tokenStream.matches(TokenType.R_CURLY)) {
+            ParsedType type = parseType();
+
+            if (!this.tokenStream.matches(TokenType.LITERAL)) {
+                return null;
+            }
+            String name = this.tokenStream.current().getValue();
+            this.tokenStream.advance();
+
+            if (this.tokenStream.matches(TokenType.SEMICOLON))
+                this.tokenStream.advance();
+
+            entries.add(new StructTypeStatement.FieldEntry(type, name));
+        }
+
+        this.expected(TokenType.R_CURLY);
+        this.tokenStream.advance();
+
+        return new StructTypeStatement(entries, structName);
+    }
+
 
     public BodyStatement parseBodyStatement() {
         if (!this.expected(TokenType.L_CURLY))
@@ -503,6 +541,9 @@ public class LanguageParser extends Parser {
     }
 
     public Statement parseFunction(Accessibility... accessibility) {
+        this.tokenStream.advance();
+
+        System.out.println("in function!");
         return null;
     }
 
