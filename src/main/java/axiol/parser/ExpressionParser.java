@@ -9,6 +9,7 @@ import axiol.parser.tree.expressions.BinaryExpression;
 import axiol.parser.tree.expressions.UnaryExpression;
 import axiol.parser.tree.expressions.control.MatchExpression;
 import axiol.parser.tree.expressions.control.TernaryExpression;
+import axiol.parser.tree.expressions.extra.ReferenceExpression;
 import axiol.parser.tree.expressions.sub.BooleanExpression;
 import axiol.parser.tree.expressions.sub.NumberExpression;
 import axiol.parser.tree.expressions.sub.StringExpression;
@@ -66,6 +67,12 @@ public class ExpressionParser {
         Operator[] operators = Operator.getOperatorsByPriority(priority).toArray(new Operator[0]);
 
         if (priority == 0) {
+            // &expr
+            if (tokenStream.matches(TokenType.AND)) {
+                this.tokenStream.advance();
+
+                return new ReferenceExpression(this.parseExpression(Operator.MAX_PRIORITY));
+            }
             // expr ? expr : expr;
             if (tokenStream.matches(TokenType.QUESTION)) {
                 this.tokenStream.advance();
