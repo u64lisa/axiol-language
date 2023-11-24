@@ -16,4 +16,12 @@ public class ParsedType {
     public Type getType() {
         return type;
     }
+
+    @Override
+    public String toString() {
+        return "ParsedType{" +
+                "type=" + type +
+                ", arrayDepth=" + arrayDepth +
+                '}';
+    }
 }

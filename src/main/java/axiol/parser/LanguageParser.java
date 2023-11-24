@@ -12,6 +12,7 @@ import axiol.parser.tree.statements.BodyStatement;
 import axiol.parser.tree.statements.LinkedNoticeStatement;
 import axiol.parser.tree.statements.VariableStatement;
 import axiol.parser.tree.statements.control.*;
+import axiol.parser.tree.statements.oop.FunctionStatement;
 import axiol.parser.tree.statements.oop.StructTypeStatement;
 import axiol.parser.util.Parser;
 import axiol.parser.util.error.ParseException;
@@ -161,8 +162,9 @@ public class LanguageParser extends Parser {
         this.tokenStream.advance();
 
         List<Statement> statements = new ArrayList<>();
-        while (this.tokenStream.matches(TokenType.R_CURLY)) {
+        while (!this.tokenStream.matches(TokenType.R_CURLY)) {
             Statement statement = this.parseStatementForBody();
+
             if (statement == null)
                 continue;
 
@@ -536,15 +538,82 @@ public class LanguageParser extends Parser {
             return null;
         this.tokenStream.advance();
 
-        System.out.println(path);
         return new LinkedNoticeStatement(path.toString());
     }
 
     public Statement parseFunction(Accessibility... accessibility) {
         this.tokenStream.advance();
 
-        System.out.println("in function!");
-        return null;
+        if (!this.tokenStream.matches(TokenType.LITERAL)) {
+            return null;
+        }
+        String functionName = this.tokenStream.current().getValue();
+        this.tokenStream.advance();
+
+        List<FunctionStatement.Parameter> parameters = this.parseParameters();
+
+        ParsedType returnType = new ParsedType(TypeCollection.VOID, 0);
+        if (this.tokenStream.matches(TokenType.LAMBDA)) {
+            this.tokenStream.advance();
+
+            returnType = this.parseType();
+        }
+
+        BodyStatement bodyStatement = this.parseBodyStatement();
+
+        return new FunctionStatement(functionName, accessibility,
+                parameters, bodyStatement, returnType);
+    }
+
+    public List<FunctionStatement.Parameter> parseParameters() {
+        List<FunctionStatement.Parameter> parameters = new ArrayList<>();
+
+        if (!this.tokenStream.matches(TokenType.L_PAREN)) {
+            return null;
+        }
+        this.tokenStream.advance();
+
+        while (!this.tokenStream.matches(TokenType.R_PAREN)) {
+            boolean pointer = false, reference = false;
+            if (this.tokenStream.matches(TokenType.MULTIPLY)) {
+                this.tokenStream.advance();
+                pointer = true;
+            }
+            if (this.tokenStream.matches(TokenType.AND)) {
+                this.tokenStream.advance();
+                reference = true;
+            }
+            this.expected(TokenType.LITERAL);
+            String parameterName = this.tokenStream.current().getValue();
+            this.tokenStream.advance();
+
+            this.expected(TokenType.COLON);
+            this.tokenStream.advance();
+
+            ParsedType type = this.parseType();
+
+            if (this.tokenStream.matches(TokenType.COMMA)) {
+                this.tokenStream.advance();
+
+                parameters.add(new FunctionStatement.Parameter(parameterName, type, null, pointer, reference));
+                continue;
+            }
+            if (this.tokenStream.matches(TokenType.R_PAREN))
+                continue;
+
+            this.expected(TokenType.EQUAL);
+            this.tokenStream.advance();
+
+            // lowest expression level bcs parameter!
+            Expression defaultValue = this.expressionParser.parseExpression(0);
+            parameters.add(new FunctionStatement.Parameter(parameterName, type, defaultValue, pointer, reference));
+        }
+        if (!this.tokenStream.matches(TokenType.R_PAREN)) {
+            return null;
+        }
+        this.tokenStream.advance();
+
+        return parameters;
     }
 
     public Statement parseVariableStatement(Accessibility... accessibility) {

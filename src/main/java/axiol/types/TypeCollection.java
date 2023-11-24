@@ -12,6 +12,7 @@ public class TypeCollection {
     public static final Type BOOLEAN = new Type("boolean", PrimitiveTypes.I8, 0);
 
     public static final Type NONE = new Type("_none_", PrimitiveTypes.U0, -1);
+    public static final Type VOID = new Type("void", PrimitiveTypes.U0, 0);
 
     public static final Type[] TYPES = {
             PrimitiveTypes.I8.toType(),
@@ -29,7 +30,7 @@ public class TypeCollection {
 
             PrimitiveTypes.U0.toType(),
 
-            STRING, CHAR, BOOLEAN,
+            STRING, CHAR, BOOLEAN, VOID
     };
 
     public static final List<Type> TYPE_LIST = Arrays.stream(TYPES).toList();
