@@ -1,4 +1,4 @@
 package axiol.parser.tree;
 
-public abstract class Expression {
+public abstract class Expression extends Statement {
 }

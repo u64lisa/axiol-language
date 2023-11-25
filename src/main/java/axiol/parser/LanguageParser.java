@@ -102,13 +102,13 @@ public class LanguageParser extends Parser {
         }
 
         if ((isAccessModifier() && this.tokenStream.peak(1).getType().equals(TokenType.FUNCTION))
-                || this.tokenStream.current().getType().equals(TokenType.FUNCTION)) {
+                || this.tokenStream.matches(TokenType.FUNCTION)) {
             if (isAccessModifier()) {
                 return this.parseFunction(this.parseAccess());
             }
             return this.parseFunction();
         }
-        if (this.tokenStream.current().getType().equals(TokenType.LINKED)) {
+        if (this.tokenStream.matches(TokenType.LINKED)) {
             this.tokenStream.advance();
 
             return this.parseLinkingNotice();
@@ -258,6 +258,13 @@ public class LanguageParser extends Parser {
             expectLineEnd();
             return new BreakStatement();
         }
+        Expression expression = this.parseExpression();
+        if (expression != null) {
+            if (this.tokenStream.matches(TokenType.SEMICOLON))
+                this.tokenStream.advance();
+
+            return expression;
+        }
 
         createSyntaxError("no matching statement found for '%s'", this.tokenStream.current().getType());
         return null;
@@ -283,21 +290,24 @@ public class LanguageParser extends Parser {
         this.tokenStream.advance();
         List<SwitchStatement.CaseElement> caseElements = new ArrayList<>();
 
-        while (this.tokenStream.matches(TokenType.R_CURLY)) {
-            if (this.tokenStream.current().getType().equals(TokenType.DEFAULT) ||
-                    this.tokenStream.current().getType().equals(TokenType.CASE)) {
+        while (!this.tokenStream.matches(TokenType.R_CURLY)) {
+
+            System.out.println(this.tokenStream.current());
+
+            if (this.tokenStream.matches(TokenType.DEFAULT) ||
+                    this.tokenStream.matches(TokenType.CASE)) {
                 List<Expression> conditions = new ArrayList<>();
                 boolean defaultState = false;
 
                 if (this.tokenStream.matches(TokenType.CASE)) {
                     this.tokenStream.advance();
 
-                    while (!this.tokenStream.current().getType().equals(TokenType.LAMBDA) &&
-                            !this.tokenStream.current().getType().equals(TokenType.COLON)) {
+                    while (!this.tokenStream.matches(TokenType.LAMBDA) &&
+                            !this.tokenStream.matches(TokenType.COLON)) {
                         conditions.add(parseExpression());
 
-                        if (!this.tokenStream.current().getType().equals(TokenType.LAMBDA) &&
-                                !this.tokenStream.current().getType().equals(TokenType.COLON)) {
+                        if (!this.tokenStream.matches(TokenType.LAMBDA) &&
+                                !this.tokenStream.matches(TokenType.COLON)) {
                             if (!this.expected(TokenType.COMMA))
                                 return null;
                             this.tokenStream.advance();
@@ -315,11 +325,11 @@ public class LanguageParser extends Parser {
                 }
 
                 Statement body = null;
-                if (this.tokenStream.current().getType().equals(TokenType.LAMBDA) ||
-                        this.tokenStream.current().getType().equals(TokenType.COLON)) {
+                if (this.tokenStream.matches(TokenType.LAMBDA) ||
+                        this.tokenStream.matches(TokenType.COLON)) {
                     this.tokenStream.advance();
 
-                    if (this.expected(TokenType.L_CURLY)) {
+                    if (this.tokenStream.matches(TokenType.L_CURLY)) {
                         body = parseBodyStatement();
                     } else {
                         body = parseStatementForBody();
@@ -441,6 +451,10 @@ public class LanguageParser extends Parser {
             return null;
         this.tokenStream.advance();
 
+        if (!this.expected(TokenType.SEMICOLON))
+            return null;
+        this.tokenStream.advance();
+
         return new DoWhileStatement(condition, bodyStatement);
     }
 
@@ -512,7 +526,7 @@ public class LanguageParser extends Parser {
         StringBuilder path = new StringBuilder(this.tokenStream.current().getValue());
         this.tokenStream.advance();
 
-        if (this.tokenStream.current().getType().equals(TokenType.DOT)) {
+        if (this.tokenStream.matches(TokenType.DOT)) {
             this.tokenStream.advance();
             path.append("/");
 

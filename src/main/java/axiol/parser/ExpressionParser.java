@@ -4,19 +4,15 @@ import axiol.lexer.Token;
 import axiol.lexer.TokenType;
 import axiol.parser.expression.Operator;
 import axiol.parser.tree.Expression;
-import axiol.parser.tree.expressions.ArrayInitExpression;
-import axiol.parser.tree.expressions.BinaryExpression;
-import axiol.parser.tree.expressions.UnaryExpression;
+import axiol.parser.tree.expressions.*;
 import axiol.parser.tree.expressions.control.MatchExpression;
 import axiol.parser.tree.expressions.control.TernaryExpression;
 import axiol.parser.tree.expressions.extra.ReferenceExpression;
 import axiol.parser.tree.expressions.sub.BooleanExpression;
 import axiol.parser.tree.expressions.sub.NumberExpression;
 import axiol.parser.tree.expressions.sub.StringExpression;
-import axiol.parser.util.error.Position;
 import axiol.parser.util.stream.TokenStream;
 
-import javax.swing.text.ViewFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -137,12 +133,6 @@ public class ExpressionParser {
             if (Arrays.stream(valueContainingTypes)
                     .anyMatch(type -> type.equals(this.tokenStream.current().getType()))) {
                 return parseTypeExpression();
-            }
-            if (tokenStream.matches(TokenType.AND)) {
-                this.tokenStream.advance();
-
-                // todo parse assignment of pointer address
-                return null;
             }
             if (tokenStream.matches(TokenType.MATCH)) {
                 return this.parseMatchExpression();
@@ -275,6 +265,53 @@ public class ExpressionParser {
             this.tokenStream.advance();
             return expression;
         }
+        if (tokenStream.matches(TokenType.LITERAL)) {
+            String value = this.tokenStream.current().getValue();
+            StringBuilder path = new StringBuilder(value);
+            this.tokenStream.advance();
+
+            if (this.tokenStream.matches(TokenType.DOT)) {
+                this.tokenStream.advance();
+                path.append("/");
+
+                while (tokenStream.matches(TokenType.LITERAL) || tokenStream.matches(TokenType.DOT)) {
+                    if (!this.languageParser.expected(TokenType.LITERAL))
+                        return null;
+
+                    path.append(this.tokenStream.current().getValue());
+                    this.tokenStream.advance();
+
+                    if (tokenStream.matches(TokenType.DOT))
+                        this.tokenStream.advance();
+
+                    path.append("/");
+                }
+            }
+            // function call!
+            if (this.tokenStream.matches(TokenType.L_PAREN)) {
+                this.tokenStream.advance();
+
+                List<Expression> parameters = new ArrayList<>();
+                while (!this.tokenStream.matches(TokenType.R_PAREN)) {
+                    Expression expression = this.parseExpression(Operator.MAX_PRIORITY);
+
+                    if (expression != null)
+                        parameters.add(expression);
+
+                    if (this.tokenStream.matches(TokenType.COMMA))
+                        this.tokenStream.advance();
+                }
+                this.languageParser.expected(TokenType.R_PAREN);
+                this.tokenStream.advance();
+
+                if (this.tokenStream.matches(TokenType.SEMICOLON))
+                    this.tokenStream.advance();
+
+                return new FunctionCallExpression(path.toString(), parameters);
+            }
+
+            return new LiteralExpression(path.toString());
+        }
 
         this.languageParser.createSyntaxError(
                 "invalid token for expression parsing: '%s'",
@@ -303,21 +340,21 @@ public class ExpressionParser {
 
         List<MatchExpression.CaseElement> caseElements = new ArrayList<>();
 
-        while (this.tokenStream.matches(TokenType.R_CURLY)) {
-            if (this.tokenStream.current().getType().equals(TokenType.DEFAULT) ||
-                    this.tokenStream.current().getType().equals(TokenType.CASE)) {
+        while (!this.tokenStream.matches(TokenType.R_CURLY)) {
+            if (this.tokenStream.matches(TokenType.DEFAULT) ||
+                    this.tokenStream.matches(TokenType.CASE)) {
                 List<Expression> conditions = new ArrayList<>();
                 boolean defaultState = false;
 
                 if (this.tokenStream.matches(TokenType.CASE)) {
                     this.tokenStream.advance();
 
-                    while (!this.tokenStream.current().getType().equals(TokenType.LAMBDA) &&
-                            !this.tokenStream.current().getType().equals(TokenType.COLON)) {
+                    while (!this.tokenStream.matches(TokenType.LAMBDA) &&
+                            !this.tokenStream.matches(TokenType.COLON)) {
                         conditions.add(parseExpression(Operator.MAX_PRIORITY));
 
-                        if (!this.tokenStream.current().getType().equals(TokenType.LAMBDA) &&
-                                !this.tokenStream.current().getType().equals(TokenType.COLON)) {
+                        if (!this.tokenStream.matches(TokenType.LAMBDA) &&
+                                !this.tokenStream.matches(TokenType.COLON)) {
                             if (!languageParser.expected(TokenType.COMMA))
                                 return null;
                             this.tokenStream.advance();
@@ -335,17 +372,17 @@ public class ExpressionParser {
                 }
 
                 Expression body = null;
-                if (this.tokenStream.current().getType().equals(TokenType.LAMBDA)) {
+                if (this.tokenStream.matches(TokenType.LAMBDA)) {
                     this.tokenStream.advance();
 
                     body = parseExpression(Operator.MAX_PRIORITY);
                 }
 
-                if (this.tokenStream.current().getType().equals(TokenType.SEMICOLON)) {
+                if (this.tokenStream.matches(TokenType.SEMICOLON)) {
                     this.tokenStream.advance();
                 }
 
-                    caseElements.add(new MatchExpression.CaseElement(defaultState, conditions.toArray(new Expression[0]), body));
+                caseElements.add(new MatchExpression.CaseElement(defaultState, conditions.toArray(new Expression[0]), body));
 
                 continue;
             }
