@@ -4,24 +4,19 @@ import axiol.parser.statement.Accessibility;
 import axiol.parser.statement.Parameter;
 import axiol.parser.tree.Statement;
 import axiol.parser.tree.statements.BodyStatement;
-import axiol.types.ParsedType;
 
 import java.util.List;
 
-public class FunctionStatement extends Statement {
+public class ConstructStatement extends Statement {
 
-    private final String name;
     private final Accessibility[] accessibility;
     private final List<Parameter> parameters;
     private final BodyStatement bodyStatement;
-    private final ParsedType returnType;
 
-    public FunctionStatement(String name, Accessibility[] accessibility, List<Parameter> parameters, BodyStatement bodyStatement, ParsedType returnType) {
-        this.name = name;
+    public ConstructStatement(Accessibility[] accessibility, List<Parameter> parameters, BodyStatement bodyStatement) {
         this.accessibility = accessibility;
         this.parameters = parameters;
         this.bodyStatement = bodyStatement;
-        this.returnType = returnType;
     }
 
     @Override
@@ -29,8 +24,8 @@ public class FunctionStatement extends Statement {
         return List.of(bodyStatement);
     }
 
-    public String getName() {
-        return name;
+    public Accessibility[] getAccessibility() {
+        return accessibility;
     }
 
     public List<Parameter> getParameters() {
@@ -39,13 +34,5 @@ public class FunctionStatement extends Statement {
 
     public BodyStatement getBodyStatement() {
         return bodyStatement;
-    }
-
-    public ParsedType getReturnType() {
-        return returnType;
-    }
-
-    public Accessibility[] getAccessibility() {
-        return accessibility;
     }
 }

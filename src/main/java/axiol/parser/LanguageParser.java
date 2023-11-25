@@ -5,6 +5,7 @@ import axiol.lexer.Token;
 import axiol.lexer.TokenType;
 import axiol.parser.expression.Operator;
 import axiol.parser.statement.Accessibility;
+import axiol.parser.statement.Parameter;
 import axiol.parser.tree.Expression;
 import axiol.parser.tree.Statement;
 import axiol.parser.tree.TreeRootNode;
@@ -12,9 +13,7 @@ import axiol.parser.tree.statements.BodyStatement;
 import axiol.parser.tree.statements.LinkedNoticeStatement;
 import axiol.parser.tree.statements.VariableStatement;
 import axiol.parser.tree.statements.control.*;
-import axiol.parser.tree.statements.oop.FunctionStatement;
-import axiol.parser.tree.statements.oop.StructTypeStatement;
-import axiol.parser.tree.statements.oop.UDTDefinitionStatement;
+import axiol.parser.tree.statements.oop.*;
 import axiol.parser.tree.statements.special.NativeStatement;
 import axiol.parser.util.Parser;
 import axiol.parser.util.error.ParseException;
@@ -40,7 +39,7 @@ public class LanguageParser extends Parser {
             TokenType.EXTERN, TokenType.PROTECTED
     };
 
-    private ParsingContext parsingContext = new ParsingContext();
+    private final ParsingContext parsingContext = new ParsingContext();
 
     private ExpressionParser expressionParser;
     private TokenStream tokenStream;
@@ -99,6 +98,20 @@ public class LanguageParser extends Parser {
             }
             return this.parseVariableStatement();
         }
+        if ((isAccessModifier() && this.tokenStream.peak(1).getType().equals(TokenType.CLASS)) ||
+                this.tokenStream.matches(TokenType.CLASS)) {
+            if (isAccessModifier()) {
+                return this.parseClassTypeStatement(this.parseAccess());
+            }
+            return this.parseClassTypeStatement();
+        }
+        if ((isAccessModifier() && this.tokenStream.peak(1).getType().equals(TokenType.CONSTRUCT)) ||
+                this.tokenStream.matches(TokenType.CONSTRUCT)) {
+            if (isAccessModifier()) {
+                return this.parseConstructStatement(this.parseAccess());
+            }
+            return this.parseConstructStatement();
+        }
         if (this.tokenStream.matches(TokenType.STRUCTURE)) {
             return this.parseStructStatement();
         }
@@ -120,7 +133,38 @@ public class LanguageParser extends Parser {
         return null;
     }
 
-    private Statement parseStructStatement() throws ParseException {
+    public Statement parseConstructStatement(Accessibility... accessibility) {
+        this.tokenStream.advance();
+
+        List<Parameter> parameters = this.parseParameters();
+
+        BodyStatement bodyStatement = this.parseBodyStatement();
+
+        return new ConstructStatement(accessibility, parameters, bodyStatement);
+    }
+
+    private Statement parseClassTypeStatement(Accessibility... accessibility) {
+        this.tokenStream.advance();
+
+        this.expected(TokenType.LITERAL);
+        String className = this.tokenStream.current().getValue();
+        this.tokenStream.advance();
+
+        String parentClass = null;
+        if (this.tokenStream.matches(TokenType.PARENT)) {
+            this.tokenStream.advance();
+
+            this.expected(TokenType.LITERAL);
+            parentClass = this.tokenStream.current().getValue();
+            this.tokenStream.advance();
+        }
+
+        BodyStatement bodyStatement = this.parseClassBodyStatement();
+
+        return new ClassTypeStatement(accessibility, className, parentClass, bodyStatement);
+    }
+
+    private Statement parseStructStatement() {
         this.tokenStream.advance();
 
         if (!this.tokenStream.matches(TokenType.LITERAL)) {
@@ -144,9 +188,6 @@ public class LanguageParser extends Parser {
             String name = this.tokenStream.current().getValue();
             this.tokenStream.advance();
 
-            if (this.tokenStream.matches(TokenType.SEMICOLON))
-                this.tokenStream.advance();
-
             entries.add(new StructTypeStatement.FieldEntry(type, name));
         }
 
@@ -162,6 +203,29 @@ public class LanguageParser extends Parser {
         return new StructTypeStatement(entries, structName);
     }
 
+    public BodyStatement parseClassBodyStatement() {
+        if (!this.expected(TokenType.L_CURLY))
+            return null;
+
+        Token opening = this.tokenStream.current();
+        this.tokenStream.advance();
+
+        List<Statement> statements = new ArrayList<>();
+        while (!this.tokenStream.matches(TokenType.R_CURLY)) {
+            Statement statement = this.parseStatement();
+
+            if (statement == null)
+                continue;
+
+            statements.add(statement);
+        }
+
+        this.expected(TokenType.R_CURLY);
+        Token closing = this.tokenStream.current();
+        this.tokenStream.advance();
+
+        return new BodyStatement(opening.getPosition(),closing.getPosition(), statements);
+    }
 
     public BodyStatement parseBodyStatement() {
         if (!this.expected(TokenType.L_CURLY))
@@ -445,7 +509,7 @@ public class LanguageParser extends Parser {
             return null;
         this.tokenStream.advance();
 
-        ForStatement.ForCondition forCondition = null;
+        ForStatement.ForCondition forCondition;
 
         // for (name: type -> expr)
         if (this.tokenStream.matches(TokenType.LITERAL) &&
@@ -646,7 +710,7 @@ public class LanguageParser extends Parser {
         String functionName = this.tokenStream.current().getValue();
         this.tokenStream.advance();
 
-        List<FunctionStatement.Parameter> parameters = this.parseParameters();
+        List<Parameter> parameters = this.parseParameters();
 
         ParsedType returnType = new ParsedType(TypeCollection.VOID, 0, 0);
         if (this.tokenStream.matches(TokenType.LAMBDA)) {
@@ -661,8 +725,8 @@ public class LanguageParser extends Parser {
                 parameters, bodyStatement, returnType);
     }
 
-    public List<FunctionStatement.Parameter> parseParameters() {
-        List<FunctionStatement.Parameter> parameters = new ArrayList<>();
+    public List<Parameter> parseParameters() {
+        List<Parameter> parameters = new ArrayList<>();
 
         if (!this.tokenStream.matches(TokenType.L_PAREN)) {
             return null;
@@ -691,7 +755,7 @@ public class LanguageParser extends Parser {
             if (this.tokenStream.matches(TokenType.COMMA)) {
                 this.tokenStream.advance();
 
-                parameters.add(new FunctionStatement.Parameter(parameterName, type, null, pointer, reference));
+                parameters.add(new Parameter(parameterName, type, null, pointer, reference));
                 continue;
             }
             if (this.tokenStream.matches(TokenType.R_PAREN))
@@ -702,7 +766,7 @@ public class LanguageParser extends Parser {
 
             // lowest expression level bcs parameter!
             Expression defaultValue = this.expressionParser.parseExpression(0);
-            parameters.add(new FunctionStatement.Parameter(parameterName, type, defaultValue, pointer, reference));
+            parameters.add(new Parameter(parameterName, type, defaultValue, pointer, reference));
         }
         if (!this.tokenStream.matches(TokenType.R_PAREN)) {
             return null;
@@ -765,9 +829,8 @@ public class LanguageParser extends Parser {
 
         Expression expression = this.parseExpression();
 
-        if (!expected(TokenType.SEMICOLON))
-            return null;
-        this.tokenStream.advance();
+        if (this.tokenStream.matches(TokenType.SEMICOLON))
+            this.tokenStream.advance();
 
         boolean globalScope = false;
         for (Accessibility accessibility1 : accessibility) {
@@ -840,14 +903,6 @@ public class LanguageParser extends Parser {
 
         Token typeToken = this.tokenStream.current();
         Type type = TypeCollection.typeByToken(typeToken);
-
-        if (type == TypeCollection.NONE) {
-            String value = typeToken.getValue();
-            this.tokenStream.advance();
-
-            // todo classes structs and other
-            return null;
-        }
         this.tokenStream.advance();
 
         int arrayDepth = 0;
