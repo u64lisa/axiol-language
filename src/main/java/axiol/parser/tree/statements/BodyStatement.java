@@ -27,4 +27,9 @@ public class BodyStatement extends Statement {
     public List<Statement> getStatements() {
         return statements;
     }
+
+    @Override
+    public List<Statement> childStatements() {
+        return statements;
+    }
 }

@@ -1,7 +1,9 @@
 package axiol.parser.tree.expressions;
 
 import axiol.parser.tree.Expression;
+import axiol.parser.tree.Statement;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FunctionCallExpression extends Expression {
@@ -20,5 +22,10 @@ public class FunctionCallExpression extends Expression {
 
     public String getPathToFunction() {
         return pathToFunction;
+    }
+
+    @Override
+    public List<Statement> childStatements() {
+        return new ArrayList<>(parameters);
     }
 }

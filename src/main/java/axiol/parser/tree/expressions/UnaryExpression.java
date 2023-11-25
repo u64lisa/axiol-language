@@ -2,6 +2,9 @@ package axiol.parser.tree.expressions;
 
 import axiol.parser.expression.Operator;
 import axiol.parser.tree.Expression;
+import axiol.parser.tree.Statement;
+
+import java.util.List;
 
 public class UnaryExpression extends Expression {
 
@@ -19,5 +22,10 @@ public class UnaryExpression extends Expression {
 
     public Operator getOperator() {
         return operator;
+    }
+
+    @Override
+    public List<Statement> childStatements() {
+        return List.of(value);
     }
 }

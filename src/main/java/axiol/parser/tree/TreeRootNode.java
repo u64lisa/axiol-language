@@ -11,4 +11,8 @@ public class TreeRootNode extends Statement {
         return statements;
     }
 
+    @Override
+    public List<Statement> childStatements() {
+        return statements;
+    }
 }

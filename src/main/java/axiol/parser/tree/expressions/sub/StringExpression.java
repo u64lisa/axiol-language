@@ -1,7 +1,11 @@
 package axiol.parser.tree.expressions.sub;
 
 import axiol.parser.tree.Expression;
+import axiol.parser.tree.Statement;
 import axiol.parser.util.error.Position;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class StringExpression extends Expression {
 
@@ -11,6 +15,11 @@ public class StringExpression extends Expression {
     public StringExpression(Position position, String value) {
         this.position = position;
         this.value = value;
+    }
+
+    @Override
+    public List<Statement> childStatements() {
+        return new ArrayList<>();
     }
 
     public Position getPosition() {

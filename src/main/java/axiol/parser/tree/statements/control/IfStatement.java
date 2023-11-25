@@ -4,6 +4,9 @@ import axiol.parser.tree.Expression;
 import axiol.parser.tree.Statement;
 import axiol.parser.tree.statements.BodyStatement;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class IfStatement extends Statement {
 
     private final Expression condition;
@@ -14,6 +17,11 @@ public class IfStatement extends Statement {
         this.condition = condition;
         this.body = body;
         this.elseStatement = elseStatement;
+    }
+
+    @Override
+    public List<Statement> childStatements() {
+        return List.of(condition, body, elseStatement);
     }
 
     public Expression getCondition() {

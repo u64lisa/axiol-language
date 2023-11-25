@@ -4,6 +4,8 @@ import axiol.parser.tree.Expression;
 import axiol.parser.tree.Statement;
 import axiol.parser.tree.statements.BodyStatement;
 
+import java.util.List;
+
 public class DoWhileStatement extends Statement {
     private final Expression condition;
     private final BodyStatement bodyStatement;
@@ -11,6 +13,11 @@ public class DoWhileStatement extends Statement {
     public DoWhileStatement(Expression condition, BodyStatement bodyStatement) {
         this.condition = condition;
         this.bodyStatement = bodyStatement;
+    }
+
+    @Override
+    public List<Statement> childStatements() {
+        return List.of(condition, bodyStatement);
     }
 
     public Expression getCondition() {

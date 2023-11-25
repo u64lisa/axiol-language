@@ -1,7 +1,11 @@
 package axiol.parser.tree.expressions.sub;
 
 import axiol.parser.tree.Expression;
+import axiol.parser.tree.Statement;
 import axiol.parser.util.error.Position;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class NumberExpression extends Expression {
 
@@ -13,6 +17,11 @@ public class NumberExpression extends Expression {
         this.position = position;
         this.numberValue = numberValue;
         this.signed = signed;
+    }
+
+    @Override
+    public List<Statement> childStatements() {
+        return new ArrayList<>();
     }
 
     public boolean isSigned() {

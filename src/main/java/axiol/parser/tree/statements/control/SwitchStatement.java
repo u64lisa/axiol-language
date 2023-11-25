@@ -3,6 +3,10 @@ package axiol.parser.tree.statements.control;
 import axiol.parser.tree.Expression;
 import axiol.parser.tree.Statement;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class SwitchStatement extends Statement {
     private final Expression condition;
     private final CaseElement[] cases;
@@ -33,6 +37,18 @@ public class SwitchStatement extends Statement {
 
     public Expression getCondition() {
         return condition;
+    }
+
+    @Override
+    public List<Statement> childStatements() {
+        List<Statement> statements = new ArrayList<>();
+        statements.add(condition);
+        for (CaseElement aCase : cases) {
+            statements.addAll(Arrays.stream(aCase.conditions).toList());
+            statements.add(aCase.body);
+        }
+
+        return statements;
     }
 
     public static class CaseElement {

@@ -1,7 +1,9 @@
 package axiol.parser.tree.expressions;
 
 import axiol.parser.tree.Expression;
+import axiol.parser.tree.Statement;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ArrayInitExpression extends Expression {
@@ -11,6 +13,13 @@ public class ArrayInitExpression extends Expression {
     public ArrayInitExpression(List<Expression> values, Expression initSize) {
         this.values = values;
         this.initSize = initSize;
+    }
+
+    @Override
+    public List<Statement> childStatements() {
+        List<Statement> statements = new ArrayList<>(values);
+        statements.add(initSize);
+        return statements;
     }
 
     public Expression getInitSize() {

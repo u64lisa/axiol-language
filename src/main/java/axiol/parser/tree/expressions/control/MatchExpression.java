@@ -1,6 +1,12 @@
 package axiol.parser.tree.expressions.control;
 
 import axiol.parser.tree.Expression;
+import axiol.parser.tree.Statement;
+import axiol.parser.tree.statements.control.SwitchStatement;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class MatchExpression extends Expression {
     private final Expression condition;
@@ -24,6 +30,18 @@ public class MatchExpression extends Expression {
                 return aCase;
         }
         return null;
+    }
+
+    @Override
+    public List<Statement> childStatements() {
+        List<Statement> statements = new ArrayList<>();
+        statements.add(condition);
+        for (MatchExpression.CaseElement aCase : cases) {
+            statements.addAll(Arrays.stream(aCase.conditions).toList());
+            statements.add(aCase.body);
+        }
+
+        return statements;
     }
 
     public MatchExpression.CaseElement[] getCases() {

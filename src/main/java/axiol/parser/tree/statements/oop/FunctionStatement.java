@@ -6,6 +6,7 @@ import axiol.parser.tree.Statement;
 import axiol.parser.tree.statements.BodyStatement;
 import axiol.types.ParsedType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FunctionStatement extends Statement {
@@ -22,6 +23,11 @@ public class FunctionStatement extends Statement {
         this.parameters = parameters;
         this.bodyStatement = bodyStatement;
         this.returnType = returnType;
+    }
+
+    @Override
+    public List<Statement> childStatements() {
+        return List.of(bodyStatement);
     }
 
     public static final class Parameter {

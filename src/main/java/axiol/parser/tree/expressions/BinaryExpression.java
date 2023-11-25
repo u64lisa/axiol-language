@@ -2,6 +2,9 @@ package axiol.parser.tree.expressions;
 
 import axiol.parser.expression.Operator;
 import axiol.parser.tree.Expression;
+import axiol.parser.tree.Statement;
+
+import java.util.List;
 
 public class BinaryExpression extends Expression {
 
@@ -13,6 +16,11 @@ public class BinaryExpression extends Expression {
         this.operator = operator;
         this.leftAssociate = leftAssociate;
         this.rightAssociate = rightAssociate;
+    }
+
+    @Override
+    public List<Statement> childStatements() {
+        return List.of(leftAssociate, rightAssociate);
     }
 
     public Operator getOperator() {

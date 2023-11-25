@@ -5,6 +5,8 @@ import axiol.parser.tree.Expression;
 import axiol.parser.tree.Statement;
 import axiol.types.ParsedType;
 
+import java.util.List;
+
 public class VariableStatement extends Statement {
 
     private final Accessibility[] access;
@@ -19,6 +21,11 @@ public class VariableStatement extends Statement {
         this.name = name;
         this.type = type;
         this.value = value;
+    }
+
+    @Override
+    public List<Statement> childStatements() {
+        return List.of(value);
     }
 
     public boolean isPointer() {

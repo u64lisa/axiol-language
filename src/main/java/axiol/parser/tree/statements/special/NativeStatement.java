@@ -3,9 +3,19 @@ package axiol.parser.tree.statements.special;
 import axiol.parser.tree.Expression;
 import axiol.parser.tree.Statement;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class NativeStatement extends Statement {
+
+    @Override
+    public List<Statement> childStatements() {
+        List<Statement> statements = new ArrayList<>();
+        for (NativeInstruction instruction : this.instructions) {
+            statements.addAll(instruction.parameters);
+        }
+        return statements;
+    }
 
     public enum Type {
         ASM,

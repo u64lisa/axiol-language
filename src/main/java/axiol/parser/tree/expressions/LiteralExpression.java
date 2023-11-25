@@ -1,6 +1,10 @@
 package axiol.parser.tree.expressions;
 
 import axiol.parser.tree.Expression;
+import axiol.parser.tree.Statement;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class LiteralExpression extends Expression {
 
@@ -12,5 +16,10 @@ public class LiteralExpression extends Expression {
 
     public String getPath() {
         return path;
+    }
+
+    @Override
+    public List<Statement> childStatements() {
+        return new ArrayList<>();
     }
 }

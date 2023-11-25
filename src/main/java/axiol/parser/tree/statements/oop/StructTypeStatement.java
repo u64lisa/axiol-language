@@ -3,6 +3,7 @@ package axiol.parser.tree.statements.oop;
 import axiol.parser.tree.Statement;
 import axiol.types.ParsedType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class StructTypeStatement extends Statement {
@@ -13,6 +14,11 @@ public class StructTypeStatement extends Statement {
     public StructTypeStatement(List<FieldEntry> entries, String name) {
         this.entries = entries;
         this.name = name;
+    }
+
+    @Override
+    public List<Statement> childStatements() {
+        return new ArrayList<>();
     }
 
     public record FieldEntry(ParsedType valueType, String name) { }

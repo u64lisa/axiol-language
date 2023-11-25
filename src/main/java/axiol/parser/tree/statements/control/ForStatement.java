@@ -5,6 +5,9 @@ import axiol.parser.tree.Statement;
 import axiol.parser.tree.statements.BodyStatement;
 import axiol.types.ParsedType;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ForStatement extends Statement {
 
     private final ForCondition condition;
@@ -21,6 +24,23 @@ public class ForStatement extends Statement {
 
     public BodyStatement getBodyStatement() {
         return bodyStatement;
+    }
+
+    @Override
+    public List<Statement> childStatements() {
+        List<Statement> statements = new ArrayList<>();
+
+        if (condition instanceof IterateCondition iterateCondition) {
+            statements.add(iterateCondition.expression);
+        } else {
+            NumberRangeCondition rangeCondition = (NumberRangeCondition) condition;
+            statements.add(rangeCondition.condition);
+            statements.add(rangeCondition.statement);
+            statements.add(rangeCondition.appliedAction);
+        }
+
+        statements.add(bodyStatement);
+        return statements;
     }
 
     public interface ForCondition { }
