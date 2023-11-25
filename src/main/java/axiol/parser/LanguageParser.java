@@ -292,8 +292,6 @@ public class LanguageParser extends Parser {
 
         while (!this.tokenStream.matches(TokenType.R_CURLY)) {
 
-            System.out.println(this.tokenStream.current());
-
             if (this.tokenStream.matches(TokenType.DEFAULT) ||
                     this.tokenStream.matches(TokenType.CASE)) {
                 List<Expression> conditions = new ArrayList<>();
@@ -396,17 +394,13 @@ public class LanguageParser extends Parser {
 
             Expression expression = this.parseExpression();
 
-            if (!this.expected(TokenType.L_PAREN))
+            if (!this.expected(TokenType.R_PAREN))
                 return null;
             this.tokenStream.advance();
 
             forCondition = new ForStatement.IterateCondition(type, name, expression);
         } else { // for (var; expr; expr)
             Statement start = this.parseVariableStatement(Accessibility.PRIVATE);
-
-            if (!this.expected(TokenType.SEMICOLON))
-                return null;
-            this.tokenStream.advance();
 
             Expression condition = this.parseExpression();
 
@@ -417,6 +411,11 @@ public class LanguageParser extends Parser {
             Expression appliedAction = this.parseExpression();
 
             forCondition = new ForStatement.NumberRangeCondition(start, condition, appliedAction);
+
+            if (!this.expected(TokenType.R_PAREN)){
+                return null;
+            }
+            this.tokenStream.advance();
         }
 
         BodyStatement bodyStatement = this.parseBodyStatement();
