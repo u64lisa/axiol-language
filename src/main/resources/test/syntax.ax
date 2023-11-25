@@ -84,12 +84,12 @@ function debug(*string: str) {
 }
 
 function subFunction(test: i32) -> u0 {
-    [asm] {
+    native [asm] {
         "mov rsi, $" <- test, 1
         "owo"
     }
 
-    [inset] {
+    native [inset] {
         "mov 1"
     }
 

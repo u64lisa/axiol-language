@@ -197,8 +197,8 @@ public class LanguageParser extends Parser {
      * x continue
      * x break
 
-     * - asm
-     * - inset
+     * x asm
+     * x inset
      * - stack-alloc
      * - malloc
 
@@ -228,7 +228,7 @@ public class LanguageParser extends Parser {
         }
 
         // ir or asm modifying statements
-        if (this.tokenStream.matches(TokenType.L_SQUARE)) {
+        if (this.tokenStream.matches(TokenType.NATIVE)) {
             return this.parseNativeStatement();
         }
 
@@ -277,6 +277,10 @@ public class LanguageParser extends Parser {
     }
 
     private NativeStatement parseNativeStatement() {
+        this.tokenStream.advance();
+        if (!this.expected(TokenType.L_SQUARE)) {
+            return null;
+        }
         this.tokenStream.advance();
 
         NativeStatement.Type type = this.tokenStream.current().getType() == TokenType.ASM ? NativeStatement.Type.ASM :

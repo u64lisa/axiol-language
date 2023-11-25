@@ -90,6 +90,7 @@ public enum TokenType {
     INLINE,
     CONST,
     EXTERN,
+    NATIVE,
     ASM,
     FUNCTION,
     CLASS,

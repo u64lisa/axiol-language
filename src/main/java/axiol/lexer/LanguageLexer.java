@@ -110,6 +110,7 @@ public class LanguageLexer {
         LEXER.addRule(TokenType.EXTERN, lexerRule ->     lexerRule.addString("extern"));
 
         // custom
+        LEXER.addRule(TokenType.NATIVE, lexerRule ->        lexerRule.addString("native"));
         LEXER.addRule(TokenType.ASM, lexerRule ->        lexerRule.addString("asm"));
         LEXER.addRule(TokenType.LINKED, lexerRule ->     lexerRule.addString("linked"));
         LEXER.addRule(TokenType.INSET, lexerRule ->      lexerRule.addString("inset"));  // keyword to edits IN-struction-SET
