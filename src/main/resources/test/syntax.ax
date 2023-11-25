@@ -11,12 +11,16 @@ structure Test {
     i64 uwu
     u8[] qwq
 }
+structure Test2 {
+    i32 test
+    Test owo
+}
 
 function main(argc: i32, args: *str[]) -> i32 {
     i32 test = 4 / 2 * 4;
     test = 32;
 
-    test.uwu.owo();
+    i32[] uwu = {2, 3, 4, 5};
 
     subFunction(test);
 
@@ -80,12 +84,16 @@ function owo(test: i32 = 1) -> i32 {
 
 }
 function structTest() {
-    //Test: test = (1, 2l, "TEST");
-    //test.owo = 5;
-    //test.uwu = 21;
-    //test.qwq = "OWO";
+    Test: test = (1, 2, "TEST");
+    test.owo = 5;
+    test.uwu = 21;
+    test.qwq = "OWO";
 
-    //i32 mow = test.owo;
+    Test2: test = ();
+
+    test.owo.uwu = 1;
+
+    i32 mow = test.owo;
 }
 
 function debug(string: *str) {

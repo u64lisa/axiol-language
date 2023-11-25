@@ -14,6 +14,7 @@ import axiol.parser.tree.statements.VariableStatement;
 import axiol.parser.tree.statements.control.*;
 import axiol.parser.tree.statements.oop.FunctionStatement;
 import axiol.parser.tree.statements.oop.StructTypeStatement;
+import axiol.parser.tree.statements.oop.UDTDefinitionStatement;
 import axiol.parser.tree.statements.special.NativeStatement;
 import axiol.parser.util.Parser;
 import axiol.parser.util.error.ParseException;
@@ -216,6 +217,9 @@ public class LanguageParser extends Parser {
     public Statement parseStatementForBody() {
         if (isType()) {
             return this.parseVariableStatement();
+        }
+        if (isUDTDefinition()) {
+            return this.parseUDTDefinition();
         }
         if (this.tokenStream.matches(TokenType.IF)) {
             return this.parseIfStatement();
@@ -708,6 +712,42 @@ public class LanguageParser extends Parser {
         return parameters;
     }
 
+    public Statement parseUDTDefinition() {
+        this.expected(TokenType.LITERAL);
+        String udtType = this.tokenStream.current().getValue();
+        this.tokenStream.advance();
+
+        this.expected(TokenType.COLON);
+        this.tokenStream.advance();
+
+        this.expected(TokenType.LITERAL);
+        String udtName = this.tokenStream.current().getValue();
+        this.tokenStream.advance();
+
+        this.expected(TokenType.EQUAL);
+        this.tokenStream.advance();
+
+        this.expected(TokenType.L_PAREN);
+        this.tokenStream.advance();
+
+        List<Expression> parameters = new ArrayList<>();
+        while (!this.tokenStream.matches(TokenType.R_PAREN)) {
+            Expression expression = this.parseExpression();
+
+            if (expression != null)
+                parameters.add(expression);
+
+            if (this.tokenStream.matches(TokenType.COMMA))
+                this.tokenStream.advance();
+        }
+        this.expected(TokenType.R_PAREN);
+        this.tokenStream.advance();
+
+        if (this.tokenStream.matches(TokenType.SEMICOLON))
+            this.tokenStream.advance();
+
+        return new UDTDefinitionStatement(udtType, udtName, parameters);
+    }
     public Statement parseVariableStatement(Accessibility... accessibility) {
         ParsedType type = this.parseType();
 
@@ -715,6 +755,7 @@ public class LanguageParser extends Parser {
             return null;
 
         String name = this.tokenStream.current().getValue();
+        Token position = this.tokenStream.current();
         this.tokenStream.advance();
 
         if (!expected(TokenType.EQUAL))
@@ -728,6 +769,20 @@ public class LanguageParser extends Parser {
             return null;
         this.tokenStream.advance();
 
+        boolean globalScope = false;
+        for (Accessibility accessibility1 : accessibility) {
+            if (accessibility1 == Accessibility.CONST) {
+                globalScope = true;
+                break;
+            }
+        }
+        if (globalScope) {
+            if (this.parsingContext.getGlobalVarNames().contains(name)) {
+                this.createSyntaxError(position, "global field with name '%s' already defined", name);
+                return null;
+            }
+            this.parsingContext.getGlobalVarNames().add(name);
+        }
         return new VariableStatement(name, type, expression, accessibility);
     }
 
@@ -751,6 +806,10 @@ public class LanguageParser extends Parser {
         this.tokenStream.advance();
 
         return accessibility;
+    }
+
+    public boolean isUDTDefinition() {
+        return this.tokenStream.current().getType().equals(TokenType.LITERAL) && this.tokenStream.peak(1).getType() == TokenType.COLON;
     }
 
     public boolean isType() {
