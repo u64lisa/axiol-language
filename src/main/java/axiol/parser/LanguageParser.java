@@ -8,7 +8,7 @@ import axiol.parser.statement.Accessibility;
 import axiol.parser.statement.Parameter;
 import axiol.parser.tree.Expression;
 import axiol.parser.tree.Statement;
-import axiol.parser.tree.TreeRootNode;
+import axiol.parser.tree.RootNode;
 import axiol.parser.tree.statements.BodyStatement;
 import axiol.parser.tree.statements.LinkedNoticeStatement;
 import axiol.parser.tree.statements.VariableStatement;
@@ -47,7 +47,7 @@ public class LanguageParser extends Parser {
     private String path;
 
     @Override
-    public TreeRootNode parseFile(File file) throws Throwable {
+    public RootNode parseFile(File file) throws Throwable {
         StringBuilder builder = new StringBuilder();
         Scanner scanner = new Scanner(file);
 
@@ -59,8 +59,8 @@ public class LanguageParser extends Parser {
     }
 
     @Override
-    public TreeRootNode parseSource(String path, String content) {
-        TreeRootNode treeRootNode = new TreeRootNode();
+    public RootNode parseSource(String path, String content) {
+        RootNode rootNode = new RootNode();
         LanguageLexer lexer = new LanguageLexer();
 
         this.tokenStream = new TokenStream(lexer.tokenizeString(content));
@@ -73,10 +73,10 @@ public class LanguageParser extends Parser {
             Statement statement = this.parseStatement();
 
             if (statement != null)
-                treeRootNode.getStatements().add(statement);
+                rootNode.getStatements().add(statement);
         }
 
-        return treeRootNode;
+        return rootNode;
     }
 
     /**
@@ -283,7 +283,7 @@ public class LanguageParser extends Parser {
             return this.parseVariableStatement();
         }
         if (isUDTDefinition()) {
-            return this.parseUDTDefinition();
+            return this.parseUDTDeclare();
         }
         if (this.tokenStream.matches(TokenType.IF)) {
             return this.parseIfStatement();
@@ -776,7 +776,7 @@ public class LanguageParser extends Parser {
         return parameters;
     }
 
-    public Statement parseUDTDefinition() {
+    public Statement parseUDTDeclare() {
         this.expected(TokenType.LITERAL);
         String udtType = this.tokenStream.current().getValue();
         this.tokenStream.advance();
@@ -810,7 +810,7 @@ public class LanguageParser extends Parser {
         if (this.tokenStream.matches(TokenType.SEMICOLON))
             this.tokenStream.advance();
 
-        return new UDTDefinitionStatement(udtType, udtName, parameters);
+        return new UDTDeclareStatement(udtType, udtName, parameters);
     }
     public Statement parseVariableStatement(Accessibility... accessibility) {
         ParsedType type = this.parseType();
