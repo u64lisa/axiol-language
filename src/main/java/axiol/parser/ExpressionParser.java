@@ -130,6 +130,9 @@ public class ExpressionParser {
                 return new ArrayInitExpression(expressions, new NumberExpression(
                         tokenStream.prev().getPosition(), expressions.size(), true));
             }
+
+            //System.out.println(this.tokenStream.current());
+
             if (Arrays.stream(valueContainingTypes)
                     .anyMatch(type -> type.equals(this.tokenStream.current().getType()))) {
                 return parseTypeExpression();

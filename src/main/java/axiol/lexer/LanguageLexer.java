@@ -113,7 +113,7 @@ public class LanguageLexer {
         LEXER.addRule(TokenType.NATIVE, lexerRule ->        lexerRule.addString("native"));
         LEXER.addRule(TokenType.ASM, lexerRule ->        lexerRule.addString("asm"));
         LEXER.addRule(TokenType.LINKED, lexerRule ->     lexerRule.addString("linked"));
-        LEXER.addRule(TokenType.INSET, lexerRule ->      lexerRule.addString("inset"));  // keyword to edits IN-struction-SET
+        LEXER.addRule(TokenType.ISA, lexerRule ->      lexerRule.addString("isa"));  // keyword to edits IN-struction-SET
         LEXER.addRule(TokenType.UNSAFE, lexerRule ->      lexerRule.addString("unsafe"));
 
         // classes, functions

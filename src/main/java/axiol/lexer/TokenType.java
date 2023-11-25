@@ -100,7 +100,7 @@ public enum TokenType {
     USING,
     OVERRIDE,
     LINKED,
-    INSET,
+    ISA,
     UNSAFE,
 
     EOF,

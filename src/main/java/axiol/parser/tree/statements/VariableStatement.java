@@ -13,10 +13,8 @@ public class VariableStatement extends Statement {
     private final String name;
     private final ParsedType type;
     private final Expression value;
-    private final boolean pointer;
 
-    public VariableStatement(String name, ParsedType type, Expression value, boolean pointer, Accessibility... access) {
-        this.pointer = pointer;
+    public VariableStatement(String name, ParsedType type, Expression value, Accessibility... access) {
         this.access = access;
         this.name = name;
         this.type = type;
@@ -26,10 +24,6 @@ public class VariableStatement extends Statement {
     @Override
     public List<Statement> childStatements() {
         return List.of(value);
-    }
-
-    public boolean isPointer() {
-        return pointer;
     }
 
     public Accessibility[] getAccess() {

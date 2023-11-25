@@ -39,6 +39,8 @@ public class LanguageParser extends Parser {
             TokenType.EXTERN, TokenType.PROTECTED
     };
 
+    private ParsingContext parsingContext = new ParsingContext();
+
     private ExpressionParser expressionParser;
     private TokenStream tokenStream;
     private String source;
@@ -80,19 +82,17 @@ public class LanguageParser extends Parser {
     /**
      * Parse body statements for global scope.
      * contains:
-     * - functions
-     * - structures
+     * x functions
+     * x structures
      * - class
      * x global var
      * x import
      * - attributes
-     * - constructor
      *
      * @return the statement parsed
      */
     public Statement parseStatement() {
-        if ((isAccessModifier() && isType(this.tokenStream.peak(1)))
-                || isType(this.tokenStream.current())) {
+        if ((isAccessModifier() && isType()) || isType()) {
             if (isAccessModifier()) {
                 return this.parseVariableStatement(this.parseAccess());
             }
@@ -126,6 +126,7 @@ public class LanguageParser extends Parser {
             return null;
         }
         String structName = this.tokenStream.current().getValue();
+        Token position = this.tokenStream.current();
         this.tokenStream.advance();
 
         if (!this.expected(TokenType.L_CURLY))
@@ -150,6 +151,12 @@ public class LanguageParser extends Parser {
 
         this.expected(TokenType.R_CURLY);
         this.tokenStream.advance();
+
+        if (this.parsingContext.getStructureNames().contains(structName)) {
+            this.createSyntaxError(position, "structure with name '%s' already defined", structName);
+            return null;
+        }
+        this.parsingContext.getStructureNames().add(structName);
 
         return new StructTypeStatement(entries, structName);
     }
@@ -202,10 +209,12 @@ public class LanguageParser extends Parser {
      * - stack-alloc
      * - malloc
 
+     * - constructor (class only)
+
      * @return the statement parsed
      */
     public Statement parseStatementForBody() {
-        if (isType(this.tokenStream.current())) {
+        if (isType()) {
             return this.parseVariableStatement();
         }
         if (this.tokenStream.matches(TokenType.IF)) {
@@ -284,7 +293,7 @@ public class LanguageParser extends Parser {
         this.tokenStream.advance();
 
         NativeStatement.Type type = this.tokenStream.current().getType() == TokenType.ASM ? NativeStatement.Type.ASM :
-                this.tokenStream.current().getType() == TokenType.INSET ? NativeStatement.Type.IR : null;
+                this.tokenStream.current().getType() == TokenType.ISA ? NativeStatement.Type.IR : null;
 
         if (type == null) {
             this.createSyntaxError(this.tokenStream.current(),
@@ -445,7 +454,7 @@ public class LanguageParser extends Parser {
                 return null;
             this.tokenStream.advance();
 
-            if (!this.isType(this.tokenStream.current())) {
+            if (!this.isType()) {
                 createSyntaxError("expected type but got '%s'", this.tokenStream.current());
                 return null;
             }
@@ -610,8 +619,15 @@ public class LanguageParser extends Parser {
             }
         }
 
+        if (this.parsingContext.getImportedNames().contains(path.toString())) {
+            this.createSyntaxError("linking with name '%s' already defined", path.toString());
+            return null;
+        }
+        this.parsingContext.getImportedNames().add(path.toString());
+
         if (!this.expected(TokenType.SEMICOLON))
             return null;
+
         this.tokenStream.advance();
 
         return new LinkedNoticeStatement(path.toString());
@@ -628,7 +644,7 @@ public class LanguageParser extends Parser {
 
         List<FunctionStatement.Parameter> parameters = this.parseParameters();
 
-        ParsedType returnType = new ParsedType(TypeCollection.VOID, 0);
+        ParsedType returnType = new ParsedType(TypeCollection.VOID, 0, 0);
         if (this.tokenStream.matches(TokenType.LAMBDA)) {
             this.tokenStream.advance();
 
@@ -695,12 +711,6 @@ public class LanguageParser extends Parser {
     public Statement parseVariableStatement(Accessibility... accessibility) {
         ParsedType type = this.parseType();
 
-        boolean pointer = false;
-        if (this.tokenStream.matches(TokenType.MULTIPLY)) {
-            pointer = true;
-            this.tokenStream.advance();
-        }
-
         if (!expected(TokenType.LITERAL))
             return null;
 
@@ -718,7 +728,7 @@ public class LanguageParser extends Parser {
             return null;
         this.tokenStream.advance();
 
-        return new VariableStatement(name, type, expression, pointer, accessibility);
+        return new VariableStatement(name, type, expression, accessibility);
     }
 
     public Accessibility parseAccess() {
@@ -743,8 +753,17 @@ public class LanguageParser extends Parser {
         return accessibility;
     }
 
-    public boolean isType(Token token) {
-        return !TypeCollection.typeByToken(token).equals(TypeCollection.NONE);
+    public boolean isType() {
+        int peak = 0;
+        if (isAccessModifier()) {
+            peak = 1;
+        }
+        if (this.tokenStream.peak(peak).getType() == TokenType.MULTIPLY) {
+            while (this.tokenStream.peak(peak).getType() == TokenType.MULTIPLY)
+                peak++;
+        }
+
+        return !TypeCollection.typeByToken(this.tokenStream.peak(peak)).equals(TypeCollection.NONE);
     }
 
     public boolean isAccessModifier() {
@@ -752,11 +771,19 @@ public class LanguageParser extends Parser {
     }
 
     public ParsedType parseType() {
-        Token current = this.tokenStream.current();
+        int pointerDepth = 0;
+        if (this.tokenStream.matches(TokenType.MULTIPLY)) {
+            while (this.tokenStream.matches(TokenType.MULTIPLY)) {
+                this.tokenStream.advance();
+                pointerDepth++;
+            }
+        }
 
-        Type type = TypeCollection.typeByToken(current);
+        Token typeToken = this.tokenStream.current();
+        Type type = TypeCollection.typeByToken(typeToken);
+
         if (type == TypeCollection.NONE) {
-            String value = current.getValue();
+            String value = typeToken.getValue();
             this.tokenStream.advance();
 
             // todo classes structs and other
@@ -773,7 +800,7 @@ public class LanguageParser extends Parser {
             arrayDepth++;
         }
 
-        return new ParsedType(type, arrayDepth);
+        return new ParsedType(type, arrayDepth, pointerDepth);
     }
 
     public void expectLineEnd() {

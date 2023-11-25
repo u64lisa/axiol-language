@@ -1,7 +1,8 @@
 linked std.math;
 linked owo.taw.wtw_ta.as1;
 
-const i32 *owo = 1;
+const i32 uwu = 1;
+const **i32 owo = 1;
 
 //const i32 TEST = 3 * 2 == 6 ? 69 : 420; todo this has a smoll bug
 
@@ -11,7 +12,7 @@ structure Test {
     u8[] qwq
 }
 
-function main(argc: i32, *args: str[]) -> i32 {
+function main(argc: i32, args: *str[]) -> i32 {
     i32 test = 4 / 2 * 4;
     test = 32;
 
@@ -78,8 +79,16 @@ function owo(test: i32 = 1) -> i32 {
     }
 
 }
+function structTest() {
+    //Test: test = (1, 2l, "TEST");
+    //test.owo = 5;
+    //test.uwu = 21;
+    //test.qwq = "OWO";
 
-function debug(*string: str) {
+    //i32 mow = test.owo;
+}
+
+function debug(string: *str) {
 
 }
 
@@ -89,7 +98,7 @@ function subFunction(test: i32) -> u0 {
         "owo"
     }
 
-    native [inset] {
+    native [isa] {
         "mov 1"
     }
 
