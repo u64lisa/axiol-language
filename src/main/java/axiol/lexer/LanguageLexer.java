@@ -16,6 +16,7 @@ public class LanguageLexer {
 
         // lambda
         LEXER.addRule(TokenType.LAMBDA, lexerRule ->      lexerRule.addString("->"));
+        LEXER.addRule(TokenType.REV_LAMBDA, lexerRule ->      lexerRule.addString("<-"));
 
         // math dual char
         LEXER.addRule(TokenType.EQUAL_EQUAL, lexerRule ->    lexerRule.addString("=="));

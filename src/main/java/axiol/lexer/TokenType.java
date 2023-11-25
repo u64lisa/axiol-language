@@ -42,6 +42,7 @@ public enum TokenType {
     NOT,
 
     LAMBDA,
+    REV_LAMBDA,
 
     BOOLEAN,
     CHAR,

@@ -85,7 +85,8 @@ function debug(*string: str) {
 
 function subFunction(test: i32) -> u0 {
     [asm] {
-        "mov rsi, $" <- test
+        "mov rsi, $" <- test, 1
+        "owo"
     }
 
     [inset] {

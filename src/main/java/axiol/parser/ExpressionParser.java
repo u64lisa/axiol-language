@@ -44,17 +44,17 @@ public class ExpressionParser {
         this.tokenStream = languageParser.getTokenStream();
     }
 
-    /* todo
+    /*
      * x array = {expr, expr}
      * x array = [10];
      * x array = [_];
      *
      * x var = expr ? expr : expr;
      *
-     * - ref = &expression;
+     * x ref = &expression;
      *
-     * - var = test.t;
-     * - var = test.*t;
+     * x var = test.t;
+     * - var = test.*t; TODO
      **/
     public Expression parseExpression(int priority) {
         if (priority < 0)

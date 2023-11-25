@@ -14,6 +14,7 @@ import axiol.parser.tree.statements.VariableStatement;
 import axiol.parser.tree.statements.control.*;
 import axiol.parser.tree.statements.oop.FunctionStatement;
 import axiol.parser.tree.statements.oop.StructTypeStatement;
+import axiol.parser.tree.statements.special.NativeStatement;
 import axiol.parser.util.Parser;
 import axiol.parser.util.error.ParseException;
 import axiol.parser.util.error.Position;
@@ -226,6 +227,11 @@ public class LanguageParser extends Parser {
             return this.parseSwitchStatement();
         }
 
+        // ir or asm modifying statements
+        if (this.tokenStream.matches(TokenType.L_SQUARE)) {
+            return this.parseNativeStatement();
+        }
+
         // one line statements
         if (this.tokenStream.matches(TokenType.UNREACHABLE)) {
             return this.parseUnreachable();
@@ -270,7 +276,60 @@ public class LanguageParser extends Parser {
         return null;
     }
 
-    private SwitchStatement parseSwitchStatement() throws ParseException {
+    private NativeStatement parseNativeStatement() {
+        this.tokenStream.advance();
+
+        NativeStatement.Type type = this.tokenStream.current().getType() == TokenType.ASM ? NativeStatement.Type.ASM :
+                this.tokenStream.current().getType() == TokenType.INSET ? NativeStatement.Type.IR : null;
+
+        if (type == null) {
+            this.createSyntaxError(this.tokenStream.current(),
+                    "expected 'asm', 'inse' but got '%s'", this.tokenStream.current());
+        }
+        this.tokenStream.advance();
+
+        if (!this.expected(TokenType.R_SQUARE)) {
+            return null;
+        }
+        this.tokenStream.advance();
+
+        if (!this.expected(TokenType.L_CURLY)) {
+            return null;
+        }
+        this.tokenStream.advance();
+
+        List<NativeStatement.NativeInstruction> instructions = new ArrayList<>();
+
+        while (!this.tokenStream.matches(TokenType.R_CURLY)) {
+            this.expected(TokenType.STRING);
+            String line = this.tokenStream.current().getValue();
+            this.tokenStream.advance();
+            List<Expression> params = new ArrayList<>();
+
+            if (this.tokenStream.matches(TokenType.REV_LAMBDA)) {
+                this.tokenStream.advance();
+
+                while (!this.tokenStream.matches(TokenType.STRING) &&
+                        !this.tokenStream.matches(TokenType.R_CURLY)) {
+                    Expression expression = this.parseExpression();
+
+                    params.add(expression);
+
+                    if (this.tokenStream.matches(TokenType.COMMA)) {
+                        this.tokenStream.advance();
+                    }
+                }
+            }
+            instructions.add(new NativeStatement.NativeInstruction(line, params));
+
+        }
+        this.tokenStream.matches(TokenType.R_CURLY);
+        this.tokenStream.advance();
+
+        return new NativeStatement(type, instructions);
+    }
+
+    private SwitchStatement parseSwitchStatement() {
         this.tokenStream.advance();
 
         Token start = this.tokenStream.current();
