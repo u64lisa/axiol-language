@@ -39,8 +39,6 @@ public class LanguageParser extends Parser {
             TokenType.EXTERN, TokenType.PROTECTED
     };
 
-    private final ParsingContext parsingContext = new ParsingContext();
-
     private ExpressionParser expressionParser;
     private TokenStream tokenStream;
     private String source;
@@ -171,7 +169,6 @@ public class LanguageParser extends Parser {
             return null;
         }
         String structName = this.tokenStream.current().getValue();
-        Token position = this.tokenStream.current();
         this.tokenStream.advance();
 
         if (!this.expected(TokenType.L_CURLY))
@@ -193,12 +190,6 @@ public class LanguageParser extends Parser {
 
         this.expected(TokenType.R_CURLY);
         this.tokenStream.advance();
-
-        if (this.parsingContext.getStructureNames().contains(structName)) {
-            this.createSyntaxError(position, "structure with name '%s' already defined", structName);
-            return null;
-        }
-        this.parsingContext.getStructureNames().add(structName);
 
         return new StructTypeStatement(entries, structName);
     }
@@ -687,12 +678,6 @@ public class LanguageParser extends Parser {
             }
         }
 
-        if (this.parsingContext.getImportedNames().contains(path.toString())) {
-            this.createSyntaxError("linking with name '%s' already defined", path.toString());
-            return null;
-        }
-        this.parsingContext.getImportedNames().add(path.toString());
-
         if (!this.expected(TokenType.SEMICOLON))
             return null;
 
@@ -819,7 +804,6 @@ public class LanguageParser extends Parser {
             return null;
 
         String name = this.tokenStream.current().getValue();
-        Token position = this.tokenStream.current();
         this.tokenStream.advance();
 
         if (!expected(TokenType.EQUAL))
@@ -832,20 +816,6 @@ public class LanguageParser extends Parser {
         if (this.tokenStream.matches(TokenType.SEMICOLON))
             this.tokenStream.advance();
 
-        boolean globalScope = false;
-        for (Accessibility accessibility1 : accessibility) {
-            if (accessibility1 == Accessibility.CONST) {
-                globalScope = true;
-                break;
-            }
-        }
-        if (globalScope) {
-            if (this.parsingContext.getGlobalVarNames().contains(name)) {
-                this.createSyntaxError(position, "global field with name '%s' already defined", name);
-                return null;
-            }
-            this.parsingContext.getGlobalVarNames().add(name);
-        }
         return new VariableStatement(name, type, expression, accessibility);
     }
 

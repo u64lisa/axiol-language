@@ -20,12 +20,14 @@ import axiol.parser.tree.statements.control.*;
 import axiol.parser.tree.statements.oop.*;
 import axiol.parser.tree.statements.special.NativeStatement;
 
+import java.util.Arrays;
+
 public class StaticTreeAnalyses implements RootNodeProcessor {
 
     private final Class<? extends Statement>[] definitionStatements = new Class[]{
             ClassTypeStatement.class, FunctionStatement.class,
             StructTypeStatement.class, ConstructStatement.class,
-            VariableStatement.class
+            VariableStatement.class, LinkedNoticeStatement.class,
     };
     private final Class<? extends Statement>[] declarationStatements = new Class[]{
             UDTDeclareStatement.class
@@ -43,13 +45,52 @@ public class StaticTreeAnalyses implements RootNodeProcessor {
             LiteralExpression.class, FunctionStatement.class
     };
     private final Class<? extends Statement>[] specialCases = new Class[]{
-            NativeStatement.class, LinkedNoticeStatement.class, BodyStatement.class
+            NativeStatement.class,  BodyStatement.class
     };
 
     @Override
     public RootNode process(RootNode rootNode) {
-
+        for (Statement statement : rootNode.getStatements()) {
+            this.processStatement(statement);
+        }
         return rootNode;
     }
+
+    public void processStatement(Statement statement) {
+        Class<? extends Statement> statementClass = statement.getClass();
+
+        if (Arrays.stream(definitionStatements).anyMatch(aClass -> aClass == statementClass)) {
+            this.processDefinitionStatements(statement);
+        }
+        if (Arrays.stream(declarationStatements).anyMatch(aClass -> aClass == statementClass)) {
+            this.processDeclarationStatements(statement);
+        }
+        if (Arrays.stream(controlFlowStatements).anyMatch(aClass -> aClass == statementClass)) {
+            this.processControlFlowStatements(statement);
+        }
+        if (Arrays.stream(expressions).anyMatch(aClass -> aClass == statementClass)) {
+            this.processExpressions(statement);
+        }
+        if (Arrays.stream(specialCases).anyMatch(aClass -> aClass == statementClass)) {
+            this.processSpecialCasesStatements(statement);
+        }
+    }
+
+    public void processDefinitionStatements(Statement statement) {
+
+    }
+    public void processDeclarationStatements(Statement statement) {
+
+    }
+    public void processControlFlowStatements(Statement statement) {
+
+    }
+    public void processSpecialCasesStatements(Statement statement) {
+
+    }
+    public void processExpressions(Statement statement) {
+
+    }
+
 
 }
