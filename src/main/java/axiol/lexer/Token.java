@@ -1,18 +1,19 @@
 package axiol.lexer;
 
 import axiol.parser.util.error.Position;
+import axiol.parser.util.error.TokenPosition;
 
 public class Token {
     private final TokenType type;
     private final String value;
-    private final Position position;
-    private final Position end;
+
+    private final TokenPosition tokenPosition;
 
     public Token(TokenType type, String value, Position position) {
         this.type = type;
         this.value = value;
-        this.position = position;
-        this.end = new Position(position.line(), position.column() + value.length());
+        this.tokenPosition = new TokenPosition(position,
+                new Position(position.line(), position.column() + value.length()));
     }
 
     public TokenType getType() {
@@ -23,16 +24,12 @@ public class Token {
         return value;
     }
 
-    public Position getPosition() {
-        return position;
-    }
-
-    public Position getEnd() {
-        return end;
+    public TokenPosition getTokenPosition() {
+        return tokenPosition;
     }
 
     @Override
     public String toString() {
-        return "[" + type + " at line " + position.line() + ", column " + position.column() + "]";
+        return "[" + type + " at line " + tokenPosition.getStart().line() + ", column " + tokenPosition.getStart().column() + "]";
     }
 }

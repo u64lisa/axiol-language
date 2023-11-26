@@ -1,6 +1,7 @@
 package axiol.parser.tree.expressions;
 
 import axiol.parser.tree.Expression;
+import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 
 import java.util.ArrayList;
@@ -21,6 +22,12 @@ public class ArrayInitExpression extends Expression {
         statements.add(initSize);
         return statements;
     }
+
+    @Override
+    public NodeType type() {
+        return NodeType.ARRAY_EXPR;
+    }
+
 
     public Expression getInitSize() {
         return initSize;

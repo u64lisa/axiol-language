@@ -6,7 +6,6 @@ import axiol.parser.expression.Operator;
 import axiol.parser.tree.Expression;
 import axiol.parser.tree.expressions.*;
 import axiol.parser.tree.expressions.control.MatchExpression;
-import axiol.parser.tree.expressions.control.TernaryExpression;
 import axiol.parser.tree.expressions.extra.ReferenceExpression;
 import axiol.parser.tree.expressions.sub.BooleanExpression;
 import axiol.parser.tree.expressions.sub.NumberExpression;
@@ -69,21 +68,6 @@ public class ExpressionParser {
 
                 return new ReferenceExpression(this.parseExpression(Operator.MAX_PRIORITY));
             }
-            // expr ? expr : expr;
-            if (tokenStream.matches(TokenType.QUESTION)) {
-                this.tokenStream.advance();
-
-                Expression ifTrue = this.parseExpression(Operator.MAX_PRIORITY);
-
-                if (!this.languageParser.expected(TokenType.COLON)) {
-                    return null;
-                }
-                tokenStream.advance();
-
-                Expression ifFalse = this.parseExpression(Operator.MAX_PRIORITY);
-
-                return new TernaryExpression(ifTrue, ifFalse);
-            }
             // [_] empty array 0 elements
             // [expression] sized empty array
             if (tokenStream.matches(TokenType.L_SQUARE)) {
@@ -130,8 +114,6 @@ public class ExpressionParser {
                 return new ArrayInitExpression(expressions, new NumberExpression(
                         tokenStream.prev().getPosition(), expressions.size(), true));
             }
-
-            //System.out.println(this.tokenStream.current());
 
             if (Arrays.stream(valueContainingTypes)
                     .anyMatch(type -> type.equals(this.tokenStream.current().getType()))) {
@@ -310,7 +292,7 @@ public class ExpressionParser {
                 if (this.tokenStream.matches(TokenType.SEMICOLON))
                     this.tokenStream.advance();
 
-                return new FunctionCallExpression(path.toString(), parameters);
+                return new CallExpression(path.toString(), parameters);
             }
 
             return new LiteralExpression(path.toString());

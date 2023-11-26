@@ -1,5 +1,6 @@
 package axiol.parser.tree.statements;
 
+import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 
 import java.util.ArrayList;
@@ -17,6 +18,12 @@ public class LinkedNoticeStatement extends Statement {
     public String getLinkedName() {
         return linkedName;
     }
+
+    @Override
+    public NodeType type() {
+        return NodeType.LINKED_STATEMENT;
+    }
+
 
     @Override
     public List<Statement> childStatements() {

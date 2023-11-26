@@ -2,6 +2,7 @@ package axiol.parser.tree.statements.oop;
 
 import axiol.parser.statement.Accessibility;
 import axiol.parser.statement.Parameter;
+import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.tree.statements.BodyStatement;
 import axiol.types.ParsedType;
@@ -28,6 +29,12 @@ public class FunctionStatement extends Statement {
     public List<Statement> childStatements() {
         return List.of(bodyStatement);
     }
+
+    @Override
+    public NodeType type() {
+        return NodeType.FUNCTION_STATEMENT;
+    }
+
 
     public String getName() {
         return name;

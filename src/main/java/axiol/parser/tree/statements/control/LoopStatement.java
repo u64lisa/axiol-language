@@ -1,5 +1,6 @@
 package axiol.parser.tree.statements.control;
 
+import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.tree.statements.BodyStatement;
 
@@ -15,6 +16,11 @@ public class LoopStatement extends Statement {
 
     public BodyStatement getBodyStatement() {
         return bodyStatement;
+    }
+
+    @Override
+    public NodeType type() {
+        return NodeType.LOOP_STATEMENT;
     }
 
     @Override

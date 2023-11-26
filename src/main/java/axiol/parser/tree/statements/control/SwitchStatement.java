@@ -1,6 +1,7 @@
 package axiol.parser.tree.statements.control;
 
 import axiol.parser.tree.Expression;
+import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 
 import java.util.ArrayList;
@@ -38,6 +39,12 @@ public class SwitchStatement extends Statement {
     public Expression getCondition() {
         return condition;
     }
+
+    @Override
+    public NodeType type() {
+        return NodeType.SWITCH_STATEMENT;
+    }
+
 
     @Override
     public List<Statement> childStatements() {

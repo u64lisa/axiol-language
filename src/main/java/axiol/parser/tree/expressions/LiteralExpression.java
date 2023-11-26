@@ -1,6 +1,7 @@
 package axiol.parser.tree.expressions;
 
 import axiol.parser.tree.Expression;
+import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 
 import java.util.ArrayList;
@@ -22,4 +23,10 @@ public class LiteralExpression extends Expression {
     public List<Statement> childStatements() {
         return new ArrayList<>();
     }
+
+    @Override
+    public NodeType type() {
+        return NodeType.LITERAL_EXPR;
+    }
+
 }

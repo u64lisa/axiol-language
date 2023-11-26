@@ -1,5 +1,6 @@
 package axiol.parser.tree.statements.oop;
 
+import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.types.ParsedType;
 
@@ -14,6 +15,11 @@ public class StructTypeStatement extends Statement {
     public StructTypeStatement(List<FieldEntry> entries, String name) {
         this.entries = entries;
         this.name = name;
+    }
+
+    @Override
+    public NodeType type() {
+        return NodeType.STRUCT_TYPE_STATEMENT;
     }
 
     @Override

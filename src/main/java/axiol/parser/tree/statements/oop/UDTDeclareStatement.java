@@ -1,6 +1,7 @@
 package axiol.parser.tree.statements.oop;
 
 import axiol.parser.tree.Expression;
+import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 
 import java.util.ArrayList;
@@ -16,6 +17,11 @@ public class UDTDeclareStatement extends Statement {
         this.typeName = typeName;
         this.referenceName = referenceName;
         this.parameters = parameters;
+    }
+
+    @Override
+    public NodeType type() {
+        return NodeType.UDT_DECLARE_STATEMENT;
     }
 
     @Override

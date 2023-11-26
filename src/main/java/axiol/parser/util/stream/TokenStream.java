@@ -2,15 +2,18 @@ package axiol.parser.util.stream;
 
 import axiol.lexer.Token;
 import axiol.lexer.TokenType;
+import axiol.parser.util.SourceFile;
 
 import java.util.List;
 
 public class TokenStream {
 
+    private final SourceFile sourceFile;
     private final List<Token> tokens;
     private int index;
 
-    public TokenStream(List<Token> tokens) {
+    public TokenStream(SourceFile sourceFile, List<Token> tokens) {
+        this.sourceFile = sourceFile;
         this.tokens = tokens;
         this.index = 0;
     }
@@ -56,4 +59,7 @@ public class TokenStream {
         this.index--;
     }
 
+    public SourceFile getSourceFile() {
+        return sourceFile;
+    }
 }

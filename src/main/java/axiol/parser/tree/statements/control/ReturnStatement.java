@@ -1,6 +1,7 @@
 package axiol.parser.tree.statements.control;
 
 import axiol.parser.tree.Expression;
+import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 
 import java.util.List;
@@ -11,6 +12,11 @@ public class ReturnStatement extends Statement {
 
     public ReturnStatement(Expression value) {
         this.value = value;
+    }
+
+    @Override
+    public NodeType type() {
+        return NodeType.RETURN_STATEMENT;
     }
 
     @Override

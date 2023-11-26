@@ -1,6 +1,7 @@
 package axiol.parser.tree.statements.special;
 
 import axiol.parser.tree.Expression;
+import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 
 import java.util.ArrayList;
@@ -37,6 +38,12 @@ public class NativeStatement extends Statement {
     public List<NativeInstruction> getInstructions() {
         return instructions;
     }
+
+    @Override
+    public NodeType type() {
+        return NodeType.NATIVE_STATEMENT;
+    }
+
 
     public static class NativeInstruction {
         private final String line;

@@ -16,8 +16,10 @@ import axiol.parser.tree.statements.control.*;
 import axiol.parser.tree.statements.oop.*;
 import axiol.parser.tree.statements.special.NativeStatement;
 import axiol.parser.util.Parser;
-import axiol.parser.util.error.ParseException;
+import axiol.parser.util.SourceFile;
+import axiol.parser.util.error.LanguageException;
 import axiol.parser.util.error.Position;
+import axiol.parser.util.error.TokenPosition;
 import axiol.parser.util.stream.TokenStream;
 import axiol.types.ParsedType;
 import axiol.types.Type;
@@ -41,6 +43,7 @@ public class LanguageParser extends Parser {
 
     private ExpressionParser expressionParser;
     private TokenStream tokenStream;
+    private SourceFile sourceFile;
     private String source;
     private String path;
 
@@ -58,10 +61,11 @@ public class LanguageParser extends Parser {
 
     @Override
     public RootNode parseSource(String path, String content) {
-        RootNode rootNode = new RootNode();
+        sourceFile = new SourceFile(path, content);
+        RootNode rootNode = new RootNode(sourceFile);
         LanguageLexer lexer = new LanguageLexer();
 
-        this.tokenStream = new TokenStream(lexer.tokenizeString(content));
+        this.tokenStream = new TokenStream(sourceFile, lexer.tokenizeString(content));
         this.source = content;
         this.path = path;
 
@@ -82,7 +86,7 @@ public class LanguageParser extends Parser {
      * contains:
      * x functions
      * x structures
-     * - class
+     * x class
      * x global var
      * x import
      * - attributes
@@ -212,10 +216,9 @@ public class LanguageParser extends Parser {
         }
 
         this.expected(TokenType.R_CURLY);
-        Token closing = this.tokenStream.current();
         this.tokenStream.advance();
 
-        return new BodyStatement(opening.getPosition(),closing.getPosition(), statements);
+        return new BodyStatement(opening.getTokenPosition(), statements);
     }
 
     public BodyStatement parseBodyStatement() {
@@ -236,10 +239,9 @@ public class LanguageParser extends Parser {
         }
 
         this.expected(TokenType.R_CURLY);
-        Token closing = this.tokenStream.current();
         this.tokenStream.advance();
 
-        return new BodyStatement(opening.getPosition(),closing.getPosition(), statements);
+        return new BodyStatement(opening.getTokenPosition(), statements);
     }
 
     /**
@@ -433,7 +435,7 @@ public class LanguageParser extends Parser {
 
                     while (!this.tokenStream.matches(TokenType.LAMBDA) &&
                             !this.tokenStream.matches(TokenType.COLON)) {
-                        conditions.add(parseExpression());
+                        conditions.add(expressionParser.parseExpression(0));
 
                         if (!this.tokenStream.matches(TokenType.LAMBDA) &&
                                 !this.tokenStream.matches(TokenType.COLON)) {
@@ -914,18 +916,18 @@ public class LanguageParser extends Parser {
     }
 
     public void createSyntaxError(String message, Object... args) {
-        ParseException parseException = new ParseException(source, this.tokenStream.current(), path, message, args);
-        parseException.throwError();
+        LanguageException languageException = new LanguageException(source, this.tokenStream.current(), path, message, args);
+        languageException.throwError();
     }
 
     public void createSyntaxError(Token position, String message, Object... args) {
-        ParseException parseException = new ParseException(source, position, path, message, args);
-        parseException.throwError();
+        LanguageException languageException = new LanguageException(source, position, path, message, args);
+        languageException.throwError();
     }
 
     public void createSyntaxError(Position start, Position end, String message, Object... args) {
-        ParseException parseException = new ParseException(source, start, end, path, message, args);
-        parseException.throwError();
+        LanguageException languageException = new LanguageException(source, new TokenPosition(start, end), path, message, args);
+        languageException.throwError();
     }
 
     public TokenStream getTokenStream() {

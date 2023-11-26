@@ -1,6 +1,7 @@
 package axiol.parser.tree.statements.oop;
 
 import axiol.parser.statement.Accessibility;
+import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.tree.statements.BodyStatement;
 
@@ -18,6 +19,11 @@ public class ClassTypeStatement extends Statement {
         this.name = name;
         this.parent = parent;
         this.bodyStatement = bodyStatement;
+    }
+
+    @Override
+    public NodeType type() {
+        return NodeType.CLASS_TYPE_STATEMENT;
     }
 
     @Override

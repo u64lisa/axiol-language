@@ -1,6 +1,7 @@
 package axiol.parser.tree.statements.control;
 
 import axiol.parser.tree.Expression;
+import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.tree.statements.BodyStatement;
 import axiol.types.ParsedType;
@@ -41,6 +42,11 @@ public class ForStatement extends Statement {
 
         statements.add(bodyStatement);
         return statements;
+    }
+
+    @Override
+    public NodeType type() {
+        return NodeType.FOR_STATEMENT;
     }
 
     public interface ForCondition { }

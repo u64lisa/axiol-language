@@ -1,5 +1,6 @@
 package axiol.parser.tree.statements.control;
 
+import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 
 import java.util.ArrayList;
@@ -10,4 +11,10 @@ public class ContinueStatement extends Statement {
     public List<Statement> childStatements() {
         return new ArrayList<>();
     }
+
+    @Override
+    public NodeType type() {
+        return NodeType.CONTINUE_STATEMENT;
+    }
+
 }

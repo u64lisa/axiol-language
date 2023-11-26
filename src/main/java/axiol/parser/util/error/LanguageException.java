@@ -4,45 +4,41 @@ import axiol.lexer.Token;
 
 import java.util.List;
 
-public class ParseException extends IllegalStateException {
+public class LanguageException extends IllegalStateException {
 
     // file
     private final String content;
     private final String path;
 
     // error itself
-    private final Position from, to;
+    private final TokenPosition position;
     private final String message;
 
-    public ParseException(String content, Position from, Position to, String path,  String message, Object... arguments) {
+    public LanguageException(String content, TokenPosition position, String path, String message, Object... arguments) {
         this.content = content;
         this.path = path;
-        this.from = from;
-        this.to = to;
+        this.position = position;
         this.message = message.formatted(arguments);
     }
 
-    public ParseException(String content, Position from, Position to, String path, String message) {
+    public LanguageException(String content, Position from, Position to, String path, String message) {
         this.content = content;
         this.path = path;
-        this.from = from;
-        this.to = to;
+        this.position = new TokenPosition(from, to);
         this.message = message;
     }
 
-    public ParseException(String content, Token token, String path, String message) {
+    public LanguageException(String content, Token token, String path, String message) {
         this.content = content;
         this.path = path;
-        this.from = token.getPosition();
-        this.to = token.getEnd();
+        this.position = token.getTokenPosition();
         this.message = message;
     }
 
-    public ParseException(String content, Token token, String path, String message, Object... arguments) {
+    public LanguageException(String content, Token token, String path, String message, Object... arguments) {
         this.content = content;
         this.path = path;
-        this.from = token.getPosition();
-        this.to = token.getEnd();
+        this.position = token.getTokenPosition();
         this.message = message.formatted(arguments);
     }
 
@@ -52,9 +48,9 @@ public class ParseException extends IllegalStateException {
         errorMessage.append("(")
                 .append(path != null ? path : "internal")
                 .append(") (line: ")
-                .append(from.line() + 1)
+                .append(position.getStart().line() + 1)
                 .append(", column: ")
-                .append(from.column() + 1)
+                .append(position.getStart().column() + 1)
                 .append("): ");
 
         appendHighlighter(errorMessage);
@@ -65,9 +61,9 @@ public class ParseException extends IllegalStateException {
     }
 
     void appendHighlighter(StringBuilder stringBuilder) {
-        int errorLine = to.line();
-        int errorStart = from.column() - 1;
-        int errorEnd = to.column() - 1;
+        int errorLine = position.getEnd().line();
+        int errorStart = position.getStart().column() - 1;
+        int errorEnd = position.getEnd().column() - 1;
         int columns = Math.max(1, errorEnd - errorStart);
         int padSize = Math.max(1, (int) Math.floor(Math.log10(errorLine)) + 1);
 

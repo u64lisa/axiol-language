@@ -2,6 +2,7 @@ package axiol.parser.tree.statements;
 
 import axiol.parser.statement.Accessibility;
 import axiol.parser.tree.Expression;
+import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.types.ParsedType;
 
@@ -25,6 +26,12 @@ public class VariableStatement extends Statement {
     public List<Statement> childStatements() {
         return List.of(value);
     }
+
+    @Override
+    public NodeType type() {
+        return NodeType.VAR_STATEMENT;
+    }
+
 
     public Accessibility[] getAccess() {
         return access;

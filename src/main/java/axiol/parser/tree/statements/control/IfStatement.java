@@ -1,6 +1,7 @@
 package axiol.parser.tree.statements.control;
 
 import axiol.parser.tree.Expression;
+import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.tree.statements.BodyStatement;
 
@@ -17,6 +18,11 @@ public class IfStatement extends Statement {
         this.condition = condition;
         this.body = body;
         this.elseStatement = elseStatement;
+    }
+
+    @Override
+    public NodeType type() {
+        return NodeType.IF_STATEMENT;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package axiol.parser.tree.expressions.control;
 
 import axiol.parser.tree.Expression;
+import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.tree.statements.control.SwitchStatement;
 
@@ -31,6 +32,12 @@ public class MatchExpression extends Expression {
         }
         return null;
     }
+
+    @Override
+    public NodeType type() {
+        return NodeType.MATCH_EXPR;
+    }
+
 
     @Override
     public List<Statement> childStatements() {

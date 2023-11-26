@@ -1,6 +1,7 @@
 package axiol.parser.tree.statements.control;
 
 import axiol.parser.tree.Expression;
+import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.tree.statements.BodyStatement;
 
@@ -13,6 +14,11 @@ public class DoWhileStatement extends Statement {
     public DoWhileStatement(Expression condition, BodyStatement bodyStatement) {
         this.condition = condition;
         this.bodyStatement = bodyStatement;
+    }
+
+    @Override
+    public NodeType type() {
+        return NodeType.DO_WHILE_STATEMENT;
     }
 
     @Override

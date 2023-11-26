@@ -1,27 +1,29 @@
 package axiol.parser.tree.statements;
 
+import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
-import axiol.parser.util.error.Position;
+import axiol.parser.util.error.TokenPosition;
 
 import java.util.List;
 
 public class BodyStatement extends Statement {
 
-    private final Position start, end;
+    private final TokenPosition tokenPosition;
     private final List<Statement> statements;
 
-    public BodyStatement(Position start, Position end, List<Statement> statements) {
-        this.start = start;
-        this.end = end;
+    public BodyStatement(TokenPosition tokenPosition, List<Statement> statements) {
+        this.tokenPosition = tokenPosition;
         this.statements = statements;
     }
 
-    public Position getStart() {
-        return start;
+    @Override
+    public NodeType type() {
+        return NodeType.BODY_STATEMENT;
     }
 
-    public Position getEnd() {
-        return end;
+    @Override
+    public TokenPosition position() {
+        return tokenPosition;
     }
 
     public List<Statement> getStatements() {

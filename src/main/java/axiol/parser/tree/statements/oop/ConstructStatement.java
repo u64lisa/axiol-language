@@ -2,6 +2,7 @@ package axiol.parser.tree.statements.oop;
 
 import axiol.parser.statement.Accessibility;
 import axiol.parser.statement.Parameter;
+import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.tree.statements.BodyStatement;
 
@@ -17,6 +18,11 @@ public class ConstructStatement extends Statement {
         this.accessibility = accessibility;
         this.parameters = parameters;
         this.bodyStatement = bodyStatement;
+    }
+
+    @Override
+    public NodeType type() {
+        return NodeType.CONSTRUCT_STATEMENT;
     }
 
     @Override
