@@ -4,6 +4,7 @@ import axiol.parser.tree.Expression;
 import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.tree.statements.control.SwitchStatement;
+import axiol.parser.util.error.TokenPosition;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,9 +14,17 @@ public class MatchExpression extends Expression {
     private final Expression condition;
     private final MatchExpression.CaseElement[] cases;
 
-    public MatchExpression(Expression condition, MatchExpression.CaseElement[] cases) {
+    public MatchExpression(Expression condition, MatchExpression.CaseElement[] cases, TokenPosition position) {
         this.condition = condition;
         this.cases = cases;
+        this.position = position;
+    }
+
+    private final TokenPosition position;
+
+    @Override
+    public TokenPosition position() {
+        return position;
     }
 
     public boolean hasDefaultCase() {

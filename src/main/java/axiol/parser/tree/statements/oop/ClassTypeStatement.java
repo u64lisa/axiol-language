@@ -4,6 +4,7 @@ import axiol.parser.statement.Accessibility;
 import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.tree.statements.BodyStatement;
+import axiol.parser.util.error.TokenPosition;
 
 import java.util.List;
 
@@ -14,11 +15,19 @@ public class ClassTypeStatement extends Statement {
     private final String parent;
     private final BodyStatement bodyStatement;
 
-    public ClassTypeStatement(Accessibility[] accessibility, String name, String parent, BodyStatement bodyStatement) {
+    public ClassTypeStatement(Accessibility[] accessibility, String name, String parent, BodyStatement bodyStatement, TokenPosition position) {
         this.accessibility = accessibility;
         this.name = name;
         this.parent = parent;
         this.bodyStatement = bodyStatement;
+        this.position = position;
+    }
+
+    private final TokenPosition position;
+
+    @Override
+    public TokenPosition position() {
+        return position;
     }
 
     @Override

@@ -43,7 +43,6 @@ public class LanguageParser extends Parser {
 
     private ExpressionParser expressionParser;
     private TokenStream tokenStream;
-    private SourceFile sourceFile;
     private String source;
     private String path;
 
@@ -61,7 +60,7 @@ public class LanguageParser extends Parser {
 
     @Override
     public RootNode parseSource(String path, String content) {
-        sourceFile = new SourceFile(path, content);
+        SourceFile sourceFile = new SourceFile(path, content);
         RootNode rootNode = new RootNode(sourceFile);
         LanguageLexer lexer = new LanguageLexer();
 
@@ -136,13 +135,14 @@ public class LanguageParser extends Parser {
     }
 
     public Statement parseConstructStatement(Accessibility... accessibility) {
+        TokenPosition position = this.tokenStream.currentPosition();
         this.tokenStream.advance();
 
         List<Parameter> parameters = this.parseParameters();
 
         BodyStatement bodyStatement = this.parseBodyStatement();
 
-        return new ConstructStatement(accessibility, parameters, bodyStatement);
+        return new ConstructStatement(accessibility, parameters, bodyStatement, position);
     }
 
     private Statement parseClassTypeStatement(Accessibility... accessibility) {
@@ -150,6 +150,7 @@ public class LanguageParser extends Parser {
 
         this.expected(TokenType.LITERAL);
         String className = this.tokenStream.current().getValue();
+        TokenPosition position = this.tokenStream.currentPosition();
         this.tokenStream.advance();
 
         String parentClass = null;
@@ -163,7 +164,7 @@ public class LanguageParser extends Parser {
 
         BodyStatement bodyStatement = this.parseClassBodyStatement();
 
-        return new ClassTypeStatement(accessibility, className, parentClass, bodyStatement);
+        return new ClassTypeStatement(accessibility, className, parentClass, bodyStatement, position);
     }
 
     private Statement parseStructStatement() {
@@ -173,6 +174,7 @@ public class LanguageParser extends Parser {
             return null;
         }
         String structName = this.tokenStream.current().getValue();
+        TokenPosition position = this.tokenStream.currentPosition();
         this.tokenStream.advance();
 
         if (!this.expected(TokenType.L_CURLY))
@@ -195,7 +197,7 @@ public class LanguageParser extends Parser {
         this.expected(TokenType.R_CURLY);
         this.tokenStream.advance();
 
-        return new StructTypeStatement(entries, structName);
+        return new StructTypeStatement(entries, structName, position);
     }
 
     public BodyStatement parseClassBodyStatement() {
@@ -267,7 +269,7 @@ public class LanguageParser extends Parser {
      * - stack-alloc
      * - malloc
 
-     * - constructor (class only)
+     * x constructor (class only)
 
      * @return the statement parsed
      */
@@ -307,32 +309,36 @@ public class LanguageParser extends Parser {
             return this.parseUnreachable();
         }
         if (this.tokenStream.matches(TokenType.RETURN)) {
+            TokenPosition position = this.tokenStream.currentPosition();
             this.tokenStream.advance();
 
             Expression value = this.parseExpression();
 
             expectLineEnd();
-            return new ReturnStatement(value);
+            return new ReturnStatement(value, position);
         }
         if (this.tokenStream.matches(TokenType.YIELD)) {
+            TokenPosition position = this.tokenStream.currentPosition();
             this.tokenStream.advance();
 
             Expression value = this.parseExpression();
 
             expectLineEnd();
-            return new YieldStatement(value);
+            return new YieldStatement(value, position);
         }
         if (this.tokenStream.matches(TokenType.CONTINUE)) {
+            TokenPosition position = this.tokenStream.currentPosition();
             this.tokenStream.advance();
 
             expectLineEnd();
-            return new ContinueStatement();
+            return new ContinueStatement(position);
         }
         if (this.tokenStream.matches(TokenType.BREAK)) {
+            TokenPosition position = this.tokenStream.currentPosition();
             this.tokenStream.advance();
 
             expectLineEnd();
-            return new BreakStatement();
+            return new BreakStatement(position);
         }
         Expression expression = this.parseExpression();
         if (expression != null) {
@@ -353,6 +359,7 @@ public class LanguageParser extends Parser {
         }
         this.tokenStream.advance();
 
+        TokenPosition position = this.tokenStream.currentPosition();
         NativeStatement.Type type = this.tokenStream.current().getType() == TokenType.ASM ? NativeStatement.Type.ASM :
                 this.tokenStream.current().getType() == TokenType.ISA ? NativeStatement.Type.IR : null;
 
@@ -400,10 +407,11 @@ public class LanguageParser extends Parser {
         this.tokenStream.matches(TokenType.R_CURLY);
         this.tokenStream.advance();
 
-        return new NativeStatement(type, instructions);
+        return new NativeStatement(position, type, instructions);
     }
 
     private SwitchStatement parseSwitchStatement() {
+        TokenPosition position = this.tokenStream.currentPosition();
         this.tokenStream.advance();
 
         Token start = this.tokenStream.current();
@@ -492,10 +500,11 @@ public class LanguageParser extends Parser {
             return null;
         }
 
-        return new SwitchStatement(expression, caseElements.toArray(new SwitchStatement.CaseElement[0]));
+        return new SwitchStatement(expression, caseElements.toArray(new SwitchStatement.CaseElement[0]), position);
     }
 
     public Statement parseForStatement() {
+        TokenPosition position = this.tokenStream.currentPosition();
         this.tokenStream.advance();
 
         if (!this.expected(TokenType.L_PAREN))
@@ -553,18 +562,20 @@ public class LanguageParser extends Parser {
 
         BodyStatement bodyStatement = this.parseBodyStatement();
 
-        return new ForStatement(forCondition, bodyStatement);
+        return new ForStatement(forCondition, bodyStatement, position);
     }
 
     public Statement parseLoopStatement() {
+        TokenPosition position = this.tokenStream.currentPosition();
         this.tokenStream.advance();
 
         BodyStatement bodyStatement = this.parseBodyStatement();
 
-        return new LoopStatement(bodyStatement);
+        return new LoopStatement(bodyStatement, position);
     }
 
     public Statement parseDoWhileStatement() {
+        TokenPosition position = this.tokenStream.currentPosition();
         this.tokenStream.advance();
 
         BodyStatement bodyStatement = this.parseBodyStatement();
@@ -587,10 +598,11 @@ public class LanguageParser extends Parser {
             return null;
         this.tokenStream.advance();
 
-        return new DoWhileStatement(condition, bodyStatement);
+        return new DoWhileStatement(condition, bodyStatement, position);
     }
 
     public Statement parseWhileStatement() {
+        TokenPosition position = this.tokenStream.currentPosition();
         this.tokenStream.advance();
 
         if (!this.expected(TokenType.L_PAREN))
@@ -605,17 +617,18 @@ public class LanguageParser extends Parser {
 
         BodyStatement bodyStatement = this.parseBodyStatement();
 
-        return new WhileStatement(condition, bodyStatement);
+        return new WhileStatement(condition, bodyStatement, position);
     }
 
     public Statement parseUnreachable() {
+        TokenPosition position = this.tokenStream.currentPosition();
         this.tokenStream.advance();
 
         if (!this.expected(TokenType.SEMICOLON))
             return null;
         this.tokenStream.advance();
 
-        return new UnreachableStatement();
+        return new UnreachableStatement(position);
     }
 
     public Statement parseIfStatement() {
@@ -625,6 +638,7 @@ public class LanguageParser extends Parser {
             return null;
         this.tokenStream.advance();
 
+        TokenPosition position = this.tokenStream.currentPosition();
         Expression condition = this.parseExpression();
 
         if (!this.expected(TokenType.R_PAREN))
@@ -645,10 +659,10 @@ public class LanguageParser extends Parser {
                 elseStatement = this.parseIfStatement(); // loop
             }
 
-            return new IfStatement(condition, bodyStatement, elseStatement);
+            return new IfStatement(condition, bodyStatement, elseStatement, position);
         }
         // no else statement :C
-        return new IfStatement(condition, bodyStatement, null);
+        return new IfStatement(condition, bodyStatement, null, position);
     }
 
     public Statement parseLinkingNotice() {
@@ -656,6 +670,7 @@ public class LanguageParser extends Parser {
             return null;
 
         StringBuilder path = new StringBuilder(this.tokenStream.current().getValue());
+        TokenPosition position = this.tokenStream.currentPosition();
         this.tokenStream.advance();
 
         if (this.tokenStream.matches(TokenType.DOT)) {
@@ -685,7 +700,7 @@ public class LanguageParser extends Parser {
 
         this.tokenStream.advance();
 
-        return new LinkedNoticeStatement(path.toString());
+        return new LinkedNoticeStatement(path.toString(), position);
     }
 
     public Statement parseFunction(Accessibility... accessibility) {
@@ -695,6 +710,7 @@ public class LanguageParser extends Parser {
             return null;
         }
         String functionName = this.tokenStream.current().getValue();
+        TokenPosition position = this.tokenStream.currentPosition();
         this.tokenStream.advance();
 
         List<Parameter> parameters = this.parseParameters();
@@ -709,7 +725,7 @@ public class LanguageParser extends Parser {
         BodyStatement bodyStatement = this.parseBodyStatement();
 
         return new FunctionStatement(functionName, accessibility,
-                parameters, bodyStatement, returnType);
+                parameters, bodyStatement, returnType, position);
     }
 
     public List<Parameter> parseParameters() {
@@ -773,6 +789,7 @@ public class LanguageParser extends Parser {
 
         this.expected(TokenType.LITERAL);
         String udtName = this.tokenStream.current().getValue();
+        TokenPosition position = this.tokenStream.currentPosition();
         this.tokenStream.advance();
 
         this.expected(TokenType.EQUAL);
@@ -797,7 +814,7 @@ public class LanguageParser extends Parser {
         if (this.tokenStream.matches(TokenType.SEMICOLON))
             this.tokenStream.advance();
 
-        return new UDTDeclareStatement(udtType, udtName, parameters);
+        return new UDTDeclareStatement(udtType, udtName, parameters, position);
     }
     public Statement parseVariableStatement(Accessibility... accessibility) {
         ParsedType type = this.parseType();
@@ -806,6 +823,7 @@ public class LanguageParser extends Parser {
             return null;
 
         String name = this.tokenStream.current().getValue();
+        TokenPosition position = this.tokenStream.currentPosition();
         this.tokenStream.advance();
 
         if (!expected(TokenType.EQUAL))
@@ -818,7 +836,7 @@ public class LanguageParser extends Parser {
         if (this.tokenStream.matches(TokenType.SEMICOLON))
             this.tokenStream.advance();
 
-        return new VariableStatement(name, type, expression, accessibility);
+        return new VariableStatement(name, type, expression, position, accessibility);
     }
 
     public Accessibility parseAccess() {
@@ -907,14 +925,6 @@ public class LanguageParser extends Parser {
         return false;
     }
 
-    public boolean expected(String value) {
-        if (this.tokenStream.matchesValue(value)) {
-            return true;
-        }
-        createSyntaxError("unexpected token-value expected '%s' but got '%s'", value, this.tokenStream.current().getValue());
-        return false;
-    }
-
     public void createSyntaxError(String message, Object... args) {
         LanguageException languageException = new LanguageException(source, this.tokenStream.current(), path, message, args);
         languageException.throwError();
@@ -922,11 +932,6 @@ public class LanguageParser extends Parser {
 
     public void createSyntaxError(Token position, String message, Object... args) {
         LanguageException languageException = new LanguageException(source, position, path, message, args);
-        languageException.throwError();
-    }
-
-    public void createSyntaxError(Position start, Position end, String message, Object... args) {
-        LanguageException languageException = new LanguageException(source, new TokenPosition(start, end), path, message, args);
         languageException.throwError();
     }
 

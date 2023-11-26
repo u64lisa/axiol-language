@@ -10,6 +10,7 @@ import axiol.parser.tree.expressions.extra.ReferenceExpression;
 import axiol.parser.tree.expressions.sub.BooleanExpression;
 import axiol.parser.tree.expressions.sub.NumberExpression;
 import axiol.parser.tree.expressions.sub.StringExpression;
+import axiol.parser.util.error.TokenPosition;
 import axiol.parser.util.stream.TokenStream;
 
 import java.util.ArrayList;
@@ -66,7 +67,7 @@ public class ExpressionParser {
             if (tokenStream.matches(TokenType.AND)) {
                 this.tokenStream.advance();
 
-                return new ReferenceExpression(this.parseExpression(Operator.MAX_PRIORITY));
+                return new ReferenceExpression(this.parseExpression(Operator.MAX_PRIORITY), this.tokenStream.currentPosition());
             }
             // [_] empty array 0 elements
             // [expression] sized empty array
@@ -81,14 +82,14 @@ public class ExpressionParser {
                     this.tokenStream.advance();
 
                     return new ArrayInitExpression(new ArrayList<>(), new NumberExpression(
-                            current.getPosition(), 0, true));
+                            current.getTokenPosition(), 0, true), this.tokenStream.currentPosition());
                 }
                 Expression expression = this.parseExpression(0);
 
                 this.languageParser.expected(TokenType.R_SQUARE);
                 this.tokenStream.advance();
 
-                return new ArrayInitExpression(new ArrayList<>(), expression);
+                return new ArrayInitExpression(new ArrayList<>(), expression, this.tokenStream.currentPosition());
             }
             // {expr, expr, expr, ...}
             if (tokenStream.matches(TokenType.L_CURLY)) {
@@ -108,11 +109,12 @@ public class ExpressionParser {
                     }
                     tokenStream.advance();
                 }
+                TokenPosition position = this.tokenStream.currentPosition();
                 this.languageParser.expected(TokenType.R_CURLY);
                 this.tokenStream.advance();
 
                 return new ArrayInitExpression(expressions, new NumberExpression(
-                        tokenStream.prev().getPosition(), expressions.size(), true));
+                        position, expressions.size(), true), this.tokenStream.currentPosition());
             }
 
             if (Arrays.stream(valueContainingTypes)
@@ -148,7 +150,8 @@ public class ExpressionParser {
 
             this.tokenStream.advance();
 
-            leftAssociated = new UnaryExpression(operator, this.parseExpression(priority));
+            leftAssociated = new UnaryExpression(operator, this.parseExpression(priority),
+                    this.tokenStream.currentPosition());
         }
         if (leftAssociated == null) {
             leftAssociated = this.parseExpression(priority - 1);
@@ -166,7 +169,8 @@ public class ExpressionParser {
                 tokenStream.advance();
                 operatorCycles = 0;
 
-                leftAssociated = new UnaryExpression(operator, leftAssociated);
+                leftAssociated = new UnaryExpression(operator, leftAssociated,
+                        this.tokenStream.currentPosition());
             }
         }
         // reset for next loop
@@ -187,7 +191,8 @@ public class ExpressionParser {
                 Expression right = operator.isLeftAssociated() ?
                         parseExpression(priority - 1) : parseExpression(priority);
 
-                leftAssociated = new BinaryExpression(operator, leftAssociated, right);
+                leftAssociated = new BinaryExpression(operator, leftAssociated, right,
+                        this.tokenStream.currentPosition());
             }
         }
 
@@ -216,7 +221,7 @@ public class ExpressionParser {
                 value = Double.parseDouble(tokenValue);
             }
             NumberExpression numberExpression = new NumberExpression(
-                    this.tokenStream.current().getPosition(), value, signed);
+                    this.tokenStream.currentPosition(), value, signed);
 
             this.tokenStream.advance();
             return numberExpression;
@@ -228,7 +233,7 @@ public class ExpressionParser {
             int value = singletonChar.charAt(0);
 
             NumberExpression numberExpression = new NumberExpression(
-                    this.tokenStream.current().getPosition(), value, false);
+                    this.tokenStream.currentPosition(), value, false);
 
             this.tokenStream.advance();
             return numberExpression;
@@ -238,13 +243,13 @@ public class ExpressionParser {
                     .substring(1, tokenStream.current().getValue().length() - 1);
 
             StringExpression stringExpression = new StringExpression(
-                    this.tokenStream.current().getPosition(), singletonString);
+                    this.tokenStream.currentPosition(), singletonString);
 
             this.tokenStream.advance();
             return stringExpression;
         }
         if (tokenStream.matches(TokenType.BOOLEAN)) {
-            BooleanExpression expression = new BooleanExpression(tokenStream.current().getPosition(),
+            BooleanExpression expression = new BooleanExpression(this.tokenStream.currentPosition(),
                     tokenStream.current().getValue().equals("true"));
 
             this.tokenStream.advance();
@@ -292,10 +297,10 @@ public class ExpressionParser {
                 if (this.tokenStream.matches(TokenType.SEMICOLON))
                     this.tokenStream.advance();
 
-                return new CallExpression(path.toString(), parameters);
+                return new CallExpression(path.toString(), parameters, this.tokenStream.currentPosition());
             }
 
-            return new LiteralExpression(path.toString());
+            return new LiteralExpression(path.toString(), this.tokenStream.currentPosition());
         }
 
         this.languageParser.createSyntaxError(
@@ -390,7 +395,8 @@ public class ExpressionParser {
         }
 
 
-        return new MatchExpression(expression, caseElements.toArray(new MatchExpression.CaseElement[0]));
+        return new MatchExpression(expression, caseElements.toArray(new MatchExpression.CaseElement[0]),
+                this.tokenStream.currentPosition());
     }
 
 

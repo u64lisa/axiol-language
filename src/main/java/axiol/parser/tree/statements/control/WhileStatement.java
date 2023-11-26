@@ -4,6 +4,7 @@ import axiol.parser.tree.Expression;
 import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.tree.statements.BodyStatement;
+import axiol.parser.util.error.TokenPosition;
 
 import java.util.List;
 
@@ -11,9 +12,17 @@ public class WhileStatement extends Statement {
     private final Expression condition;
     private final BodyStatement bodyStatement;
 
-    public WhileStatement(Expression condition, BodyStatement bodyStatement) {
+    public WhileStatement(Expression condition, BodyStatement bodyStatement, TokenPosition position) {
         this.condition = condition;
         this.bodyStatement = bodyStatement;
+        this.position = position;
+    }
+
+    private final TokenPosition position;
+
+    @Override
+    public TokenPosition position() {
+        return position;
     }
 
     @Override

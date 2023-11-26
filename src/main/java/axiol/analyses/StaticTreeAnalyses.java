@@ -1,6 +1,8 @@
 package axiol.analyses;
 
+import axiol.lexer.TokenType;
 import axiol.parser.RootNodeProcessor;
+import axiol.parser.tree.NodeType;
 import axiol.parser.tree.RootNode;
 import axiol.parser.tree.Statement;
 import axiol.parser.tree.expressions.*;
@@ -21,28 +23,28 @@ import java.util.Arrays;
 
 public class StaticTreeAnalyses implements RootNodeProcessor {
 
-    private final Class<? extends Statement>[] definitionStatements = new Class[]{
-            ClassTypeStatement.class, FunctionStatement.class,
-            StructTypeStatement.class, ConstructStatement.class,
-            VariableStatement.class, LinkedNoticeStatement.class,
+    private final NodeType[] definitionTypes = {
+            NodeType.CLASS_TYPE_STATEMENT, NodeType.FUNCTION_STATEMENT,
+            NodeType.STRUCT_TYPE_STATEMENT, NodeType.CONSTRUCT_STATEMENT,
+            NodeType.VAR_STATEMENT, NodeType.LINKED_STATEMENT,
     };
-    private final Class<? extends Statement>[] declarationStatements = new Class[]{
-            UDTDeclareStatement.class
+    private final NodeType[] declarationTypes = {
+            NodeType.UDT_DECLARE_STATEMENT
     };
-    private final Class<? extends Statement>[] controlFlowStatements = new Class[]{
-            BreakStatement.class, ContinueStatement.class, DoWhileStatement.class,
-            ForStatement.class, IfStatement.class, LoopStatement.class,
-            ReturnStatement.class, SwitchStatement.class, UnreachableStatement.class,
-            WhileStatement.class, YieldStatement.class
+    private final NodeType[] controlFlowTypes = {
+            NodeType.BREAK_STATEMENT, NodeType.CONTINUE_STATEMENT, NodeType.DO_WHILE_STATEMENT,
+            NodeType.FOR_STATEMENT, NodeType.IF_STATEMENT, NodeType.LOOP_STATEMENT,
+            NodeType.RETURN_STATEMENT, NodeType.SWITCH_STATEMENT, NodeType.UNREACHABLE_STATEMENT,
+            NodeType.WHILE_STATEMENT, NodeType.YIELD_STATEMENT
     };
-    private final Class<? extends Statement>[] expressions = new Class[]{
-            MatchExpression.class, ReferenceExpression.class, BooleanExpression.class,
-            NumberExpression.class, StringExpression.class, ArrayInitExpression.class,
-            BinaryExpression.class, UnaryExpression.class, LiteralExpression.class,
-            FunctionStatement.class
+    private final NodeType[] expressionTypes = {
+            NodeType.MATCH_EXPR, NodeType.REFERENCE_EXPR, NodeType.BOOLEAN_EXPR,
+            NodeType.NUMBER_EXPR, NodeType.STRING_EXPR, NodeType.ARRAY_EXPR,
+            NodeType.BINARY_EXPR, NodeType.UNARY_EXPR, NodeType.LITERAL_EXPR,
+            NodeType.CALL_EXPR
     };
-    private final Class<? extends Statement>[] specialCases = new Class[]{
-            NativeStatement.class,  BodyStatement.class
+    private final NodeType[] specialCaseTypes = {
+            NodeType.NATIVE_STATEMENT, NodeType.BODY_STATEMENT
     };
 
     @Override
@@ -55,22 +57,25 @@ public class StaticTreeAnalyses implements RootNodeProcessor {
     }
 
     public void processStatement(SourceFile sourceFile, Statement statement) {
-        Class<? extends Statement> statementClass = statement.getClass();
-
-        if (Arrays.stream(definitionStatements).anyMatch(aClass -> aClass == statementClass)) {
+        if (Arrays.stream(definitionTypes).anyMatch(aClass -> aClass == statement.type())) {
             this.processDefinitionStatements(sourceFile, statement);
+            return;
         }
-        if (Arrays.stream(declarationStatements).anyMatch(aClass -> aClass == statementClass)) {
+        if (Arrays.stream(declarationTypes).anyMatch(aClass -> aClass == statement.type())) {
             this.processDeclarationStatements(sourceFile, statement);
+            return;
         }
-        if (Arrays.stream(controlFlowStatements).anyMatch(aClass -> aClass == statementClass)) {
+        if (Arrays.stream(controlFlowTypes).anyMatch(aClass -> aClass == statement.type())) {
             this.processControlFlowStatements(sourceFile, statement);
+            return;
         }
-        if (Arrays.stream(expressions).anyMatch(aClass -> aClass == statementClass)) {
+        if (Arrays.stream(expressionTypes).anyMatch(aClass -> aClass == statement.type())) {
             this.processExpressions(sourceFile, statement);
+            return;
         }
-        if (Arrays.stream(specialCases).anyMatch(aClass -> aClass == statementClass)) {
+        if (Arrays.stream(specialCaseTypes).anyMatch(aClass -> aClass == statement.type())) {
             this.processSpecialCasesStatements(sourceFile, statement);
+            return;
         }
 
         ValidationException.UNMATCHED_STATEMENT

@@ -3,6 +3,7 @@ package axiol.parser.tree.statements.oop;
 import axiol.parser.tree.Expression;
 import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
+import axiol.parser.util.error.TokenPosition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,10 +14,18 @@ public class UDTDeclareStatement extends Statement {
     private final String referenceName;
     private final List<Expression> parameters;
 
-    public UDTDeclareStatement(String typeName, String referenceName, List<Expression> parameters) {
+    public UDTDeclareStatement(String typeName, String referenceName, List<Expression> parameters, TokenPosition position) {
         this.typeName = typeName;
         this.referenceName = referenceName;
         this.parameters = parameters;
+        this.position = position;
+    }
+
+    private final TokenPosition position;
+
+    @Override
+    public TokenPosition position() {
+        return position;
     }
 
     @Override

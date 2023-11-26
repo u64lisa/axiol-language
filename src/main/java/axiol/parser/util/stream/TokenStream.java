@@ -3,6 +3,7 @@ package axiol.parser.util.stream;
 import axiol.lexer.Token;
 import axiol.lexer.TokenType;
 import axiol.parser.util.SourceFile;
+import axiol.parser.util.error.TokenPosition;
 
 import java.util.List;
 
@@ -37,6 +38,10 @@ public class TokenStream {
     public boolean matchesValue(String value) {
         Token current = this.current();
         return current != null && current.getValue().equals(value);
+    }
+
+    public TokenPosition currentPosition() {
+        return this.current().getTokenPosition();
     }
 
     public Token current() {

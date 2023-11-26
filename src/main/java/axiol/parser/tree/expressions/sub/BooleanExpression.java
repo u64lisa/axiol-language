@@ -4,18 +4,24 @@ import axiol.parser.tree.Expression;
 import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.util.error.Position;
+import axiol.parser.util.error.TokenPosition;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class BooleanExpression extends Expression {
 
-    private final Position position;
+    private final TokenPosition position;
     private final boolean value;
 
-    public BooleanExpression(Position position, boolean value) {
+    public BooleanExpression(TokenPosition position, boolean value) {
         this.position = position;
         this.value = value;
+    }
+
+    @Override
+    public TokenPosition position() {
+        return position;
     }
 
     @Override
@@ -26,11 +32,6 @@ public class BooleanExpression extends Expression {
     @Override
     public NodeType type() {
         return NodeType.BOOLEAN_EXPR;
-    }
-
-
-    public Position getPosition() {
-        return position;
     }
 
     public boolean isValue() {

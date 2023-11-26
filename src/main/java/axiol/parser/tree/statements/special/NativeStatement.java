@@ -3,6 +3,7 @@ package axiol.parser.tree.statements.special;
 import axiol.parser.tree.Expression;
 import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
+import axiol.parser.util.error.TokenPosition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,13 @@ public class NativeStatement extends Statement {
         return statements;
     }
 
+    private final TokenPosition position;
+
+    @Override
+    public TokenPosition position() {
+        return position;
+    }
+
     public enum Type {
         ASM,
         IR
@@ -26,7 +34,8 @@ public class NativeStatement extends Statement {
     private final Type type;
     private final List<NativeInstruction> instructions;
 
-    public NativeStatement(Type type, List<NativeInstruction> instructions) {
+    public NativeStatement(TokenPosition position, Type type, List<NativeInstruction> instructions) {
+        this.position = position;
         this.type = type;
         this.instructions = instructions;
     }

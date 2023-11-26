@@ -4,6 +4,7 @@ import axiol.parser.statement.Accessibility;
 import axiol.parser.tree.Expression;
 import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
+import axiol.parser.util.error.TokenPosition;
 import axiol.types.ParsedType;
 
 import java.util.List;
@@ -15,11 +16,19 @@ public class VariableStatement extends Statement {
     private final ParsedType type;
     private final Expression value;
 
-    public VariableStatement(String name, ParsedType type, Expression value, Accessibility... access) {
+    public VariableStatement(String name, ParsedType type, Expression value, TokenPosition position, Accessibility... access) {
+        this.position = position;
         this.access = access;
         this.name = name;
         this.type = type;
         this.value = value;
+    }
+
+    private final TokenPosition position;
+
+    @Override
+    public TokenPosition position() {
+        return position;
     }
 
     @Override

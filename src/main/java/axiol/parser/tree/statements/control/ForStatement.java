@@ -4,6 +4,7 @@ import axiol.parser.tree.Expression;
 import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.tree.statements.BodyStatement;
+import axiol.parser.util.error.TokenPosition;
 import axiol.types.ParsedType;
 
 import java.util.ArrayList;
@@ -14,9 +15,17 @@ public class ForStatement extends Statement {
     private final ForCondition condition;
     private final BodyStatement bodyStatement;
 
-    public ForStatement(ForCondition condition, BodyStatement bodyStatement) {
+    public ForStatement(ForCondition condition, BodyStatement bodyStatement, TokenPosition position) {
         this.condition = condition;
         this.bodyStatement = bodyStatement;
+        this.position = position;
+    }
+
+    private final TokenPosition position;
+
+    @Override
+    public TokenPosition position() {
+        return position;
     }
 
     public ForCondition getCondition() {

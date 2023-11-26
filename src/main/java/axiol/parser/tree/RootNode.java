@@ -1,6 +1,7 @@
 package axiol.parser.tree;
 
 import axiol.parser.util.SourceFile;
+import axiol.parser.util.error.TokenPosition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,11 @@ public class RootNode extends Statement {
     @Override
     public NodeType type() {
         return NodeType.ROOT;
+    }
+
+    @Override
+    public TokenPosition position() {
+        return null;
     }
 
     public SourceFile getSourceFile() {

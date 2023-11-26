@@ -3,6 +3,7 @@ package axiol.parser.tree.expressions;
 import axiol.parser.tree.Expression;
 import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
+import axiol.parser.util.error.TokenPosition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,9 +12,17 @@ public class ArrayInitExpression extends Expression {
     private final List<Expression> values;
     private final Expression initSize;
 
-    public ArrayInitExpression(List<Expression> values, Expression initSize) {
+    public ArrayInitExpression(List<Expression> values, Expression initSize, TokenPosition position) {
         this.values = values;
         this.initSize = initSize;
+        this.position = position;
+    }
+
+    private final TokenPosition position;
+
+    @Override
+    public TokenPosition position() {
+        return position;
     }
 
     @Override

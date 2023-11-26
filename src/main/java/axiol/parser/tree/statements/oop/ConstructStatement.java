@@ -5,6 +5,7 @@ import axiol.parser.statement.Parameter;
 import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.tree.statements.BodyStatement;
+import axiol.parser.util.error.TokenPosition;
 
 import java.util.List;
 
@@ -14,10 +15,18 @@ public class ConstructStatement extends Statement {
     private final List<Parameter> parameters;
     private final BodyStatement bodyStatement;
 
-    public ConstructStatement(Accessibility[] accessibility, List<Parameter> parameters, BodyStatement bodyStatement) {
+    public ConstructStatement(Accessibility[] accessibility, List<Parameter> parameters, BodyStatement bodyStatement, TokenPosition position) {
         this.accessibility = accessibility;
         this.parameters = parameters;
         this.bodyStatement = bodyStatement;
+        this.position = position;
+    }
+
+    private final TokenPosition position;
+
+    @Override
+    public TokenPosition position() {
+        return position;
     }
 
     @Override

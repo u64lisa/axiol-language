@@ -3,6 +3,7 @@ package axiol.parser.tree.statements.control;
 import axiol.parser.tree.Expression;
 import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
+import axiol.parser.util.error.TokenPosition;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,9 +13,17 @@ public class SwitchStatement extends Statement {
     private final Expression condition;
     private final CaseElement[] cases;
 
-    public SwitchStatement(Expression condition, CaseElement[] cases) {
+    public SwitchStatement(Expression condition, CaseElement[] cases, TokenPosition position) {
         this.condition = condition;
         this.cases = cases;
+        this.position = position;
+    }
+
+    private final TokenPosition position;
+
+    @Override
+    public TokenPosition position() {
+        return position;
     }
 
     public boolean hasDefaultCase() {
