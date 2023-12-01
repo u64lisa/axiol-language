@@ -38,7 +38,8 @@ public class Mangler {
         return mangelVariable(FLAG_FORMAT.formatted("scope", "global"), variableStatement);
     }
     public String mangelVariable(String leading, VariableStatement variableStatement) {
-        return FLAG_FORMAT.formatted("name", variableStatement.getName()) +
+        return FLAG_FORMAT.formatted("var", leading) +
+                FLAG_FORMAT.formatted("name", variableStatement.getName()) +
                 FLAG_FORMAT.formatted("type", this.mangelParseType(variableStatement.getType()));
     }
 

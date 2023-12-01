@@ -58,22 +58,22 @@ public class StaticAnalysis implements RootNodeProcessor {
     public RootNode process(RootNode rootNode) {
         SourceFile sourceFile = rootNode.getSourceFile();
         for (Statement statement : rootNode.getStatements()) {
-            this.processStatement(sourceFile, statement);
+            this.processStatement(sourceFile, "global", statement);
         }
         return rootNode;
     }
 
-    public void processStatement(SourceFile sourceFile, Statement statement) {
+    public void processStatement(SourceFile sourceFile, String scope, Statement statement) {
         if (Arrays.stream(definitionTypes).anyMatch(aClass -> aClass == statement.type())) {
-            this.processDefinitionStatements(sourceFile, statement);
+            this.processDefinitionStatements(sourceFile, scope, statement);
             return;
         }
         if (Arrays.stream(declarationTypes).anyMatch(aClass -> aClass == statement.type())) {
-            this.processDeclarationStatements(sourceFile, statement);
+            this.processDeclarationStatements(sourceFile, scope, statement);
             return;
         }
         if (Arrays.stream(controlFlowTypes).anyMatch(aClass -> aClass == statement.type())) {
-            this.processControlFlowStatements(sourceFile, statement);
+            this.processControlFlowStatements(sourceFile, scope, statement);
             return;
         }
         if (Arrays.stream(expressionTypes).anyMatch(aClass -> aClass == statement.type())) {
@@ -81,7 +81,7 @@ public class StaticAnalysis implements RootNodeProcessor {
             return;
         }
         if (Arrays.stream(specialCaseTypes).anyMatch(aClass -> aClass == statement.type())) {
-            this.processSpecialCasesStatements(sourceFile, statement);
+            this.processSpecialCasesStatements(sourceFile, scope, statement);
             return;
         }
 
@@ -90,14 +90,14 @@ public class StaticAnalysis implements RootNodeProcessor {
                         statement.type(), "General Processing");
     }
 
-    public void processDefinitionStatements(SourceFile sourceFile, Statement statement) {
+    public void processDefinitionStatements(SourceFile sourceFile, String scope, Statement statement) {
         switch (statement.type()) {
-            case CLASS_TYPE_STATEMENT ->  this.analyseClassType(sourceFile, (ClassTypeStatement) statement);
-            case FUNCTION_STATEMENT ->    this.analyseFunction(sourceFile, (FunctionStatement) statement);
-            case STRUCT_TYPE_STATEMENT -> this.analyseStructureType(sourceFile, (StructTypeStatement) statement);
-            case CONSTRUCT_STATEMENT ->   this.analyseConstruct(sourceFile, (ConstructStatement) statement);
-            case VAR_STATEMENT ->         this.analyseVariable(sourceFile, (VariableStatement) statement);
-            case LINKED_STATEMENT ->      this.analyseLinkedNotice(sourceFile, (LinkedNoticeStatement) statement);
+            case CLASS_TYPE_STATEMENT ->  this.analyseClassType(sourceFile, scope, (ClassTypeStatement) statement);
+            case FUNCTION_STATEMENT ->    this.analyseFunction(sourceFile, scope, (FunctionStatement) statement);
+            case STRUCT_TYPE_STATEMENT -> this.analyseStructureType(sourceFile,scope, (StructTypeStatement) statement);
+            case CONSTRUCT_STATEMENT ->   this.analyseConstruct(sourceFile, scope, (ConstructStatement) statement);
+            case VAR_STATEMENT ->         this.analyseVariable(sourceFile, scope, (VariableStatement) statement);
+            case LINKED_STATEMENT ->      this.analyseLinkedNotice(sourceFile, scope, (LinkedNoticeStatement) statement);
 
             default -> ValidationException.UNMATCHED_STATEMENT
                     .throwException(sourceFile, statement.position(),
@@ -105,25 +105,25 @@ public class StaticAnalysis implements RootNodeProcessor {
         }
     }
 
-    public void processDeclarationStatements(SourceFile sourceFile, Statement statement) {
+    public void processDeclarationStatements(SourceFile sourceFile, String scope, Statement statement) {
         if (statement instanceof UDTDeclareStatement udtDeclareStatement) {
-            this.analyseUDTDeclaration(sourceFile, udtDeclareStatement);
+            this.analyseUDTDeclaration(sourceFile, scope, udtDeclareStatement);
         }
     }
 
-    public void processControlFlowStatements(SourceFile sourceFile, Statement statement) {
+    public void processControlFlowStatements(SourceFile sourceFile, String scope, Statement statement) {
         switch (statement.type()) {
-            case BREAK_STATEMENT ->       this.analyseBreak(sourceFile, (BreakStatement) statement);
-            case FOR_STATEMENT ->         this.analyseFor(sourceFile, (ForStatement) statement);
-            case CONTINUE_STATEMENT ->    this.analyseContinue(sourceFile, (ContinueStatement) statement);
-            case DO_WHILE_STATEMENT ->    this.analyseDoWhile(sourceFile, (DoWhileStatement) statement);
-            case IF_STATEMENT ->          this.analyseIf(sourceFile, (IfStatement) statement);
-            case LOOP_STATEMENT ->        this.analyseLoop(sourceFile, (LoopStatement) statement);
-            case RETURN_STATEMENT ->      this.analyseReturn(sourceFile, (ReturnStatement) statement);
-            case SWITCH_STATEMENT ->      this.analyseSwitch(sourceFile, (SwitchStatement) statement);
-            case UNREACHABLE_STATEMENT -> this.analyseUnreachable(sourceFile, (UnreachableStatement) statement);
-            case WHILE_STATEMENT ->       this.analyseWhile(sourceFile, (WhileStatement) statement);
-            case YIELD_STATEMENT ->       this.analyseYield(sourceFile, (YieldStatement) statement);
+            case BREAK_STATEMENT ->       this.analyseBreak(sourceFile, scope, (BreakStatement) statement);
+            case FOR_STATEMENT ->         this.analyseFor(sourceFile, scope, (ForStatement) statement);
+            case CONTINUE_STATEMENT ->    this.analyseContinue(sourceFile, scope, (ContinueStatement) statement);
+            case DO_WHILE_STATEMENT ->    this.analyseDoWhile(sourceFile, scope, (DoWhileStatement) statement);
+            case IF_STATEMENT ->          this.analyseIf(sourceFile, scope, (IfStatement) statement);
+            case LOOP_STATEMENT ->        this.analyseLoop(sourceFile, scope, (LoopStatement) statement);
+            case RETURN_STATEMENT ->      this.analyseReturn(sourceFile, scope, (ReturnStatement) statement);
+            case SWITCH_STATEMENT ->      this.analyseSwitch(sourceFile, scope, (SwitchStatement) statement);
+            case UNREACHABLE_STATEMENT -> this.analyseUnreachable(sourceFile, scope, (UnreachableStatement) statement);
+            case WHILE_STATEMENT ->       this.analyseWhile(sourceFile, scope, (WhileStatement) statement);
+            case YIELD_STATEMENT ->       this.analyseYield(sourceFile, scope, (YieldStatement) statement);
 
             default -> ValidationException.UNMATCHED_STATEMENT
                     .throwException(sourceFile, statement.position(),
@@ -131,10 +131,10 @@ public class StaticAnalysis implements RootNodeProcessor {
         }
     }
 
-    public void processSpecialCasesStatements(SourceFile sourceFile, Statement statement) {
+    public void processSpecialCasesStatements(SourceFile sourceFile, String scope, Statement statement) {
         switch (statement.type()) {
-            case BODY_STATEMENT ->        this.analyseBody(sourceFile, (BodyStatement) statement);
-            case NATIVE_STATEMENT ->      this.analyseNative(sourceFile, (NativeStatement) statement);
+            case BODY_STATEMENT ->        this.analyseBody(sourceFile, scope, (BodyStatement) statement);
+            case NATIVE_STATEMENT ->      this.analyseNative(sourceFile, scope, (NativeStatement) statement);
 
             default -> ValidationException.UNMATCHED_STATEMENT
                     .throwException(sourceFile, statement.position(),
@@ -161,70 +161,100 @@ public class StaticAnalysis implements RootNodeProcessor {
         }
     }
 
-    private void analyseClassType(SourceFile sourceFile, ClassTypeStatement statement) {
-        String mangel = this.mangler.mangelClassGlobalScope(statement);
+    private void analyseClassType(SourceFile sourceFile, String scope, ClassTypeStatement statement) {
+        String mangel = this.mangler.mangelClass(scope, statement);
+        if (this.analyseContext.checkMangel(mangel)) {
+
+            for (Statement statements : statement.getBodyStatement().getStatements()) {
+                this.processStatement(sourceFile,mangel, statements);
+            }
+            return;
+        }
+        this.createSyntaxError(sourceFile, statement.position(), "duplicated class found: '%s'", statement.getName());
+    }
+
+    private void analyseFunction(SourceFile sourceFile, String scope, FunctionStatement statement) {
+        String mangel = this.mangler.mangelFunction(scope, statement);
+        if (this.analyseContext.checkMangel(mangel)) {
+
+            for (Statement statements : statement.getBodyStatement().getStatements()) {
+                this.processStatement(sourceFile,mangel, statements);
+            }
+            return;
+        }
+        this.createSyntaxError(sourceFile, statement.position(), "duplicated function found: '%s'", statement.getName());
+    }
+
+    private void analyseStructureType(SourceFile sourceFile, String scope, StructTypeStatement statement) {
+        String mangel = this.mangler.mangelStruct(scope, statement);
         if (this.analyseContext.checkMangel(mangel)) {
 
             return;
         }
-        this.createSyntaxError(sourceFile, statement.position(), "duplicated class found", statement.getName());
+        this.createSyntaxError(sourceFile, statement.position(), "duplicated function found: '%s'", statement.getName());
     }
 
-    private void analyseFunction(SourceFile sourceFile, FunctionStatement statement) {
+    private void analyseConstruct(SourceFile sourceFile, String scope, ConstructStatement statement) {
+        String mangel = this.mangler.mangelConstruct(scope, statement);
+        if (this.analyseContext.checkMangel(mangel)) {
+
+            return;
+        }
+        this.createSyntaxError(sourceFile, statement.position(), "duplicated construct found from class '%s'", scope);
     }
 
-    private void analyseStructureType(SourceFile sourceFile, StructTypeStatement statement) {
+    private void analyseVariable(SourceFile sourceFile, String scope, VariableStatement statement) {
+        String mangel = this.mangler.mangelVariable(scope, statement);
+        if (this.analyseContext.checkMangel(mangel)) {
+            // todo check for functions parameters so there is no overloading and/or matching types
+            return;
+        }
+        this.createSyntaxError(sourceFile, statement.position(), "duplicated variable found: '%s'", statement.getName());
     }
 
-    private void analyseConstruct(SourceFile sourceFile, ConstructStatement statement) {
+    private void analyseLinkedNotice(SourceFile sourceFile, String scope, LinkedNoticeStatement statement) {
     }
 
-    private void analyseVariable(SourceFile sourceFile, VariableStatement statement) {
+    private void analyseUDTDeclaration(SourceFile sourceFile, String scope, UDTDeclareStatement udtDeclareStatement) {
     }
 
-    private void analyseLinkedNotice(SourceFile sourceFile, LinkedNoticeStatement statement) {
+    private void analyseBreak(SourceFile sourceFile, String scope, BreakStatement statement) {
     }
 
-    private void analyseUDTDeclaration(SourceFile sourceFile, UDTDeclareStatement udtDeclareStatement) {
+    private void analyseContinue(SourceFile sourceFile, String scope, ContinueStatement statement) {
     }
 
-    private void analyseBreak(SourceFile sourceFile, BreakStatement statement) {
+    private void analyseFor(SourceFile sourceFile, String scope, ForStatement statement) {
     }
 
-    private void analyseContinue(SourceFile sourceFile, ContinueStatement statement) {
+    private void analyseDoWhile(SourceFile sourceFile, String scope, DoWhileStatement statement) {
     }
 
-    private void analyseFor(SourceFile sourceFile, ForStatement statement) {
+    private void analyseIf(SourceFile sourceFile, String scope, IfStatement statement) {
     }
 
-    private void analyseDoWhile(SourceFile sourceFile, DoWhileStatement statement) {
+    private void analyseLoop(SourceFile sourceFile, String scope, LoopStatement statement) {
     }
 
-    private void analyseIf(SourceFile sourceFile, IfStatement statement) {
+    private void analyseReturn(SourceFile sourceFile, String scope, ReturnStatement statement) {
     }
 
-    private void analyseLoop(SourceFile sourceFile, LoopStatement statement) {
+    private void analyseSwitch(SourceFile sourceFile, String scope, SwitchStatement statement) {
     }
 
-    private void analyseReturn(SourceFile sourceFile, ReturnStatement statement) {
+    private void analyseUnreachable(SourceFile sourceFile, String scope, UnreachableStatement statement) {
     }
 
-    private void analyseSwitch(SourceFile sourceFile, SwitchStatement statement) {
+    private void analyseWhile(SourceFile sourceFile, String scope, WhileStatement statement) {
     }
 
-    private void analyseUnreachable(SourceFile sourceFile, UnreachableStatement statement) {
+    private void analyseYield(SourceFile sourceFile, String scope, YieldStatement statement) {
     }
 
-    private void analyseWhile(SourceFile sourceFile, WhileStatement statement) {
+    private void analyseBody(SourceFile sourceFile, String scope, BodyStatement statement) {
     }
 
-    private void analyseYield(SourceFile sourceFile, YieldStatement statement) {
-    }
-
-    private void analyseBody(SourceFile sourceFile, BodyStatement statement) {
-    }
-
-    private void analyseNative(SourceFile sourceFile, NativeStatement statement) {
+    private void analyseNative(SourceFile sourceFile, String scope, NativeStatement statement) {
     }
 
     private void analyseMatch(SourceFile sourceFile, MatchExpression statement) {
