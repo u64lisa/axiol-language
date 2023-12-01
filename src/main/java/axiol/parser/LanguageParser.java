@@ -18,7 +18,6 @@ import axiol.parser.tree.statements.special.NativeStatement;
 import axiol.parser.util.Parser;
 import axiol.parser.util.SourceFile;
 import axiol.parser.util.error.LanguageException;
-import axiol.parser.util.error.Position;
 import axiol.parser.util.error.TokenPosition;
 import axiol.parser.util.stream.TokenStream;
 import axiol.types.ParsedType;
@@ -138,7 +137,7 @@ public class LanguageParser extends Parser {
         TokenPosition position = this.tokenStream.currentPosition();
         this.tokenStream.advance();
 
-        List<Parameter> parameters = this.parseParameters();
+        List<Parameter> parameters = this.parseParameters(TokenType.L_PAREN, TokenType.R_PAREN);
 
         BodyStatement bodyStatement = this.parseBodyStatement();
 
@@ -181,23 +180,9 @@ public class LanguageParser extends Parser {
             return null;
         this.tokenStream.advance();
 
-        List<StructTypeStatement.FieldEntry> entries = new ArrayList<>();
-        while (!this.tokenStream.matches(TokenType.R_CURLY)) {
-            ParsedType type = parseType();
+        List<Parameter> parameters = this.parseParameters(TokenType.L_CURLY, TokenType.R_CURLY);
 
-            if (!this.tokenStream.matches(TokenType.LITERAL)) {
-                return null;
-            }
-            String name = this.tokenStream.current().getValue();
-            this.tokenStream.advance();
-
-            entries.add(new StructTypeStatement.FieldEntry(type, name));
-        }
-
-        this.expected(TokenType.R_CURLY);
-        this.tokenStream.advance();
-
-        return new StructTypeStatement(entries, structName, position);
+        return new StructTypeStatement(parameters, structName, position);
     }
 
     public BodyStatement parseClassBodyStatement() {
@@ -713,7 +698,7 @@ public class LanguageParser extends Parser {
         TokenPosition position = this.tokenStream.currentPosition();
         this.tokenStream.advance();
 
-        List<Parameter> parameters = this.parseParameters();
+        List<Parameter> parameters = this.parseParameters(TokenType.L_PAREN, TokenType.R_PAREN);
 
         ParsedType returnType = new ParsedType(TypeCollection.VOID, 0, 0);
         if (this.tokenStream.matches(TokenType.LAMBDA)) {
@@ -728,15 +713,15 @@ public class LanguageParser extends Parser {
                 parameters, bodyStatement, returnType, position);
     }
 
-    public List<Parameter> parseParameters() {
+    public List<Parameter> parseParameters(TokenType open, TokenType close) {
         List<Parameter> parameters = new ArrayList<>();
 
-        if (!this.tokenStream.matches(TokenType.L_PAREN)) {
+        if (!this.tokenStream.matches(open)) {
             return null;
         }
         this.tokenStream.advance();
 
-        while (!this.tokenStream.matches(TokenType.R_PAREN)) {
+        while (!this.tokenStream.matches(close)) {
             boolean pointer = false, reference = false;
             if (this.tokenStream.matches(TokenType.MULTIPLY)) {
                 this.tokenStream.advance();
@@ -761,7 +746,7 @@ public class LanguageParser extends Parser {
                 parameters.add(new Parameter(parameterName, type, null, pointer, reference));
                 continue;
             }
-            if (this.tokenStream.matches(TokenType.R_PAREN))
+            if (this.tokenStream.matches(close))
                 continue;
 
             this.expected(TokenType.EQUAL);
@@ -771,7 +756,7 @@ public class LanguageParser extends Parser {
             Expression defaultValue = this.expressionParser.parseExpression(0);
             parameters.add(new Parameter(parameterName, type, defaultValue, pointer, reference));
         }
-        if (!this.tokenStream.matches(TokenType.R_PAREN)) {
+        if (!this.tokenStream.matches(close)) {
             return null;
         }
         this.tokenStream.advance();

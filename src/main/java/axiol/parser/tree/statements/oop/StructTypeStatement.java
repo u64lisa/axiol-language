@@ -1,5 +1,6 @@
 package axiol.parser.tree.statements.oop;
 
+import axiol.parser.statement.Parameter;
 import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.util.error.TokenPosition;
@@ -10,10 +11,10 @@ import java.util.List;
 
 public class StructTypeStatement extends Statement {
 
-    private final List<FieldEntry> entries;
+    private final List<Parameter> entries;
     private final String name;
 
-    public StructTypeStatement(List<FieldEntry> entries, String name, TokenPosition position) {
+    public StructTypeStatement(List<Parameter> entries, String name, TokenPosition position) {
         this.entries = entries;
         this.name = name;
         this.position = position;
@@ -36,9 +37,7 @@ public class StructTypeStatement extends Statement {
         return new ArrayList<>();
     }
 
-    public record FieldEntry(ParsedType valueType, String name) { }
-
-    public List<FieldEntry> getEntries() {
+    public List<Parameter> getEntries() {
         return entries;
     }
 
