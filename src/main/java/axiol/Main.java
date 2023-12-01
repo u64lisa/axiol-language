@@ -1,8 +1,6 @@
 package axiol;
 
-import axiol.analyses.StaticTreeAnalyses;
-import axiol.lexer.LanguageLexer;
-import axiol.lexer.Token;
+import axiol.analyses.StaticTreeAnalysis;
 import axiol.parser.LanguageParser;
 import axiol.parser.tree.RootNode;
 
@@ -15,8 +13,9 @@ public class Main {
 
         //languageParser.parseSource("/test/expressions.ax", readFile("/test/expressions.ax"));
         RootNode rootNode = languageParser.parseSource("/test/syntax.ax", readFile("/test/syntax.ax"));
-        StaticTreeAnalyses treeAnalyses = new StaticTreeAnalyses();
-        rootNode = treeAnalyses.process(rootNode);
+
+        StaticTreeAnalysis staticTreeAnalysis = new StaticTreeAnalysis();
+        rootNode = staticTreeAnalysis.process(rootNode);
 
     }
 

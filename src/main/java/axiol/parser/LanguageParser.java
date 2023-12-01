@@ -176,10 +176,6 @@ public class LanguageParser extends Parser {
         TokenPosition position = this.tokenStream.currentPosition();
         this.tokenStream.advance();
 
-        if (!this.expected(TokenType.L_CURLY))
-            return null;
-        this.tokenStream.advance();
-
         List<Parameter> parameters = this.parseParameters(TokenType.L_CURLY, TokenType.R_CURLY);
 
         return new StructTypeStatement(parameters, structName, position);

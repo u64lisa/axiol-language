@@ -7,13 +7,13 @@ const **i32 owo = 1;
 const i32 TEST = 3 * 2 == 6 ? 69 : 420;
 
 structure Test {
-    i32 owo
-    i64 uwu
-    u8[] qwq
+    owo: i32,
+    uwu: i32,
+    test: str = "test"
 }
 structure Test2 {
-    i32 test
-    Test owo
+    test: 21,
+    ori: Test
 }
 
 // parent class
