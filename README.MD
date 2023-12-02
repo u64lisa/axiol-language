@@ -23,14 +23,18 @@ graph TD;
     parser["Parser (AST)"]
     lexer --> parser
     analysis["StaticAnalysis"]
+    error_stage_1["Analysis Error report"]
+    analysis --> error_stage_1
     optimising["ASTOptimizer"]
     parser --> analysis
     parser --> optimising    
     instructionGen["Instruction Generation"]
     optimising --> instructionGen
-    instructionModification["'Instruction Modification'"]
+    instructionModification["`Instruction Modification
+    using the **isa** keyword`"]
     instructionGen --> instructionModification
     optimising --> instructionModification
+    
 ```
 
 #### Compiler-Targets
