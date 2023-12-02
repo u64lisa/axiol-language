@@ -6,7 +6,7 @@ import axiol.parser.tree.statements.oop.ClassTypeStatement;
 import axiol.parser.tree.statements.oop.ConstructStatement;
 import axiol.parser.tree.statements.oop.FunctionStatement;
 import axiol.parser.tree.statements.oop.StructTypeStatement;
-import axiol.types.ParsedType;
+import axiol.types.SimpleType;
 import axiol.types.Type;
 
 import java.util.List;
@@ -62,7 +62,7 @@ public class Mangler {
                 ;
     }
 
-    public String mangelParseType(ParsedType type) {
+    public String mangelParseType(SimpleType type) {
         return FLAG_FORMAT.formatted("type", mangelType(type.getType())) +
                 FLAG_FORMAT.formatted("a_dep", type.getArrayDepth()) +
                 FLAG_FORMAT.formatted("p_dep", type.getPointerDepth());

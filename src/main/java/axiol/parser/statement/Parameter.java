@@ -1,18 +1,18 @@
 package axiol.parser.statement;
 
 import axiol.parser.tree.Expression;
-import axiol.types.ParsedType;
+import axiol.types.SimpleType;
 
 public final class Parameter {
     private final String name;
-    private final ParsedType parsedType;
+    private final SimpleType simpleType;
     private final Expression defaultValue;
     private final boolean pointer;
     private final boolean referenced;
 
-    public Parameter(String name, ParsedType parsedType, Expression defaultValue, boolean pointer, boolean referenced) {
+    public Parameter(String name, SimpleType simpleType, Expression defaultValue, boolean pointer, boolean referenced) {
         this.name = name;
-        this.parsedType = parsedType;
+        this.simpleType = simpleType;
         this.defaultValue = defaultValue;
         this.pointer = pointer;
         this.referenced = referenced;
@@ -26,8 +26,8 @@ public final class Parameter {
         return defaultValue;
     }
 
-    public ParsedType getParsedType() {
-        return parsedType;
+    public SimpleType getParsedType() {
+        return simpleType;
     }
 
     public boolean isPointer() {
@@ -42,7 +42,7 @@ public final class Parameter {
     public String toString() {
         return "Parameter{" +
                 "name='" + name + '\'' +
-                ", parsedType=" + parsedType +
+                ", parsedType=" + simpleType +
                 ", defaultValue=" + defaultValue +
                 ", pointer=" + pointer +
                 ", referenced=" + referenced +

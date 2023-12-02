@@ -4,7 +4,6 @@ import axiol.parser.statement.Parameter;
 import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.util.error.TokenPosition;
-import axiol.types.ParsedType;
 
 import java.util.ArrayList;
 import java.util.List;

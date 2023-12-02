@@ -6,7 +6,7 @@ import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.tree.statements.BodyStatement;
 import axiol.parser.util.error.TokenPosition;
-import axiol.types.ParsedType;
+import axiol.types.SimpleType;
 
 import java.util.List;
 
@@ -16,9 +16,9 @@ public class FunctionStatement extends Statement {
     private final Accessibility[] accessibility;
     private final List<Parameter> parameters;
     private final BodyStatement bodyStatement;
-    private final ParsedType returnType;
+    private final SimpleType returnType;
 
-    public FunctionStatement(String name, Accessibility[] accessibility, List<Parameter> parameters, BodyStatement bodyStatement, ParsedType returnType, TokenPosition position) {
+    public FunctionStatement(String name, Accessibility[] accessibility, List<Parameter> parameters, BodyStatement bodyStatement, SimpleType returnType, TokenPosition position) {
         this.name = name;
         this.accessibility = accessibility;
         this.parameters = parameters;
@@ -57,7 +57,7 @@ public class FunctionStatement extends Statement {
         return bodyStatement;
     }
 
-    public ParsedType getReturnType() {
+    public SimpleType getReturnType() {
         return returnType;
     }
 

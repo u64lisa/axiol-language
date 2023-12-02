@@ -1,11 +1,11 @@
 package axiol.types;
 
-public class ParsedType {
+public class SimpleType {
     private final Type type;
     private final int arrayDepth;
     private final int pointerDepth;
 
-    public ParsedType(Type type, int arrayDepth, int pointerDepth) {
+    public SimpleType(Type type, int arrayDepth, int pointerDepth) {
         this.type = type;
         this.arrayDepth = arrayDepth;
         this.pointerDepth = pointerDepth;

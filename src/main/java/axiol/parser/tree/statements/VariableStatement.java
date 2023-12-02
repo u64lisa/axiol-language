@@ -5,7 +5,7 @@ import axiol.parser.tree.Expression;
 import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.util.error.TokenPosition;
-import axiol.types.ParsedType;
+import axiol.types.SimpleType;
 
 import java.util.List;
 
@@ -13,10 +13,10 @@ public class VariableStatement extends Statement {
 
     private final Accessibility[] access;
     private final String name;
-    private final ParsedType type;
+    private final SimpleType type;
     private final Expression value;
 
-    public VariableStatement(String name, ParsedType type, Expression value, TokenPosition position, Accessibility... access) {
+    public VariableStatement(String name, SimpleType type, Expression value, TokenPosition position, Accessibility... access) {
         this.position = position;
         this.access = access;
         this.name = name;
@@ -50,7 +50,7 @@ public class VariableStatement extends Statement {
         return name;
     }
 
-    public ParsedType getType() {
+    public SimpleType getType() {
         return type;
     }
 
