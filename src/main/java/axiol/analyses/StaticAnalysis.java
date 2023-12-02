@@ -18,8 +18,6 @@ import axiol.parser.tree.statements.control.*;
 import axiol.parser.tree.statements.oop.*;
 import axiol.parser.tree.statements.special.NativeStatement;
 import axiol.parser.util.SourceFile;
-import axiol.parser.util.error.LanguageException;
-import axiol.parser.util.error.TokenPosition;
 
 import java.util.Arrays;
 
@@ -27,8 +25,6 @@ public class StaticAnalysis implements RootNodeProcessor {
 
     private final Mangler mangler = new Mangler();
     private final AnalyseContext analyseContext = new AnalyseContext();
-
-    private static final String NAME_PATTERN = "sc-%s_na-%s";
 
     private final NodeType[] definitionTypes = {
             NodeType.CLASS_TYPE_STATEMENT, NodeType.FUNCTION_STATEMENT,
@@ -170,7 +166,7 @@ public class StaticAnalysis implements RootNodeProcessor {
             }
             return;
         }
-        this.createSyntaxError(sourceFile, statement.position(), "duplicated class found: '%s'", statement.getName());
+        ValidationException.DUPLICATE.throwException(sourceFile, statement.position(), "class", statement.getName());
     }
 
     private void analyseFunction(SourceFile sourceFile, String scope, FunctionStatement statement) {
@@ -182,7 +178,7 @@ public class StaticAnalysis implements RootNodeProcessor {
             }
             return;
         }
-        this.createSyntaxError(sourceFile, statement.position(), "duplicated function found: '%s'", statement.getName());
+        ValidationException.DUPLICATE.throwException(sourceFile, statement.position(), "function", statement.getName());
     }
 
     private void analyseStructureType(SourceFile sourceFile, String scope, StructTypeStatement statement) {
@@ -191,7 +187,7 @@ public class StaticAnalysis implements RootNodeProcessor {
 
             return;
         }
-        this.createSyntaxError(sourceFile, statement.position(), "duplicated function found: '%s'", statement.getName());
+        ValidationException.DUPLICATE.throwException(sourceFile, statement.position(), "struct", statement.getName());
     }
 
     private void analyseConstruct(SourceFile sourceFile, String scope, ConstructStatement statement) {
@@ -200,7 +196,7 @@ public class StaticAnalysis implements RootNodeProcessor {
 
             return;
         }
-        this.createSyntaxError(sourceFile, statement.position(), "duplicated construct found from class '%s'", scope);
+        ValidationException.DUPLICATE.throwException(sourceFile, statement.position(), "construct", scope);
     }
 
     private void analyseVariable(SourceFile sourceFile, String scope, VariableStatement statement) {
@@ -209,7 +205,7 @@ public class StaticAnalysis implements RootNodeProcessor {
             // todo check for functions parameters so there is no overloading and/or matching types
             return;
         }
-        this.createSyntaxError(sourceFile, statement.position(), "duplicated variable found: '%s'", statement.getName());
+        ValidationException.DUPLICATE.throwException(sourceFile, statement.position(), "variable", statement.getName());
     }
 
     private void analyseLinkedNotice(SourceFile sourceFile, String scope, LinkedNoticeStatement statement) {
@@ -285,12 +281,6 @@ public class StaticAnalysis implements RootNodeProcessor {
     }
 
     private void analyseCall(SourceFile sourceFile, CallExpression statement) {
-    }
-
-    public void createSyntaxError(SourceFile sourceFile, TokenPosition position, String message, Object... args) {
-        LanguageException languageException = new LanguageException(sourceFile.getContent(),
-                position, sourceFile.getFilePath(), message, args);
-        languageException.throwError();
     }
 
 }
