@@ -30,10 +30,10 @@ graph TD;
     parser --> optimising    
     instructionGen["Instruction Generation"]
     optimising --> instructionGen
-    instructionModification["`Instruction Modification
-    using the **isa** keyword`"]
+    instructionModification["Instruction Modification
+    using the **isa** keyword"]
     instructionGen --> instructionModification
-    optimising --> instructionModification
+    optimising-- ISAStatement ---instructionModification
     
 ```
 
