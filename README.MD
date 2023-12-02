@@ -10,6 +10,13 @@ and documentations to features and general elements of the language.
 (🚧) This feature is halfway implemented or still in progress   
 (❌) This feature is NOT implemented and is still in planing
 
+#### Diagram
+
+```mermaid
+graph TD;
+    TEST->OWO;
+```
+
 #### Compiler-Targets
 
 
