@@ -19,6 +19,7 @@ import axiol.parser.tree.statements.control.*;
 import axiol.parser.tree.statements.oop.*;
 import axiol.parser.tree.statements.special.NativeStatement;
 import axiol.parser.util.SourceFile;
+import axiol.types.SimpleType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -133,7 +134,7 @@ public class StaticAnalysis implements RootNodeProcessor {
 
     public void processSpecialCasesStatements(SourceFile sourceFile, String scope, List<ScopeVariable> scopeVars, Statement statement) {
         switch (statement.type()) {
-            case BODY_STATEMENT ->        this.analyseBody(sourceFile, scope, scopeVars, (BodyStatement) statement);
+            case BODY_STATEMENT ->        this.analyseBody(  sourceFile, scope, scopeVars, (BodyStatement)   statement);
             case NATIVE_STATEMENT ->      this.analyseNative(sourceFile, scope, scopeVars, (NativeStatement) statement);
 
             default -> ValidationException.UNMATCHED_STATEMENT
@@ -185,7 +186,7 @@ public class StaticAnalysis implements RootNodeProcessor {
         String mangel = this.mangler.mangelFunction(scope, statement);
         if (this.analyseContext.checkMangel(mangel)) {
             for (Parameter parameter : statement.getParameters()) {
-                scopeVars.add(new ScopeVariable(parameter.getName(),parameter.getParsedType()));
+                scopeVars.add(new ScopeVariable(parameter.getName(), parameter.getParsedType()));
             }
 
             for (Statement statements : statement.getBodyStatement().getStatements()) {
@@ -217,7 +218,19 @@ public class StaticAnalysis implements RootNodeProcessor {
     private void analyseVariable(SourceFile sourceFile, String scope, List<ScopeVariable> scopeVars, VariableStatement statement) {
         String mangel = this.mangler.mangelVariable(scope, statement);
         if (this.analyseContext.checkMangel(mangel)) {
-            // todo check for functions parameters so there is no overloading and/or matching types
+            SimpleType type = statement.getType();
+            String name = statement.getName();
+
+            ScopeVariable scopeVariable = new ScopeVariable(name, type);
+
+            if (scopeVars.stream().anyMatch(current -> current.getName().equals(name)
+                    && scopeVariable.getType().equals(type))) {
+
+                ValidationException.DUPLICATED_VAR.throwException(sourceFile, statement.position(), name);
+                return;
+            }
+
+            scopeVars.add(new ScopeVariable(name, type));
             return;
         }
         ValidationException.DUPLICATE.throwException(sourceFile, statement.position(), "variable", statement.getName());

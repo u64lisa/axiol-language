@@ -1,5 +1,7 @@
 package axiol.types;
 
+import java.util.Objects;
+
 public class SimpleType {
     private final Type type;
     private final int arrayDepth;
@@ -21,6 +23,19 @@ public class SimpleType {
 
     public int getPointerDepth() {
         return pointerDepth;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        SimpleType type1 = (SimpleType) object;
+        return arrayDepth == type1.arrayDepth && pointerDepth == type1.pointerDepth && Objects.equals(type, type1.type);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, arrayDepth, pointerDepth);
     }
 
     @Override

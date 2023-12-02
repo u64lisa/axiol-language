@@ -121,8 +121,8 @@ function structTest() {
     i32 mow = test.owo;
 }
 
-function debug(string: *str) {
-
+function stringTest(owo: i32) {
+    i32 owo;
 }
 
 function subFunction(test: i32) -> u0 {

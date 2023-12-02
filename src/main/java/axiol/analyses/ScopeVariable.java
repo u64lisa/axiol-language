@@ -19,4 +19,12 @@ public class ScopeVariable {
     public SimpleType getType() {
         return type;
     }
+
+    @Override
+    public String toString() {
+        return "ScopeVariable{" +
+                "name='" + name + '\'' +
+                ", type=" + type +
+                '}';
+    }
 }

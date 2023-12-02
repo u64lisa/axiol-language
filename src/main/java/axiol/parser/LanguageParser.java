@@ -742,15 +742,15 @@ public class LanguageParser extends Parser {
                 parameters.add(new Parameter(parameterName, type, null, pointer, reference));
                 continue;
             }
-            if (this.tokenStream.matches(close))
+            if (this.tokenStream.matches(TokenType.EQUAL)) {
+                this.tokenStream.advance();
+
+                Expression defaultValue = this.expressionParser.parseExpression(0);
+                parameters.add(new Parameter(parameterName, type, defaultValue, pointer, reference));
                 continue;
+            }
 
-            this.expected(TokenType.EQUAL);
-            this.tokenStream.advance();
-
-            // lowest expression level bcs parameter!
-            Expression defaultValue = this.expressionParser.parseExpression(0);
-            parameters.add(new Parameter(parameterName, type, defaultValue, pointer, reference));
+            parameters.add(new Parameter(parameterName, type, null, pointer, reference));
         }
         if (!this.tokenStream.matches(close)) {
             return null;
@@ -807,17 +807,17 @@ public class LanguageParser extends Parser {
         TokenPosition position = this.tokenStream.currentPosition();
         this.tokenStream.advance();
 
-        if (!expected(TokenType.EQUAL))
-            return null;
+        Expression initExpression = null;
+        if (this.tokenStream.matches(TokenType.EQUAL)) {
+            this.tokenStream.advance();
 
-        this.tokenStream.advance();
-
-        Expression expression = this.parseExpression();
+            initExpression = this.parseExpression();
+        }
 
         if (this.tokenStream.matches(TokenType.SEMICOLON))
             this.tokenStream.advance();
 
-        return new VariableStatement(name, type, expression, position, accessibility);
+        return new VariableStatement(name, type, initExpression, position, accessibility);
     }
 
     public Accessibility parseAccess() {

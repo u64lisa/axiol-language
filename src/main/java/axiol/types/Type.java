@@ -1,5 +1,7 @@
 package axiol.types;
 
+import java.util.Objects;
+
 public class Type {
 
     private final String name;
@@ -24,6 +26,19 @@ public class Type {
 
     public PrimitiveTypes getPrimitiveTypes() {
         return primitiveTypes;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        Type type = (Type) object;
+        return arrayDepth == type.arrayDepth && Objects.equals(name, type.name) && primitiveTypes == type.primitiveTypes;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, primitiveTypes, arrayDepth);
     }
 
     @Override

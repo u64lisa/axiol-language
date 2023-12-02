@@ -7,7 +7,8 @@ import axiol.parser.util.error.TokenPosition;
 public enum ValidationException {
 
     DUPLICATE("duplicated element '%s' with name '%s' found!"),
-    UNMATCHED_STATEMENT("statement '%s' for wrong category '%s' found!");
+    UNMATCHED_STATEMENT("statement '%s' for wrong category '%s' found!"),
+    DUPLICATED_VAR("variable with name '%s' already defined in in current scope!")
     ;
 
     private final String format;
