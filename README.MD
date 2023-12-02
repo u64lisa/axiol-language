@@ -21,8 +21,8 @@ graph LR;
     lexer --> parser
     analysis["StaticAnalysis"]
     optimising["ASTOptimizer"]
-    parser -> analysis
-    parser -> optimising    
+    parser --> analysis
+    parser --> optimising    
 ```
 
 #### Compiler-Targets
