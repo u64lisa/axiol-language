@@ -221,10 +221,7 @@ public class StaticAnalysis implements RootNodeProcessor {
             SimpleType type = statement.getType();
             String name = statement.getName();
 
-            ScopeVariable scopeVariable = new ScopeVariable(name, type);
-
-            if (scopeVars.stream().anyMatch(current -> current.getName().equals(name)
-                    && scopeVariable.getType().equals(type))) {
+            if (scopeVars.stream().anyMatch(current -> current.getName().equals(name))) {
 
                 ValidationException.DUPLICATED_VAR.throwException(sourceFile, statement.position(), name);
                 return;
