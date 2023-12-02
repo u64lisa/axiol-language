@@ -28,16 +28,6 @@ graph TD;
     analysis["StaticAnalysis"]
     error_stage_1["Analysis Error report"]
     analysis --> error_stage_1
-    
-    subgraph one LR;
-    Analysis --> DuplicationCheck
-    DuplicationCheck --> AccessCheck
-    AccessCheck --> TypeCheck
-    TypeCheck --> DeclareCheck
-    DeclareCheck --> ReturnCheck
-    
-    end
-    
     optimising["ASTOptimizer"]
     parser --> analysis
     parser --> optimising    
