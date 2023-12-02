@@ -13,8 +13,8 @@ and documentations to features and general elements of the language.
 #### Diagram
 
 ```mermaid
-graph TD;
-    SOURCE *.ax-->Lexer(Token-Stream)-->Parser;
+graph LR;
+    A-->B;
 ```
 
 #### Compiler-Targets
