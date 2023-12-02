@@ -14,7 +14,7 @@ and documentations to features and general elements of the language.
 
 ```mermaid
 graph TD;
-    TEST-->OWO;
+    SOURCE *.ax-->Lexer(Token-Stream)-->Parser;
 ```
 
 #### Compiler-Targets
