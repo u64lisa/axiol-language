@@ -14,7 +14,7 @@ and documentations to features and general elements of the language.
 
 ```mermaid
 graph LR;
-    A-->B;
+    A Token-->B;
 ```
 
 #### Compiler-Targets
