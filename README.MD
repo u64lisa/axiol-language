@@ -14,7 +14,9 @@ and documentations to features and general elements of the language.
 
 ```mermaid
 graph LR;
-    "A Token"-->B;
+    source[Source *.ax]
+    lexer[Lexer (TokenStream)]
+    source --> lexer;
 ```
 
 #### Compiler-Targets
