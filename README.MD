@@ -17,9 +17,12 @@ and documentations to features and general elements of the language.
 title: Language Diagram
 ---
 graph TD;
-    source[("Source *.ax")]
+    classDef red stroke:#f00
+    classDef green stroke:#0f0
+
+    source(["Source *.ax"])
     lexer["Lexer (TokenStream)"]
-    source --> lexer
+    source:::red --> lexer
     parser["Parser (AST)"]
     lexer --> parser
     analysis["StaticAnalysis"]
@@ -42,13 +45,15 @@ graph TD;
     linker --> importingLogic
     importingLogic --> importedSources
     importedSources --> lexer;
-    compiler["Instructions to target"]
-    inlineASM["Generating Inline Assembly"]
+    compiler["Compiler Instructions
+    to target"]
+    inlineASM["Generating Inline 
+    Assembly"]
     linker --> inlineASM
     linker --> compiler
-       finishedCode[("Finished generated
-        Code *.asm")]
-    compiler --> finishedCode
+       finishedCode(["Finished generated
+        Code *.asm"])
+    compiler --> finishedCode:::green
 ```
 
 #### Compiler-Targets
