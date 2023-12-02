@@ -31,10 +31,10 @@ graph TD;
     
     subgraph one LR;
     Analysis --> DuplicationCheck
-    Analysis --> AccessCheck
-    Analysis --> TypeCheck
-    Analysis --> DeclareCheck
-    Analysis --> ReturnCheck
+    DuplicationCheck --> AccessCheck
+    AccessCheck --> TypeCheck
+    TypeCheck --> DeclareCheck
+    DeclareCheck --> ReturnCheck
     
     end
     
