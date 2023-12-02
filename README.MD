@@ -17,6 +17,9 @@ graph LR;
     source["Source *.ax"]
     lexer["Lexer (TokenStream)"]
     source --> lexer
+    parser["Parser (AST)"]
+    lexer --> parser
+    
 ```
 
 #### Compiler-Targets
