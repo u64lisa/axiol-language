@@ -13,7 +13,10 @@ and documentations to features and general elements of the language.
 #### Diagram
 
 ```mermaid
-graph LR;
+---
+title: Language Diagram
+---
+graph TD;
     source["Source *.ax"]
     lexer["Lexer (TokenStream)"]
     source --> lexer
@@ -23,6 +26,11 @@ graph LR;
     optimising["ASTOptimizer"]
     parser --> analysis
     parser --> optimising    
+    instructionGen["Instruction Generation"]
+    optimising --> instructionGen
+    instructionModification["'Instruction Modification'"]
+    instructionGen --> instructionModification
+    optimising --> instructionModification
 ```
 
 #### Compiler-Targets
