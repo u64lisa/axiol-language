@@ -29,7 +29,7 @@ graph TD;
     error_stage_1["Analysis Error report"]
     analysis --> error_stage_1
     
-    subgraph one
+    subgraph one LR;
     Analysis --> DuplicationCheck
     Analysis --> AccessCheck
     Analysis --> TypeCheck
