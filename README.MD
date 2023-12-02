@@ -34,6 +34,18 @@ graph TD;
     using the **isa** keyword"]
     instructionGen --> instructionModification
     optimising-- ISAStatement ---instructionModification
+    linker["Linking multiple
+    instruction sets"]
+    instructionModification --> linker
+    importingLogic["importing files"]
+    importedSources["imported files"]
+    linker --> importingLogic
+    importingLogic --> importedSources
+    importedSources --> lexer;
+    compiler["Instructions to target"]
+    inlineASM["Generating Inline Assembly"]
+    linker --> inlineASM
+    linker --> compiler
     
 ```
 
