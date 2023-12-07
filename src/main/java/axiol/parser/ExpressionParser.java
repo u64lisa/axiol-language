@@ -10,6 +10,7 @@ import axiol.parser.tree.expressions.extra.ReferenceExpression;
 import axiol.parser.tree.expressions.sub.BooleanExpression;
 import axiol.parser.tree.expressions.sub.NumberExpression;
 import axiol.parser.tree.expressions.sub.StringExpression;
+import axiol.parser.util.error.Position;
 import axiol.parser.util.error.TokenPosition;
 import axiol.parser.util.stream.TokenStream;
 
@@ -257,6 +258,7 @@ public class ExpressionParser {
         }
         if (tokenStream.matches(TokenType.LITERAL)) {
             String value = this.tokenStream.current().getValue();
+            TokenPosition namePosition = this.tokenStream.currentPosition();
             StringBuilder path = new StringBuilder(value);
             this.tokenStream.advance();
 
@@ -297,10 +299,10 @@ public class ExpressionParser {
                 if (this.tokenStream.matches(TokenType.SEMICOLON))
                     this.tokenStream.advance();
 
-                return new CallExpression(path.toString(), parameters, this.tokenStream.currentPosition());
+                return new CallExpression(path.toString(), parameters, namePosition);
             }
 
-            return new LiteralExpression(path.toString(), this.tokenStream.currentPosition());
+            return new LiteralExpression(path.toString(), namePosition);
         }
 
         this.languageParser.createSyntaxError(

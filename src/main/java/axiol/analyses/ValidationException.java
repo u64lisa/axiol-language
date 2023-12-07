@@ -13,6 +13,7 @@ public enum ValidationException {
 
     // todo expr
     UNDECLARED_VAR("tried to use variable '%s' but couldn't find any declared var!"),
+    UNDECLARED_FUNCTION("tried to use function '%s' but couldn't find any declared function!"),
     INCOMPATIBLE_TYPES("incompatible types of '%s' tried to assign with: '%s'"),
     MISSING_RETURN_TYPE("missing return type for function '%s' return type '%s'"),
     INVALID_CAST("can't cast type from '%s' to '%s'!"),
