@@ -1,8 +1,8 @@
 ## _*axiol-language*_
 
-- axiol-language is a small hobby language without any dependencies compiling 
-to assembly and other different targets. the following readme  shows further descriptions
-and documentations to features and general elements of the language.
+- axiol-language is a small hobby language without any dependencies compiling
+  to assembly and other different targets. the following readme shows further descriptions
+  and documentations to features and general elements of the language.
 
 #### The following symbols show the current state of a feature, syntax or general element:
 
@@ -10,7 +10,7 @@ and documentations to features and general elements of the language.
 (🚧) This feature is halfway implemented or still in progress   
 (❌) This feature is NOT implemented and is still in planing
 
-#### Diagram
+### Diagram
 
 ```mermaid
 ---
@@ -56,7 +56,19 @@ graph TD;
     compiler --> finishedCode:::green
 ```
 
-#### Compiler-Targets
+### Compiler-Targets
 
+| Architecture                              | Supported Sizes | Status |
+|-------------------------------------------|-----------------|--------|
+| ARM                                       |                 | ❌      |
+| THUMB<br> THUMB_EB                        |                 | ❌      |
+| AARCH64<br> AARCH64_32<br> AARCH64_BE     |                 | ❌      |
+| X86<br> X86_64                            |                 | ❌      |
+| RISCV64<br> RISCV32                       |                 | ❌      |
+| MIPS<br> MIPS_EL<br> MIPS64<br> MIPS64_EL |                 | ❌      |
+| PPC32<br> PPC32_LE<br> PPC64<br> PPC64_LE |                 | ❌      |
+| SPARC64                                   |                 | ❌      |
+| AVR                                       |                 | ❌      |
+| IR                                        |                 | ❌      |
 
 #### Documentation 
