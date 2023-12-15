@@ -1,6 +1,5 @@
-package axiol.instructuion;
+package axiol.instruction;
 
-import axiol.types.PrimitiveTypes;
 import axiol.types.Type;
 
 public abstract class InstructionElement {

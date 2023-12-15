@@ -1,4 +1,4 @@
-package axiol.analyses;
+package axiol.types;
 
 import axiol.types.SimpleType;
 

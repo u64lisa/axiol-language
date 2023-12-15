@@ -1,4 +1,4 @@
-package axiol.instructuion.reference;
+package axiol.instruction.reference;
 
 import axiol.types.Type;
 

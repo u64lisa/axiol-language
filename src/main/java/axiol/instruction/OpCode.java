@@ -1,4 +1,4 @@
-package axiol.instructuion;
+package axiol.instruction;
 
 public enum OpCode {
     // operation

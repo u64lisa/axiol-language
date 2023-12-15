@@ -1,6 +1,6 @@
-package axiol.instructuion.value;
+package axiol.instruction.value;
 
-import axiol.instructuion.InstructionElement;
+import axiol.instruction.InstructionElement;
 import axiol.types.PrimitiveTypes;
 
 public class UDTInstructionElement extends InstructionElement {

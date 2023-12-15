@@ -1,8 +1,7 @@
-package axiol.instructuion.value;
+package axiol.instruction.value;
 
-import axiol.instructuion.InstructionElement;
-import axiol.instructuion.reference.InstructionReference;
-import axiol.types.PrimitiveTypes;
+import axiol.instruction.InstructionElement;
+import axiol.instruction.reference.InstructionReference;
 import axiol.types.Type;
 
 public class ReferenceInstructionElement extends InstructionElement {

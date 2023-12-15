@@ -1,7 +1,6 @@
-package axiol.instructuion.value;
+package axiol.instruction.value;
 
-import axiol.instructuion.InstructionElement;
-import axiol.types.PrimitiveTypes;
+import axiol.instruction.InstructionElement;
 import axiol.types.Type;
 import axiol.types.TypeCollection;
 

@@ -1,5 +1,6 @@
 package axiol.analyses;
 
+import axiol.instruction.TreeVisitor;
 import axiol.mangler.Mangler;
 import axiol.parser.RootNodeProcessor;
 import axiol.parser.statement.Parameter;
@@ -19,6 +20,7 @@ import axiol.parser.tree.statements.control.*;
 import axiol.parser.tree.statements.oop.*;
 import axiol.parser.tree.statements.special.NativeStatement;
 import axiol.parser.util.SourceFile;
+import axiol.types.ScopeVariable;
 import axiol.types.SimpleType;
 
 import java.util.ArrayList;
@@ -26,7 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @SuppressWarnings("unused")
-public class StaticAnalysis implements RootNodeProcessor {
+public class StaticAnalysis extends TreeVisitor implements RootNodeProcessor {
 
     private final Mangler mangler = new Mangler();
     private final AnalyseContext analyseContext = new AnalyseContext();

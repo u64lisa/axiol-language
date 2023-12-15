@@ -1,4 +1,4 @@
-package axiol.instructuion;
+package axiol.instruction;
 
 import java.util.List;
 
