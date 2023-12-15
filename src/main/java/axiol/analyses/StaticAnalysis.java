@@ -302,7 +302,11 @@ public class StaticAnalysis implements RootNodeProcessor {
     private void analyseLinkedNotice(SourceFile sourceFile, String scope, String scopeMangled, List<ScopeVariable> scopeVars, LinkedNoticeStatement statement) {
     }
 
-    private void analyseUDTDeclaration(SourceFile sourceFile, String scope, String scopeMangled, List<ScopeVariable> scopeVars, UDTDeclareStatement udtDeclareStatement) {
+    private void analyseUDTDeclaration(SourceFile sourceFile, String scope, String scopeMangled,
+                                       List<ScopeVariable> scopeVars, UDTDeclareStatement udtDeclareStatement) {
+
+        System.out.println(scope); // TODO
+        System.out.println(udtDeclareStatement.getReferenceName());
     }
 
     private void analyseBreak(SourceFile sourceFile, String scope, String scopeMangled, List<ScopeVariable> scopeVars, BreakStatement statement) {
