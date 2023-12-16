@@ -42,7 +42,19 @@ public class LanguageException extends IllegalStateException {
         this.message = message.formatted(arguments);
     }
 
+    public LanguageException(String message, Object... arguments) {
+        this.content = null;
+        this.path = null;
+        this.position = null;
+        this.message = message.formatted(arguments);
+    }
+
     public void throwError() {
+        if (this.content == null && position == null) {
+            System.err.println(" | " + message);
+            throw this;
+        }
+
         StringBuilder errorMessage = new StringBuilder();
 
         errorMessage.append("(")

@@ -34,4 +34,9 @@ public enum ValidationException {
 
         languageException.throwError();
     }
+    public void throwException(Object... arguments) {
+        LanguageException languageException = new LanguageException(this.format, arguments);
+
+        languageException.throwError();
+    }
 }

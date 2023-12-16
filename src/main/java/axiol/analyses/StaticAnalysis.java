@@ -28,7 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @SuppressWarnings("unused")
-public class StaticAnalysis extends TreeVisitor implements RootNodeProcessor {
+public class StaticAnalysis implements RootNodeProcessor<Void> {
 
     private final Mangler mangler = new Mangler();
     private final AnalyseContext analyseContext = new AnalyseContext();
@@ -68,6 +68,11 @@ public class StaticAnalysis extends TreeVisitor implements RootNodeProcessor {
             this.processStatement(sourceFile, "", "global", new ArrayList<>(), statement);
         }
         return rootNode;
+    }
+
+    @Override
+    public Void processNewReturn(RootNode rootNode) {
+        throw new IllegalArgumentException("not implemented!");
     }
 
     //@formatter:off
