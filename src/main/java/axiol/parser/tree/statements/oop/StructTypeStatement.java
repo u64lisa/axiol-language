@@ -7,15 +7,18 @@ import axiol.parser.util.error.TokenPosition;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class StructTypeStatement extends Statement {
 
     private final List<Parameter> entries;
     private final String name;
+    private final UUID uuid;
 
-    public StructTypeStatement(List<Parameter> entries, String name, TokenPosition position) {
+    public StructTypeStatement(List<Parameter> entries, String name, UUID uuid, TokenPosition position) {
         this.entries = entries;
         this.name = name;
+        this.uuid = uuid;
         this.position = position;
     }
 
@@ -34,6 +37,11 @@ public class StructTypeStatement extends Statement {
     @Override
     public List<Statement> childStatements() {
         return new ArrayList<>();
+    }
+
+
+    public UUID getUuid() {
+        return uuid;
     }
 
     public List<Parameter> getEntries() {

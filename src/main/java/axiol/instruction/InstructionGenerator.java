@@ -14,4 +14,5 @@ public class InstructionGenerator {
 
         return instructionSet;
     }
+
 }

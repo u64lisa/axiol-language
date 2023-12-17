@@ -11,7 +11,7 @@ structure Test {
     uwu: i32,
     test: str = "test"
 }
-structure Test2 {
+public structure Test2 {
     test: 21,
     ori: Test
 }

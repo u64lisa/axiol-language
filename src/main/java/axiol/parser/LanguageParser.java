@@ -111,7 +111,11 @@ public class LanguageParser extends Parser {
             }
             return this.parseConstructStatement();
         }
-        if (this.tokenStream.matches(TokenType.STRUCTURE)) {
+        if ((isAccessModifier() && this.tokenStream.peak(1).getType().equals(TokenType.STRUCTURE)) ||
+                this.tokenStream.matches(TokenType.STRUCTURE)) {
+            if (isAccessModifier()) {
+                return this.parseStructStatement(this.parseAccess());
+            }
             return this.parseStructStatement();
         }
 
@@ -168,7 +172,7 @@ public class LanguageParser extends Parser {
         return new ClassTypeStatement(accessibility, className, parentClass, bodyStatement, id, position);
     }
 
-    private Statement parseStructStatement() {
+    private Statement parseStructStatement(Accessibility... accessibility) {
         this.tokenStream.advance();
 
         if (!this.tokenStream.matches(TokenType.LITERAL)) {
@@ -180,7 +184,10 @@ public class LanguageParser extends Parser {
 
         List<Parameter> parameters = this.parseParameters(TokenType.L_CURLY, TokenType.R_CURLY);
 
-        return new StructTypeStatement(parameters, structName, position);
+        UUID uuid = UUID.randomUUID();
+
+        references.add(new Reference(ReferenceType.STRUCT, structName, null, uuid));
+        return new StructTypeStatement(parameters, structName, uuid, position);
     }
 
     public BodyStatement parseClassBodyStatement() {
