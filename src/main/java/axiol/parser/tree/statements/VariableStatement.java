@@ -8,6 +8,7 @@ import axiol.parser.util.error.TokenPosition;
 import axiol.types.SimpleType;
 
 import java.util.List;
+import java.util.UUID;
 
 public class VariableStatement extends Statement {
 
@@ -15,8 +16,10 @@ public class VariableStatement extends Statement {
     private final String name;
     private final SimpleType type;
     private final Expression value;
+    private final UUID uuid;
 
-    public VariableStatement(String name, SimpleType type, Expression value, TokenPosition position, Accessibility... access) {
+    public VariableStatement(String name, SimpleType type, Expression value, UUID uuid, TokenPosition position, Accessibility... access) {
+        this.uuid = uuid;
         this.position = position;
         this.access = access;
         this.name = name;
@@ -41,6 +44,9 @@ public class VariableStatement extends Statement {
         return NodeType.VAR_STATEMENT;
     }
 
+    public UUID getUuid() {
+        return uuid;
+    }
 
     public Accessibility[] getAccess() {
         return access;

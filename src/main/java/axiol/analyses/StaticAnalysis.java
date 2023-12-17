@@ -289,6 +289,7 @@ public class StaticAnalysis implements RootNodeProcessor<Void> {
 
     private void analyseVariable(SourceFile sourceFile, String scope, String scopeMangled, List<ScopeVariable> scopeVars, VariableStatement statement) {
         String mangel = this.mangler.mangelVariable(scope, statement);
+
         if (this.analyseContext.checkMangel(mangel)) {
             SimpleType type = statement.getType();
             String name = statement.getName();

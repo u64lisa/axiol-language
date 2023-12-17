@@ -9,6 +9,7 @@ import axiol.parser.util.error.TokenPosition;
 import axiol.types.SimpleType;
 
 import java.util.List;
+import java.util.UUID;
 
 public class FunctionStatement extends Statement {
 
@@ -17,13 +18,15 @@ public class FunctionStatement extends Statement {
     private final List<Parameter> parameters;
     private final BodyStatement bodyStatement;
     private final SimpleType returnType;
+    private final UUID uuid;
 
-    public FunctionStatement(String name, Accessibility[] accessibility, List<Parameter> parameters, BodyStatement bodyStatement, SimpleType returnType, TokenPosition position) {
+    public FunctionStatement(String name, Accessibility[] accessibility, List<Parameter> parameters, BodyStatement bodyStatement, SimpleType returnType, UUID uuid, TokenPosition position) {
         this.name = name;
         this.accessibility = accessibility;
         this.parameters = parameters;
         this.bodyStatement = bodyStatement;
         this.returnType = returnType;
+        this.uuid = uuid;
         this.position = position;
     }
 
@@ -59,6 +62,10 @@ public class FunctionStatement extends Statement {
 
     public SimpleType getReturnType() {
         return returnType;
+    }
+
+    public UUID getUuid() {
+        return uuid;
     }
 
     public Accessibility[] getAccessibility() {

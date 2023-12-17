@@ -23,10 +23,7 @@ import axiol.parser.util.stream.TokenStream;
 import axiol.types.*;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * The type Language parser.
@@ -165,8 +162,10 @@ public class LanguageParser extends Parser {
 
         BodyStatement bodyStatement = this.parseClassBodyStatement();
 
-        this.references.add(new Reference(ReferenceType.CLASS, className, null, accessibility));
-        return new ClassTypeStatement(accessibility, className, parentClass, bodyStatement, position);
+        UUID id = UUID.randomUUID();
+
+        this.references.add(new Reference(ReferenceType.CLASS, className, null, id, accessibility));
+        return new ClassTypeStatement(accessibility, className, parentClass, bodyStatement, id, position);
     }
 
     private Statement parseStructStatement() {
@@ -708,9 +707,11 @@ public class LanguageParser extends Parser {
 
         BodyStatement bodyStatement = this.parseBodyStatement();
 
-        this.references.add(new Reference(ReferenceType.FUNCTION, functionName, returnType, accessibility));
+        UUID id = UUID.randomUUID();
+
+        this.references.add(new Reference(ReferenceType.FUNCTION, functionName, returnType, id, accessibility));
         return new FunctionStatement(functionName, accessibility,
-                parameters, bodyStatement, returnType, position);
+                        parameters, bodyStatement, returnType, id, position);
     }
 
     public List<Parameter> parseParameters(TokenType open, TokenType close) {
@@ -821,8 +822,10 @@ public class LanguageParser extends Parser {
         if (this.tokenStream.matches(TokenType.SEMICOLON))
             this.tokenStream.advance();
 
-        this.references.add(new Reference(ReferenceType.VAR, name, type, accessibility));
-        return new VariableStatement(name, type, initExpression, position, accessibility);
+        UUID id = UUID.randomUUID();
+
+        this.references.add(new Reference(ReferenceType.VAR, name, type, id, accessibility));
+        return new VariableStatement(name, type, initExpression, id, position, accessibility);
     }
 
     public Accessibility parseAccess() {

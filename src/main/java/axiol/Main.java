@@ -1,6 +1,8 @@
 package axiol;
 
 import axiol.analyses.StaticAnalysis;
+import axiol.instruction.InstructionGenerator;
+import axiol.instruction.InstructionSet;
 import axiol.parser.LanguageParser;
 import axiol.parser.tree.RootNode;
 
@@ -16,6 +18,9 @@ public class Main {
 
         StaticAnalysis staticAnalysis = new StaticAnalysis();
         rootNode = staticAnalysis.process(rootNode);
+
+        InstructionGenerator instructionGenerator = new InstructionGenerator();
+        InstructionSet instructionSet = instructionGenerator.generate(rootNode);
 
     }
 

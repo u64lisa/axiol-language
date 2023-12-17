@@ -7,6 +7,7 @@ import axiol.parser.tree.statements.BodyStatement;
 import axiol.parser.util.error.TokenPosition;
 
 import java.util.List;
+import java.util.UUID;
 
 public class ClassTypeStatement extends Statement {
 
@@ -14,12 +15,14 @@ public class ClassTypeStatement extends Statement {
     private final String name;
     private final String parent;
     private final BodyStatement bodyStatement;
+    private final UUID uuid;
 
-    public ClassTypeStatement(Accessibility[] accessibility, String name, String parent, BodyStatement bodyStatement, TokenPosition position) {
+    public ClassTypeStatement(Accessibility[] accessibility, String name, String parent, BodyStatement bodyStatement, UUID uuid, TokenPosition position) {
         this.accessibility = accessibility;
         this.name = name;
         this.parent = parent;
         this.bodyStatement = bodyStatement;
+        this.uuid = uuid;
         this.position = position;
     }
 
@@ -50,6 +53,10 @@ public class ClassTypeStatement extends Statement {
 
     public String getParent() {
         return parent;
+    }
+
+    public UUID getUuid() {
+        return uuid;
     }
 
     public BodyStatement getBodyStatement() {
