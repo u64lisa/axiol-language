@@ -1,5 +1,10 @@
 package axiol.instruction;
 
 public class InstructionGenerator {
-    //todo
+    private final InstructionSet instructionSet = new InstructionSet();
+
+    public InstructionGenerator() {
+        instructionSet.getInstructions().clear();
+    }
+
 }

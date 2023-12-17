@@ -1,5 +1,5 @@
 package axiol.types;
 
 public enum ReferenceType {
-    LABEL, VAR, FUNCTION, CLASS
+    LABEL, VAR, FUNCTION, CLASS, ENUM,
 }

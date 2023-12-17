@@ -56,6 +56,11 @@ public class ExpressionParser {
      *
      * x var = test.t;
      * - var = test.*t; TODO
+     *
+     * - var = (test) -> null;
+     * - var = (test) -> {};
+     * - var = () -> null;
+     * - var = () -> {};
      **/
     public Expression parseExpression(int priority) {
         if (priority < 0)

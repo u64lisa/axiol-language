@@ -20,9 +20,7 @@ import axiol.parser.util.SourceFile;
 import axiol.parser.util.error.LanguageException;
 import axiol.parser.util.error.TokenPosition;
 import axiol.parser.util.stream.TokenStream;
-import axiol.types.SimpleType;
-import axiol.types.Type;
-import axiol.types.TypeCollection;
+import axiol.types.*;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -40,6 +38,7 @@ public class LanguageParser extends Parser {
             TokenType.EXTERN, TokenType.PROTECTED
     };
 
+    private final List<Reference> references = new ArrayList<>();
     private ExpressionParser expressionParser;
     private TokenStream tokenStream;
     private String source;
@@ -63,6 +62,8 @@ public class LanguageParser extends Parser {
         RootNode rootNode = new RootNode(sourceFile);
         LanguageLexer lexer = new LanguageLexer();
 
+        references.clear();
+
         this.tokenStream = new TokenStream(sourceFile, lexer.tokenizeString(content));
         this.source = content;
         this.path = path;
@@ -76,6 +77,7 @@ public class LanguageParser extends Parser {
                 rootNode.getStatements().add(statement);
         }
 
+        rootNode.getReferences().addAll(references);
         return rootNode;
     }
 
@@ -163,6 +165,7 @@ public class LanguageParser extends Parser {
 
         BodyStatement bodyStatement = this.parseClassBodyStatement();
 
+        this.references.add(new Reference(ReferenceType.CLASS, className, null, accessibility));
         return new ClassTypeStatement(accessibility, className, parentClass, bodyStatement, position);
     }
 
@@ -705,6 +708,7 @@ public class LanguageParser extends Parser {
 
         BodyStatement bodyStatement = this.parseBodyStatement();
 
+        this.references.add(new Reference(ReferenceType.FUNCTION, functionName, returnType, accessibility));
         return new FunctionStatement(functionName, accessibility,
                 parameters, bodyStatement, returnType, position);
     }
@@ -817,6 +821,7 @@ public class LanguageParser extends Parser {
         if (this.tokenStream.matches(TokenType.SEMICOLON))
             this.tokenStream.advance();
 
+        this.references.add(new Reference(ReferenceType.VAR, name, type, accessibility));
         return new VariableStatement(name, type, initExpression, position, accessibility);
     }
 
