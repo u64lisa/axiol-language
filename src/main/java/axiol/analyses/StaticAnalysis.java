@@ -1,6 +1,5 @@
 package axiol.analyses;
 
-import axiol.instruction.TreeVisitor;
 import axiol.mangler.Mangler;
 import axiol.parser.RootNodeProcessor;
 import axiol.parser.statement.Parameter;
