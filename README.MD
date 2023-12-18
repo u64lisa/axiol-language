@@ -71,4 +71,46 @@ graph TD;
 | AVR                                       |                 | ❌      |
 | IR                                        |                 | ❌      |
 
-#### Documentation 
+## _Documentation_ 
+
+#### Primitives:
+
+| name    | desc                                   | size             | example (scaled on max range exp)        |
+|---------|----------------------------------------|------------------|------------------------------------------|
+| i8      | signed type                            | 8                | 42                                       |
+| i16     | signed type                            | 16               | 1000                                     |
+| i32     | signed type                            | 32               | 50000                                    |
+| i64     | signed type                            | 64               | 1000000                                  |
+| i128    | signed type                            | 128              | 100000000000000000000000000000000000000  |
+| u8      | unsigned type                          | 8                | 255u                                     |
+| u16     | unsigned type                          | 16               | 50000u                                   |
+| u32     | unsigned type                          | 32               | 400000000u                               |
+| u64     | unsigned type                          | 64               | 1000000000000000000u                     |
+| u128    | unsigned type                          | 128              | 100000000000000000000000000000000000000u |
+| f32     | floating type                          | 32               | 3.14f                                    |
+| f64     | floating type                          | 64               | 3.141592653589793f                       |
+| u0      | equal to void                          | 0                | ()                                       |
+| string  | wrapped char-array                     | len of array * 8 | "Hello, World"                           |
+| char    | single char                            | 8                | 'A'                                      |
+| boolean | 2 state type                           | 8                | true false                               |
+| void    | unusable value can be used for returns | 0                | void                                     |
+| null    | null value can be used for returns     | 0                | null                                     |
+
+#### Usage References, Pointer, Clones
+
+```rust
+Syntax:
+<type> [ptr][clone]<name> = [ref]<expr>;
+
+ptr:
+i32 *pointer = &value;
+
+ref:
+i32 reference = *pointer;
+
+address:
+() address = (void*) &reference;
+
+clone:
+i32 'test = orig;
+```
