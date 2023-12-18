@@ -98,19 +98,23 @@ graph TD;
 
 #### Usage References, Pointer, Clones
 
-```rust
 Syntax:
+```
 <type> [ptr][clone]<name> = [ref]<expr>;
-
-ptr:
+```
+pointer:
+```cpp
 i32 *pointer = &value;
-
-ref:
+```
+references:
+```cpp
 i32 reference = *pointer;
-
+```
 address:
+```cpp
 () address = (void*) &reference;
-
+```
 clone:
+```cpp
 i32 'test = orig;
 ```
