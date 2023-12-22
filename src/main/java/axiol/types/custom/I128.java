@@ -1,177 +1,199 @@
 package axiol.types.custom;
 
-import java.math.BigInteger;
+public class I128 extends CustomNumber<I128> {
 
-@SuppressWarnings("unused")
-public class I128 {
+    private static final I128 ZERO = new I128(0,0);
 
-    private long high;
-    private long low;
+    private long positive;
+    private long negative;
 
-    public I128(long high, long low) {
-        this.high = high;
-        this.low = low;
+    public I128(long positive, long negative) {
+        this.positive = positive;
+        this.negative = negative;
     }
 
-    public I128() {
-
+    public I128(String value) {
+        // todo parse string
     }
 
-    public I128 fromString(String text) {
-        assert text != null && !text.isEmpty() : "Invalid string!";
-        text = text.replaceFirst("^0+", "");
-
-        BigInteger integer = new BigInteger(text);
-        high = integer.shiftRight(64).longValue();
-        low = integer.longValue();
-
-        return this;
-    }
-
-    public I128 add(I128 other) {
-        long newLow = this.low + other.low;
-        long carry = (newLow < 0 && other.low < 0) || (newLow >= 0 && other.low >= 0) ? 0 : 1;
-        long newHigh = this.high + other.high + carry;
-        return new I128(newHigh, newLow);
-    }
-
-    public I128 subtract(I128 other) {
-        return add(other.negate());
-    }
-
-    // todo recode
-    @Deprecated
-    public I128 multiply(I128 other) {
-        long[] currentArray = split(this);
-        long[] otherArray = split(other);
-
-        long[] result = new long[4];
-        for (int i = 0; i < 2; i++) {
-            for (int j = 0; j < 2; j++) {
-                int firstIndex = i + j;
-                int secondIndex = i + j + 1;
-
-                long product = currentArray[i] * otherArray[j] + result[firstIndex];
-                result[firstIndex] = product & 0xFFFFFFFFL;
-                result[secondIndex] += product >>> 32;
-            }
-        }
-        return combine(result);
-    }
-
-    // todo recode
-    @Deprecated
-    public I128 divide(I128 divisor) {
-        if (divisor.equal(new I128(0, 0))) {
-            throw new ArithmeticException("Division by zero");
-        }
-
-        I128 quotient = new I128();
-        I128 remainder = new I128();
-        I128 absDividend = this.abs();
-        I128 absDivisor = divisor.abs();
-
-        while (absDividend.compare(absDivisor) >= 0) {
-            absDividend = absDividend.subtract(absDivisor);
-            quotient = quotient.add(new I128(0, 1));
-        }
-
-        if ((this.high > 0) ^ (divisor.high < 0)) {
-            quotient = quotient.negate();
-        }
-        return quotient;
-    }
-
-    public long[] split(I128 value) {
-        return new long[]{
-                value.high >>> 32, value.high & 0xFFFFFFFL,
-                value.low >>> 32, value.low & 0xFFFFFFFL
-        };
-    }
-
-    public I128 combine(long[] values) {
-        return new I128((values[0] << 32) | values[1], (values[2] << 32) | values[3]);
-    }
-
-    public I128 abs() {
-        return this.compare(new I128(0, 0)) >= 0 ? this : this.negate();
-    }
-
-    public I128 shiftLeft(int pos) {
-        if (pos >= 64) {
-            return new I128(low << (pos - 64), 0);
-        } else {
-            long newHigh = (high << pos) | (low >>> (64 - pos));
-            long newLow = low << pos;
-            return new I128(newHigh, newLow);
-        }
-    }
-
-    public I128 shiftRight(int pos) {
-        if (pos >= 64) {
-            return new I128(0, high >>> (pos - 64));
-        } else {
-            long newLow = (low >>> pos) | (high << (64 - 4));
-            long newHigh = high >> pos;
-            return new I128(newHigh, newLow);
-        }
-    }
-
-    public I128 bitwiseAnd(I128 other) {
-        return new I128(this.high & other.high, this.low & other.low);
-    }
-
-    public I128 bitwiseOr(I128 other) {
-        return new I128(this.high | other.high, this.low | other.low);
-    }
-
-    public I128 bitwiseXOr(I128 other) {
-        return new I128(this.high ^ other.high, this.low ^ other.low);
-    }
-
-    public I128 negate() {
-        return new I128(~this.high, ~this.low)
-                .add(new I128(0, 1));
-    }
-
-    public int compare(I128 other) {
-        if (this.high < other.high) return -1;
-        if (this.high > other.high) return 1;
-        return Long.compareUnsigned(this.low, other.low);
-    }
-
-    public I128 modulus(I128 divisor) {
-        if (divisor.equal(new I128(0, 0))) {
-            throw new ArithmeticException("Division by zero");
-        }
-
-        I128 result = this;
-        while (result.compare(divisor) >= 0) {
-            result = result.subtract(divisor);
-        }
-
-        return result;
-    }
-
-    public long toLong() {
-        if (high != 0 && high != -1) {
-            throw new ArithmeticException("Cannot cast I128 to long either to big or small");
-        }
-
-        return low;
-    }
-
-    public boolean equal(I128 other) {
-        return this.compare(other) == 0;
-    }
-
-    public I128 cast(long value) {
-        return new I128((value < 0) ? -1 : 0,value);
+    public I128(long fromLong) {
+        // todo long
     }
 
     @Override
-    public String toString() {
-        return "%d%016X".formatted(high, low);
+    public I128 add(I128 other) {
+        long combPositive = this.positive + other.positive;
+        long combNegative = this.negative + other.negative;
+
+        if (combPositive < 0 || combNegative < 0) {
+            throw new ArithmeticException("Overflow in addition");
+        }
+
+        return new I128(combPositive, combNegative);
     }
 
+    @Override
+    public I128 subtract(I128 other) {
+        long combPositive = this.positive - other.positive;
+        long combNegative = this.negative - other.negative;
+
+        if (combPositive < 0 || combNegative < 0) {
+            throw new ArithmeticException("Overflow in subtraction");
+        }
+
+        return new I128(combPositive, combNegative);
+    }
+
+    @Override
+    public I128 multiply(I128 other) {
+        return null;
+    }
+
+    @Override
+    public I128 divide(I128 other) {
+        return null;
+    }
+
+    @Override
+    public I128 shiftLeft(I128 other) {
+        int shiftAmount = (int) (other.longValue() & 0x7F); // Only consider lower 7 bits for shift amount
+        return shiftLeft(shiftAmount);
+    }
+
+    @Override
+    public I128 shiftLeft(int other) {
+        if (other >= 128) {
+            return I128.ZERO; // Shifting by 128 or more bits results in zero
+        }
+
+        long shiftedPositive;
+        long shiftedNegative;
+
+        if (other >= 64) {
+            shiftedPositive = (negative >> (other - 64)) | (positive << (128 - other));
+            shiftedNegative = positive >> (other - 64);
+        } else {
+            shiftedPositive = (positive << other) | (negative >> (64 - other));
+            shiftedNegative = negative << other;
+        }
+
+        return new I128(shiftedPositive, shiftedNegative);
+    }
+
+    @Override
+    public I128 shiftRight(I128 other) {
+        int shiftAmount = (int) (other.longValue() & 0x7F); // Only consider lower 7 bits for shift amount
+        return shiftRight(shiftAmount);
+    }
+
+    @Override
+    public I128 shiftRight(int other) {
+        if (other >= 128) {
+            return I128.ZERO; // Shifting by 128 or more bits results in zero
+        }
+
+        long shiftedPositive;
+        long shiftedNegative;
+
+        if (other >= 64) {
+            shiftedPositive = positive >> (other - 64);
+            shiftedNegative = (positive << (128 - other)) | (negative >> other);
+        } else {
+            shiftedPositive = positive >> other;
+            shiftedNegative = (negative << (64 - other)) | (positive >> (64 - other));
+        }
+
+        return new I128(shiftedPositive, shiftedNegative);
+    }
+
+    @Override
+    public I128 xor(I128 other) {
+        return new I128(this.positive ^ other.positive,
+                this.negative^ other.negative);
+    }
+
+    @Override
+    public I128 or(I128 other) {
+        return new I128(this.positive | other.positive,
+                this.negative | other.negative);
+    }
+
+    @Override
+    public I128 and(I128 other) {
+        return new I128(this.positive & other.positive,
+                this.negative & other.negative);
+    }
+
+    @Override
+    public I128 remainder(I128 other) {
+        if (other.isZero())
+            throw new ArithmeticException("Division by zero");
+
+        I128 quotient = this.divide(other);
+        I128 product = other.multiply(quotient);
+
+        return this.subtract(product);
+    }
+
+    @Override
+    public I128 negate() {
+        return new I128(negative, positive);
+    }
+
+    @Override
+    public boolean isZero() {
+        return this.positive == 0 && this.negative == 0;
+    }
+
+    @Override
+    public boolean biggerThan(I128 other) {
+        return compareTo(other) > 0;
+    }
+
+    @Override
+    public boolean smallerThan(I128 other) {
+        return compareTo(other) < 0;
+    }
+
+    @Override
+    public boolean equals(I128 customNumber) {
+        return compareTo(customNumber) == 0;
+    }
+
+    @Override
+    public String toHexString() {
+        return "%d%016X".formatted(positive, negative);
+    }
+
+    @Override
+    public int compareTo(I128 o) {
+        int compared = Long.compare(this.positive, o.positive);
+        if (compared != 0) {
+            return compared;
+        }
+        return Long.compareUnsigned(this.negative, o.negative);
+    }
+
+    @Override
+    public int intValue() {
+        return (int) ((positive << 32) | (negative & 0xFFFFFFFF));;
+    }
+
+    @Override
+    public long longValue() {
+        return (positive << 32) | (negative & 0xFFFFFFFFFFFFFFFFL);
+    }
+
+    @Override
+    public float floatValue() {
+        // Convert the combined low 64 bits to a float
+        return Float.intBitsToFloat((int) ((positive << 32) | (negative >>> 32)));
+    }
+
+    @Override
+    public double doubleValue() {
+        // Convert the combined 128 bits to a double
+        long combined = (positive << 32) | (negative & 0xFFFFFFFFFFFFFFFFL);
+        return Double.longBitsToDouble(combined);
+    }
 }
