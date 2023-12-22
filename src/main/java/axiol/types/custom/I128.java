@@ -176,7 +176,7 @@ public class I128 extends CustomNumber<I128> {
 
     @Override
     public int intValue() {
-        return (int) ((positive << 32) | (negative & 0xFFFFFFFF));;
+        return (int) ((positive << 32) | (negative & 0xFFFFFFFF));
     }
 
     @Override
