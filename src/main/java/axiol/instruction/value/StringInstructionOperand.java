@@ -1,13 +1,13 @@
 package axiol.instruction.value;
 
-import axiol.instruction.InstructionElement;
+import axiol.instruction.InstructionOperand;
 import axiol.types.Type;
 import axiol.types.TypeCollection;
 
-public class StringInstructionElement extends InstructionElement {
+public class StringInstructionOperand extends InstructionOperand {
     private final String value;
 
-    public StringInstructionElement(String value) {
+    public StringInstructionOperand(String value) {
         this.value = value;
     }
 

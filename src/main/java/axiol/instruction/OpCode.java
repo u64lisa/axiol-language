@@ -63,8 +63,8 @@ public enum OpCode {
     RETURN,                     // return
     GOTO,                       // goto LABEL
     LABEL,                      // label
-    JUMP_IF,                    // v1 == r2 ? goto LABEL
-    JUMP_IF_NOT_EQ,             // v1 != r2 ? goto LABEL
+    GOTO_IF,                    // v1 == r2 ? goto LABEL
+    GOTO_IF_NOT_EQ,             // v1 != r2 ? goto LABEL
     CALL,
     ;
 

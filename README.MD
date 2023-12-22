@@ -116,5 +116,24 @@ address:
 ```
 clone:
 ```cpp
-i32 'test = orig;
+i32 @test = orig;
 ```
+
+#### Lambda 
+```cpp
+(<ident>,...) -> {}
+(<ident>,...) -> expr
+
+examples:
+
+lambdaTest(() -> 4);
+
+lambdaTest((argc, args) -> 4);
+
+lambdaTest((args) -> 4);
+
+lambdaTest((args) -> {
+
+});
+```
+

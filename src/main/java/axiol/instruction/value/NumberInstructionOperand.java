@@ -1,13 +1,13 @@
 package axiol.instruction.value;
 
-import axiol.instruction.InstructionElement;
+import axiol.instruction.InstructionOperand;
 import axiol.types.Type;
 
-public class NumberInstructionElement extends InstructionElement {
+public class NumberInstructionOperand extends InstructionOperand {
     private final Type type;
     private final long value;
 
-    public NumberInstructionElement(Type type, long value) {
+    public NumberInstructionOperand(Type type, long value) {
         this.type = type;
         this.value = value;
     }

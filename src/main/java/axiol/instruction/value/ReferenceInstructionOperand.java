@@ -1,20 +1,20 @@
 package axiol.instruction.value;
 
-import axiol.instruction.InstructionElement;
+import axiol.instruction.InstructionOperand;
 import axiol.instruction.reference.InstructionReference;
 import axiol.types.Type;
 
-public class ReferenceInstructionElement extends InstructionElement {
+public class ReferenceInstructionOperand extends InstructionOperand {
 
     private final InstructionReference reference;
 
-    public ReferenceInstructionElement(InstructionReference reference) {
+    public ReferenceInstructionOperand(InstructionReference reference) {
         this.reference = reference;
     }
 
     @Override
     public Type size() {
-        return reference.getType();
+        return reference.getValueType().getType();
     }
 
     public InstructionReference getReference() {

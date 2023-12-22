@@ -5,9 +5,9 @@ import java.util.List;
 public class Instruction {
     private final OpCode opCode;
     private final int position;
-    private final List<InstructionElement> elements;
+    private final List<InstructionOperand> elements;
 
-    public Instruction(OpCode opCode, int position, List<InstructionElement> elements) {
+    public Instruction(OpCode opCode, int position, List<InstructionOperand> elements) {
         this.opCode = opCode;
         this.position = position;
         this.elements = elements;
@@ -21,7 +21,7 @@ public class Instruction {
         return position;
     }
 
-    public List<InstructionElement> getElements() {
+    public List<InstructionOperand> getElements() {
         return elements;
     }
 }

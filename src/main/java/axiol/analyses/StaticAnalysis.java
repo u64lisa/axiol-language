@@ -32,6 +32,16 @@ public class StaticAnalysis implements RootNodeProcessor<Void> {
     private final Mangler mangler = new Mangler();
     private final AnalyseContext analyseContext = new AnalyseContext();
 
+    private final NumberRangeCheck I8_Check  = new NumberRangeCheck(0x7F,                -0x80);
+    private final NumberRangeCheck I16_Check = new NumberRangeCheck(0x7FFF,              -0x8000);
+    private final NumberRangeCheck I32_Check = new NumberRangeCheck(0x7FFFFFFF,          -0x80000000);
+    private final NumberRangeCheck I64_Check = new NumberRangeCheck(0x7fffffffffffffffL, -0x8000000000000000L);
+
+    private final NumberRangeCheck U8_Check  = new NumberRangeCheck(0xFF,                0x00);
+    private final NumberRangeCheck U16_Check = new NumberRangeCheck(0xFFFF,              0x0000);
+    private final NumberRangeCheck U32_Check = new NumberRangeCheck(0xFFFFFFFFL,         0x00000000);
+    private final NumberRangeCheck U64_Check = new NumberRangeCheck(0xFFFFFFFFFFFFFFFFL, 0x0000000000000000);
+
     private final NodeType[] definitionTypes = {
             NodeType.CLASS_TYPE_STATEMENT, NodeType.FUNCTION_STATEMENT,
             NodeType.STRUCT_TYPE_STATEMENT, NodeType.CONSTRUCT_STATEMENT,

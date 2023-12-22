@@ -1,25 +1,28 @@
 package axiol.instruction.reference;
 
-import axiol.types.Type;
+import axiol.parser.statement.Accessibility;
+import axiol.types.Reference;
+import axiol.types.ReferenceType;
+import axiol.types.SimpleType;
 
-public class InstructionReference {
+import java.util.UUID;
+
+public class InstructionReference extends Reference {
 
     private final int id;
-    private final String name;
-    private final Type type;
 
-    public InstructionReference(int id, String name, Type type) {
+    public InstructionReference(Reference reference, int id) {
+        super(reference.getType(), reference.getName(),
+                reference.getValueType(), reference.getUuid(),
+                reference.getAccess());
+
         this.id = id;
-        this.name = name;
-        this.type = type;
     }
 
-    public Type getType() {
-        return type;
-    }
-
-    public String getName() {
-        return name;
+    public InstructionReference(ReferenceType type, String name, SimpleType valueType,
+                                UUID uuid, int id, Accessibility... access) {
+        super(type, name, valueType, uuid, access);
+        this.id = id;
     }
 
     public int getId() {
