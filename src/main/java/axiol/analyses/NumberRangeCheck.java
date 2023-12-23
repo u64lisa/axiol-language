@@ -1,6 +1,5 @@
 package axiol.analyses;
 
-import axiol.types.custom.I128;
 import axiol.types.custom.U128;
 
 public class NumberRangeCheck {
@@ -12,9 +11,9 @@ public class NumberRangeCheck {
     }
 
     public boolean isValid(Number value) {
-        if (value instanceof I128 i128) {
+        //if (value instanceof I128 i128) {
 
-        }
+        //}
         if (value instanceof U128 u128) {
 
         }
