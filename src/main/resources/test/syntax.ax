@@ -41,6 +41,8 @@ function main(argc: i32, args: *str[]) -> i32 {
 
     i32[] uwu = {2, 3, 4, 5};
 
+    i128 bigggg = 1283471751274912571295721312412412421;
+
     subFunction(test);
 
     owo();

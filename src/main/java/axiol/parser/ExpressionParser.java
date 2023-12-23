@@ -31,6 +31,8 @@ public class ExpressionParser {
             // numbers
             TokenType.INT, TokenType.LONG, TokenType.DOUBLE,
             TokenType.FLOAT, TokenType.HEX_NUM,
+            // big numbers
+            TokenType.BIG_NUMBER, TokenType.BIG_HEX_NUM,
             // other
             TokenType.LITERAL
     };
