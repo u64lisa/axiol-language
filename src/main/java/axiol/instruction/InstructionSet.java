@@ -10,4 +10,11 @@ public class InstructionSet {
     public List<Instruction> getInstructions() {
         return instructions;
     }
+
+    @Override
+    public String toString() {
+        return "InstructionSet{" +
+                "instructions=" + instructions +
+                '}';
+    }
 }

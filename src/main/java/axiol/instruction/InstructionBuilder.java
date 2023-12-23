@@ -1,16 +1,18 @@
 package axiol.instruction;
 
 import axiol.instruction.reference.InstructionReference;
+import axiol.instruction.value.BooleanInstructionOperand;
 import axiol.instruction.value.NumberInstructionOperand;
 import axiol.instruction.value.ReferenceInstructionOperand;
 import axiol.instruction.value.StringInstructionOperand;
-import axiol.types.PrimitiveTypes;
-import axiol.types.Reference;
+import axiol.types.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class InstructionBuilder {
+
     private final List<InstructionOperand> elements = new ArrayList<>();
     private OpCode opCode = null;
     private int position = -1;
@@ -30,7 +32,7 @@ public class InstructionBuilder {
         return this;
     }
 
-    public InstructionBuilder numberOperand(PrimitiveTypes type, long value) {
+    public InstructionBuilder numberOperand(PrimitiveTypes type, Number value) {
         elements.add(new NumberInstructionOperand(type.toType(), value));
         return this;
     }
@@ -40,8 +42,18 @@ public class InstructionBuilder {
         return this;
     }
 
+    public InstructionBuilder booleanOperand(boolean value) {
+        elements.add(new BooleanInstructionOperand(value));
+        return this;
+    }
+
     public InstructionBuilder referenceOperand(Reference reference, int referenceId) {
         elements.add(new ReferenceInstructionOperand(new InstructionReference(reference, referenceId++)));
+        return this;
+    }
+
+    public InstructionBuilder referenceOperand(InstructionReference reference) {
+        elements.add(new ReferenceInstructionOperand(reference));
         return this;
     }
 

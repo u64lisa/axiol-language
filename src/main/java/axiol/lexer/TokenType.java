@@ -63,11 +63,15 @@ public enum TokenType {
     UNDERSCORE,
     COLON,
 
+    BYTE,
+    SHORT,
     FLOAT,
     LONG,
     INT,
     DOUBLE,
+    BIG_NUMBER,
     HEX_NUM,
+    BIG_HEX_NUM,
 
     ELSE,
     WHILE,
