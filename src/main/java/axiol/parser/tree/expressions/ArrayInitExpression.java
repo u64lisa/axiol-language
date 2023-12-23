@@ -4,16 +4,19 @@ import axiol.parser.tree.Expression;
 import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.util.error.TokenPosition;
+import axiol.types.SimpleType;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ArrayInitExpression extends Expression {
     private final List<Expression> values;
+    private final SimpleType simpleType;
     private final Expression initSize;
 
-    public ArrayInitExpression(List<Expression> values, Expression initSize, TokenPosition position) {
+    public ArrayInitExpression(List<Expression> values, SimpleType simpleType, Expression initSize, TokenPosition position) {
         this.values = values;
+        this.simpleType = simpleType;
         this.initSize = initSize;
         this.position = position;
     }
@@ -44,5 +47,10 @@ public class ArrayInitExpression extends Expression {
 
     public List<Expression> getValues() {
         return values;
+    }
+
+    @Override
+    public SimpleType valuedType() {
+        return simpleType;
     }
 }

@@ -4,17 +4,22 @@ import axiol.parser.tree.Expression;
 import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.util.error.TokenPosition;
+import axiol.types.Reference;
+import axiol.types.SimpleType;
 
+import java.sql.Ref;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CallExpression extends Expression {
 
-    private final String pathToFunction;
+    private final Reference reference;
+    private final String path;
     private final List<Expression> parameters;
 
-    public CallExpression(String pathToFunction, List<Expression> parameters, TokenPosition position) {
-        this.pathToFunction = pathToFunction;
+    public CallExpression(Reference reference, String path, List<Expression> parameters, TokenPosition position) {
+        this.reference = reference;
+        this.path = path;
         this.parameters = parameters;
         this.position = position;
     }
@@ -30,8 +35,8 @@ public class CallExpression extends Expression {
         return parameters;
     }
 
-    public String getPathToFunction() {
-        return pathToFunction;
+    public Reference getReference() {
+        return reference;
     }
 
     @Override
@@ -44,4 +49,12 @@ public class CallExpression extends Expression {
         return NodeType.CALL_EXPR;
     }
 
+    public String getPath() {
+        return path;
+    }
+
+    @Override
+    public SimpleType valuedType() {
+        return reference.getValueType();
+    }
 }

@@ -20,4 +20,11 @@ public class ReferenceInstructionOperand extends InstructionOperand {
     public InstructionReference getReference() {
         return reference;
     }
+
+    @Override
+    public String toString() {
+        return "ReferenceInstructionOperand{" +
+                "reference=" + reference +
+                '}';
+    }
 }

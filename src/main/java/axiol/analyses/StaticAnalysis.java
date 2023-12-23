@@ -322,8 +322,6 @@ public class StaticAnalysis implements RootNodeProcessor<Void> {
     private void analyseUDTDeclaration(SourceFile sourceFile, String scope, String scopeMangled,
                                        List<ScopeVariable> scopeVars, UDTDeclareStatement udtDeclareStatement) {
 
-        System.out.println(scope); // TODO
-        System.out.println(udtDeclareStatement.getReferenceName());
     }
 
     private void analyseBreak(SourceFile sourceFile, String scope, String scopeMangled, List<ScopeVariable> scopeVars, BreakStatement statement) {
@@ -393,7 +391,7 @@ public class StaticAnalysis implements RootNodeProcessor<Void> {
     }
 
     private void analyseCall(SourceFile sourceFile, String scope, String scopeMangled, List<ScopeVariable> scopeVars, CallExpression statement) {
-        String[] rawPath = statement.getPathToFunction().split("/");
+        String[] rawPath = statement.getPath().split("/");
         String[] pathParts = null;
 
         if (rawPath.length > 1) {
@@ -418,9 +416,9 @@ public class StaticAnalysis implements RootNodeProcessor<Void> {
             }
         }
 
-        if (!this.analyseContext.getFunctions().contains(statement.getPathToFunction()) && !foundMatchingUdt) {
+        if (!this.analyseContext.getFunctions().contains(statement.getPath()) && !foundMatchingUdt) {
             ValidationException.UNDECLARED_FUNCTION.throwException(sourceFile,
-                    statement.position(), statement.getPathToFunction());
+                    statement.position(), statement.getPath());
         }
     }
 

@@ -5,6 +5,7 @@ import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.tree.statements.control.SwitchStatement;
 import axiol.parser.util.error.TokenPosition;
+import axiol.types.SimpleType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -47,6 +48,10 @@ public class MatchExpression extends Expression {
         return NodeType.MATCH_EXPR;
     }
 
+    @Override
+    public SimpleType valuedType() {
+        return condition.valuedType();
+    }
 
     @Override
     public List<Statement> childStatements() {

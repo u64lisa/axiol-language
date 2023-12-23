@@ -5,6 +5,7 @@ import axiol.parser.tree.Expression;
 import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.util.error.TokenPosition;
+import axiol.types.SimpleType;
 
 import java.util.List;
 
@@ -31,6 +32,11 @@ public class BinaryExpression extends Expression {
     @Override
     public NodeType type() {
         return NodeType.BINARY_EXPR;
+    }
+
+    @Override
+    public SimpleType valuedType() {
+        return leftAssociate.valuedType();
     }
 
     @Override

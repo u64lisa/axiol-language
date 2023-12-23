@@ -19,4 +19,11 @@ public class StringInstructionOperand extends InstructionOperand {
     public String getValue() {
         return value;
     }
+
+    @Override
+    public String toString() {
+        return "StringInstructionOperand{" +
+                "value='" + value + '\'' +
+                '}';
+    }
 }

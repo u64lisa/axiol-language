@@ -53,7 +53,7 @@ public class LanguageLexer {
         LEXER.addRule(TokenType.XOR, lexerRule ->       lexerRule.addString("^"));
         LEXER.addRule(TokenType.EQUAL, lexerRule ->     lexerRule.addString("="));
         LEXER.addRule(TokenType.QUESTION, lexerRule ->  lexerRule.addString("?"));
-        LEXER.addRule(TokenType.NOT, lexerRule ->  lexerRule.addString("!"));
+        LEXER.addRule(TokenType.NOT, lexerRule ->       lexerRule.addString("!"));
 
         // types
         LEXER.addRule(TokenType.BOOLEAN, lexerRule -> lexerRule.addString("true", "false"));
@@ -61,11 +61,15 @@ public class LanguageLexer {
         LEXER.addRule(TokenType.STRING, lexerRule ->  lexerRule.addMultiline("\"", "\\", "\""));
 
         // numbers
-        LEXER.addRule(TokenType.FLOAT, lexerRule ->   lexerRule.addRegexes("[0-9]+(\\.[0-9]+)?[fF][uU]?"));
-        LEXER.addRule(TokenType.LONG, lexerRule ->    lexerRule.addRegexes("[0-9]+[Ll][uU]?"));
-        LEXER.addRule(TokenType.INT, lexerRule ->     lexerRule.addRegexes("[0-9]+?[uU][uU]?"));
-        LEXER.addRule(TokenType.DOUBLE, lexerRule ->  lexerRule.addRegexes("[0-9]+(\\.[0-9]+)?[dD]?[uU]?"));
-        LEXER.addRule(TokenType.HEX_NUM, lexerRule -> lexerRule.addRegexes("0x[0-9a-fA-F]+"));
+        LEXER.addRule(TokenType.SHORT, lexerRule ->       lexerRule.addRegexes("[0-9]{0,5}[sS][uU]?"));
+        LEXER.addRule(TokenType.BYTE, lexerRule ->        lexerRule.addRegexes("[0-9]{0,3}[bB][uU]?"));
+        LEXER.addRule(TokenType.FLOAT, lexerRule ->       lexerRule.addRegexes("[0-9](\\.[0-9]+)?[fF][uU]?"));
+        LEXER.addRule(TokenType.LONG, lexerRule ->        lexerRule.addRegexes("[0-9]{0,20}+[Ll][uU]?"));
+        LEXER.addRule(TokenType.INT, lexerRule ->         lexerRule.addRegexes("[0-9]{0,10}[uU]?"));
+        LEXER.addRule(TokenType.DOUBLE, lexerRule ->      lexerRule.addRegexes("[0-9]{0,20}(\\.[0-9]+)?[dD]?[uU]?"));
+        LEXER.addRule(TokenType.BIG_NUMBER, lexerRule ->  lexerRule.addRegexes("[0-9]{20,32}[uU]?"));
+        LEXER.addRule(TokenType.HEX_NUM, lexerRule ->     lexerRule.addRegexes("0x[0-9a-fA-F]+"));
+        LEXER.addRule(TokenType.BIG_HEX_NUM, lexerRule -> lexerRule.addRegexes("0x[0-9a-fA-F]{0,32}"));
 
         // brackets
         LEXER.addRule(TokenType.L_CURLY, lexerRule ->   lexerRule.addString("{"));

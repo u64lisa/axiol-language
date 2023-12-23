@@ -5,6 +5,7 @@ import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.util.error.Position;
 import axiol.parser.util.error.TokenPosition;
+import axiol.types.SimpleType;
 import axiol.types.Type;
 
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ public class NumberExpression extends Expression {
     private final Type type;
     private final boolean signed;
 
-    public NumberExpression(TokenPosition position, double numberValue, Type type, boolean signed) {
+    public NumberExpression(TokenPosition position, Number numberValue, Type type, boolean signed) {
         this.position = position;
         this.numberValue = numberValue;
         this.type = type;
@@ -36,6 +37,11 @@ public class NumberExpression extends Expression {
 
     public Type getType() {
         return type;
+    }
+
+    @Override
+    public SimpleType valuedType() {
+        return type.toSimpleType();
     }
 
     @Override

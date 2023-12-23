@@ -5,6 +5,8 @@ import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.util.error.Position;
 import axiol.parser.util.error.TokenPosition;
+import axiol.types.SimpleType;
+import axiol.types.TypeCollection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +29,11 @@ public class StringExpression extends Expression {
     @Override
     public List<Statement> childStatements() {
         return new ArrayList<>();
+    }
+
+    @Override
+    public SimpleType valuedType() {
+        return TypeCollection.STRING.toSimpleType();
     }
 
     @Override

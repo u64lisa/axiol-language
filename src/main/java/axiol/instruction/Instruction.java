@@ -24,4 +24,13 @@ public class Instruction {
     public List<InstructionOperand> getElements() {
         return elements;
     }
+
+    @Override
+    public String toString() {
+        return "Instruction{" +
+                "opCode=" + opCode +
+                ", position=" + position +
+                ", elements=" + elements +
+                '}';
+    }
 }

@@ -1,10 +1,14 @@
 package axiol.types;
 
+import axiol.holder.Proprietor;
 import axiol.parser.statement.Accessibility;
 
+import java.util.Arrays;
 import java.util.UUID;
 
-public class Reference {
+public class Reference implements Proprietor {
+
+    private final String proprietorPath;
 
     private final ReferenceType type;
     private final String name;
@@ -12,7 +16,9 @@ public class Reference {
     private final UUID uuid;
     private final Accessibility[] access;
 
-    public Reference(ReferenceType type, String name, SimpleType valueType, UUID uuid, Accessibility... access) {
+    public Reference(String proprietorPath, ReferenceType type, String name, SimpleType valueType, UUID uuid, Accessibility... access) {
+        this.proprietorPath = proprietorPath;
+
         this.type = type;
         this.name = name;
         this.valueType = valueType;
@@ -38,5 +44,22 @@ public class Reference {
 
     public SimpleType getValueType() {
         return valueType;
+    }
+
+    @Override
+    public String getProprietorPath() {
+        return proprietorPath;
+    }
+
+    @Override
+    public String toString() {
+        return "Reference{" +
+                "proprietorPath='" + proprietorPath + '\'' +
+                ", type=" + type +
+                ", name='" + name + '\'' +
+                ", valueType=" + valueType +
+                ", uuid=" + uuid +
+                ", access=" + Arrays.toString(access) +
+                '}';
     }
 }

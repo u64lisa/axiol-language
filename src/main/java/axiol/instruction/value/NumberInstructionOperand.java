@@ -20,4 +20,12 @@ public class NumberInstructionOperand extends InstructionOperand {
     public Number getValue() {
         return value;
     }
+
+    @Override
+    public String toString() {
+        return "NumberInstructionOperand{" +
+                "type=" + type +
+                ", value=" + value +
+                '}';
+    }
 }

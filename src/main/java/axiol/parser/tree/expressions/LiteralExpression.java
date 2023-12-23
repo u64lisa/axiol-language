@@ -4,15 +4,19 @@ import axiol.parser.tree.Expression;
 import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.util.error.TokenPosition;
+import axiol.types.Reference;
+import axiol.types.SimpleType;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class LiteralExpression extends Expression {
 
+    private final Reference reference;
     private final String path;
 
-    public LiteralExpression(String path, TokenPosition position) {
+    public LiteralExpression(Reference reference, String path, TokenPosition position) {
+        this.reference = reference;
         this.path = path;
         this.position = position;
     }
@@ -22,6 +26,10 @@ public class LiteralExpression extends Expression {
     @Override
     public TokenPosition position() {
         return position;
+    }
+
+    public Reference getReference() {
+        return reference;
     }
 
     public String getPath() {
@@ -38,4 +46,8 @@ public class LiteralExpression extends Expression {
         return NodeType.LITERAL_EXPR;
     }
 
+    @Override
+    public SimpleType valuedType() {
+        return reference.getValueType();
+    }
 }

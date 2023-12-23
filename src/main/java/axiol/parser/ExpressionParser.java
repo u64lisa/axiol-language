@@ -14,6 +14,8 @@ import axiol.parser.util.error.TokenPosition;
 import axiol.parser.util.stream.TokenStream;
 import axiol.types.PrimitiveTypes;
 import axiol.types.SimpleType;
+import axiol.types.custom.I128;
+import axiol.types.custom.U128;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,6 +37,8 @@ public class ExpressionParser {
     private final TokenType[] numberContainingTypes = {
             TokenType.INT, TokenType.LONG, TokenType.DOUBLE,
             TokenType.FLOAT, TokenType.HEX_NUM,
+
+            TokenType.BIG_NUMBER, TokenType.BIG_HEX_NUM
     };
 
     private final LanguageParser languageParser;
@@ -88,7 +92,7 @@ public class ExpressionParser {
                     Token current = this.tokenStream.current();
                     this.tokenStream.advance();
 
-                    return new ArrayInitExpression(new ArrayList<>(), new NumberExpression(
+                    return new ArrayInitExpression(new ArrayList<>(), simpleType, new NumberExpression(
                             current.getTokenPosition(), 0, PrimitiveTypes.I32.toType(), true), this.tokenStream.currentPosition());
                 }
                 Expression expression = this.parseExpression(simpleType,0);
@@ -96,7 +100,7 @@ public class ExpressionParser {
                 this.languageParser.expected(TokenType.R_SQUARE);
                 this.tokenStream.advance();
 
-                return new ArrayInitExpression(new ArrayList<>(), expression, this.tokenStream.currentPosition());
+                return new ArrayInitExpression(new ArrayList<>(), simpleType, expression, this.tokenStream.currentPosition());
             }
             // {expr, expr, expr, ...}
             if (tokenStream.matches(TokenType.L_CURLY)) {
@@ -120,7 +124,7 @@ public class ExpressionParser {
                 this.languageParser.expected(TokenType.R_CURLY);
                 this.tokenStream.advance();
 
-                return new ArrayInitExpression(expressions, new NumberExpression(
+                return new ArrayInitExpression(expressions, simpleType, new NumberExpression(
                         position, expressions.size(), PrimitiveTypes.I32.toType(), true), this.tokenStream.currentPosition());
             }
 
@@ -212,13 +216,14 @@ public class ExpressionParser {
                 .anyMatch(type -> type.equals(tokenStream.current().getType()))) {
 
             String tokenValue = this.tokenStream.current().getValue();
-            double value = 0; // default init 0
+            Number value = 0; // default init 0
             boolean signed = true;
 
             if (this.tokenStream.matches(TokenType.HEX_NUM)) {
                 value = Long.parseUnsignedLong(tokenValue.substring(2), 16);
+            } else if (this.tokenStream.matches(TokenType.BIG_HEX_NUM)) {
+                // todo
             } else {
-                // todo iterate char length for i128 & u128
                 if (tokenValue.charAt(tokenValue.length() - 1) == 'u' ||
                         tokenValue.charAt(tokenValue.length() - 1) == 'U') {
                     signed = false;
@@ -226,10 +231,27 @@ public class ExpressionParser {
                     tokenValue = tokenValue.substring(0, tokenValue.length() - 1);
                 }
 
-                value = Double.parseDouble(tokenValue);
+                if (this.tokenStream.matches(TokenType.BIG_NUMBER)) {
+                    value = signed ? new I128(tokenValue) : new U128(tokenValue);
+                } else {
+                    value = Double.parseDouble(tokenValue);
+                }
+
             }
-            NumberExpression numberExpression = new NumberExpression( // todo determine the number type
-                    this.tokenStream.currentPosition(), value, PrimitiveTypes.I32.toType(), signed);
+
+            PrimitiveTypes type = switch (this.tokenStream.current().getType()) {
+                case INT, HEX_NUM -> signed ? PrimitiveTypes.I32 : PrimitiveTypes.U32;
+                case DOUBLE, LONG -> signed ? PrimitiveTypes.I64 : PrimitiveTypes.U64;
+                case FLOAT -> PrimitiveTypes.F32;
+                case SHORT -> signed ? PrimitiveTypes.I16 : PrimitiveTypes.U16;
+                case BYTE -> signed ? PrimitiveTypes.I8 : PrimitiveTypes.U8;
+                case BIG_NUMBER, BIG_HEX_NUM -> signed ? PrimitiveTypes.I128 : PrimitiveTypes.U128;
+                default -> throw new IllegalArgumentException("Expected Number-Type but got '%s'"
+                        .formatted(this.tokenStream.current().getType()));
+            };
+
+            NumberExpression numberExpression = new NumberExpression(
+                    this.tokenStream.currentPosition(), value, type.toType(), signed);
 
             this.tokenStream.advance();
             return numberExpression;
@@ -306,10 +328,11 @@ public class ExpressionParser {
                 if (this.tokenStream.matches(TokenType.SEMICOLON))
                     this.tokenStream.advance();
 
-                return new CallExpression(path.toString(), parameters, namePosition);
+                // todo search ref
+                return new CallExpression(null, path.toString(), parameters, namePosition);
             }
-
-            return new LiteralExpression(path.toString(), namePosition);
+            // todo search ref
+            return new LiteralExpression(null, path.toString(), namePosition);
         }
 
         this.languageParser.createSyntaxError(
