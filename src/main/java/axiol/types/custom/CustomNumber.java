@@ -10,7 +10,7 @@ public abstract class CustomNumber<T extends CustomNumber<?>> extends Number imp
     public abstract T multiply(T other);
     public abstract T divide(T other);
 
-    public abstract U128 pow(int exp);
+    public abstract T pow(int exp);
 
     public abstract T shiftLeft(int other);
     public abstract T shiftRight(int other);
