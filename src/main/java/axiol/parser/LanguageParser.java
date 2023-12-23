@@ -30,6 +30,8 @@ import java.util.*;
  */
 public class LanguageParser extends Parser {
 
+    private static final SimpleType NONE = TypeCollection.NONE.toSimpleType();
+
     private final TokenType[] accessModifier = {
             TokenType.PUBLIC, TokenType.PRIVATE, TokenType.INLINE, TokenType.CONST,
             TokenType.EXTERN, TokenType.PROTECTED
@@ -302,7 +304,7 @@ public class LanguageParser extends Parser {
             TokenPosition position = this.tokenStream.currentPosition();
             this.tokenStream.advance();
 
-            Expression value = this.parseExpression();
+            Expression value = this.parseExpression(NONE);
 
             expectLineEnd();
             return new ReturnStatement(value, position);
@@ -311,7 +313,7 @@ public class LanguageParser extends Parser {
             TokenPosition position = this.tokenStream.currentPosition();
             this.tokenStream.advance();
 
-            Expression value = this.parseExpression();
+            Expression value = this.parseExpression(NONE);
 
             expectLineEnd();
             return new YieldStatement(value, position);
@@ -330,7 +332,7 @@ public class LanguageParser extends Parser {
             expectLineEnd();
             return new BreakStatement(position);
         }
-        Expression expression = this.parseExpression();
+        Expression expression = this.parseExpression(NONE);
         if (expression != null) {
             if (this.tokenStream.matches(TokenType.SEMICOLON))
                 this.tokenStream.advance();
@@ -382,7 +384,7 @@ public class LanguageParser extends Parser {
 
                 while (!this.tokenStream.matches(TokenType.STRING) &&
                         !this.tokenStream.matches(TokenType.R_CURLY)) {
-                    Expression expression = this.parseExpression();
+                    Expression expression = this.parseExpression(NONE);
 
                     params.add(expression);
 
@@ -410,7 +412,7 @@ public class LanguageParser extends Parser {
             return null;
         this.tokenStream.advance();
 
-        Expression expression = parseExpression();
+        Expression expression = parseExpression(NONE);
 
         if (!this.expected(TokenType.R_PAREN))
             return null;
@@ -433,7 +435,7 @@ public class LanguageParser extends Parser {
 
                     while (!this.tokenStream.matches(TokenType.LAMBDA) &&
                             !this.tokenStream.matches(TokenType.COLON)) {
-                        conditions.add(expressionParser.parseExpression(0));
+                        conditions.add(expressionParser.parseExpression(NONE, 0));
 
                         if (!this.tokenStream.matches(TokenType.LAMBDA) &&
                                 !this.tokenStream.matches(TokenType.COLON)) {
@@ -524,7 +526,7 @@ public class LanguageParser extends Parser {
                 return null;
             this.tokenStream.advance();
 
-            Expression expression = this.parseExpression();
+            Expression expression = this.parseExpression(type);
 
             if (!this.expected(TokenType.R_PAREN))
                 return null;
@@ -534,13 +536,13 @@ public class LanguageParser extends Parser {
         } else { // for (var; expr; expr)
             Statement start = this.parseVariableStatement(Accessibility.PRIVATE);
 
-            Expression condition = this.parseExpression();
+            Expression condition = this.parseExpression(NONE);
 
             if (!this.expected(TokenType.SEMICOLON))
                 return null;
             this.tokenStream.advance();
 
-            Expression appliedAction = this.parseExpression();
+            Expression appliedAction = this.parseExpression(NONE);
 
             forCondition = new ForStatement.NumberRangeCondition(start, condition, appliedAction);
 
@@ -578,7 +580,7 @@ public class LanguageParser extends Parser {
             return null;
         this.tokenStream.advance();
 
-        Expression condition = this.parseExpression();
+        Expression condition = this.parseExpression(NONE);
 
         if (!this.expected(TokenType.R_PAREN))
             return null;
@@ -599,7 +601,7 @@ public class LanguageParser extends Parser {
             return null;
         this.tokenStream.advance();
 
-        Expression condition = this.parseExpression();
+        Expression condition = this.parseExpression(NONE);
 
         if (!this.expected(TokenType.R_PAREN))
             return null;
@@ -629,7 +631,7 @@ public class LanguageParser extends Parser {
         this.tokenStream.advance();
 
         TokenPosition position = this.tokenStream.currentPosition();
-        Expression condition = this.parseExpression();
+        Expression condition = this.parseExpression(NONE);
 
         if (!this.expected(TokenType.R_PAREN))
             return null;
@@ -757,7 +759,7 @@ public class LanguageParser extends Parser {
             if (this.tokenStream.matches(TokenType.EQUAL)) {
                 this.tokenStream.advance();
 
-                Expression defaultValue = this.expressionParser.parseExpression(0);
+                Expression defaultValue = this.expressionParser.parseExpression(type,0);
                 parameters.add(new Parameter(parameterName, type, defaultValue, pointer, reference));
                 continue;
             }
@@ -793,7 +795,7 @@ public class LanguageParser extends Parser {
 
         List<Expression> parameters = new ArrayList<>();
         while (!this.tokenStream.matches(TokenType.R_PAREN)) {
-            Expression expression = this.parseExpression();
+            Expression expression = this.parseExpression(NONE);
 
             if (expression != null)
                 parameters.add(expression);
@@ -823,7 +825,7 @@ public class LanguageParser extends Parser {
         if (this.tokenStream.matches(TokenType.EQUAL)) {
             this.tokenStream.advance();
 
-            initExpression = this.parseExpression();
+            initExpression = this.parseExpression(type);
         }
 
         if (this.tokenStream.matches(TokenType.SEMICOLON))
@@ -909,8 +911,8 @@ public class LanguageParser extends Parser {
     }
 
     @Override
-    public Expression parseExpression() {
-        return this.expressionParser.parseExpression(Operator.MAX_PRIORITY);
+    public Expression parseExpression(SimpleType simpleType) {
+        return this.expressionParser.parseExpression(simpleType, Operator.MAX_PRIORITY);
     }
 
     public boolean expected(TokenType type) {

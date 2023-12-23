@@ -16,6 +16,10 @@ public class Type {
         this.arrayDepth = arrayDepth;
     }
 
+    public SimpleType toSimpleType() {
+        return new SimpleType(this,0, 0);
+    }
+
     public String getName() {
         return name;
     }

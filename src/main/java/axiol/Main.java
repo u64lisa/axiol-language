@@ -20,7 +20,7 @@ public class Main {
         rootNode = staticAnalysis.process(rootNode);
 
         InstructionGenerator instructionGenerator = new InstructionGenerator();
-        InstructionSet instructionSet = instructionGenerator.generate(rootNode);
+        InstructionSet instructionSet = instructionGenerator.emit(rootNode);
 
     }
 

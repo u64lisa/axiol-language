@@ -8,7 +8,7 @@ import axiol.parser.tree.RootNode;
 import axiol.parser.tree.Statement;
 import axiol.parser.tree.expressions.*;
 import axiol.parser.tree.expressions.control.MatchExpression;
-import axiol.parser.tree.expressions.extra.ReferenceExpression;
+import axiol.parser.tree.expressions.extra.ElementReferenceExpression;
 import axiol.parser.tree.expressions.sub.BooleanExpression;
 import axiol.parser.tree.expressions.sub.NumberExpression;
 import axiol.parser.tree.expressions.sub.StringExpression;
@@ -57,7 +57,7 @@ public class StaticAnalysis implements RootNodeProcessor<Void> {
             NodeType.WHILE_STATEMENT, NodeType.YIELD_STATEMENT
     };
     private final NodeType[] expressionTypes = {
-            NodeType.MATCH_EXPR, NodeType.REFERENCE_EXPR, NodeType.BOOLEAN_EXPR,
+            NodeType.MATCH_EXPR, NodeType.ELEMENT_REFERENCE_EXPR, NodeType.BOOLEAN_EXPR,
             NodeType.NUMBER_EXPR, NodeType.STRING_EXPR, NodeType.ARRAY_EXPR,
             NodeType.BINARY_EXPR, NodeType.UNARY_EXPR, NodeType.LITERAL_EXPR,
             NodeType.CALL_EXPR
@@ -167,7 +167,7 @@ public class StaticAnalysis implements RootNodeProcessor<Void> {
     public void processExpressions(SourceFile sourceFile, String scope, String scopeMangled, List<ScopeVariable> scopeVars, Statement statement) {
         switch (statement.type()) {
             case MATCH_EXPR ->            this.analyseMatch(    sourceFile, scope, scopeMangled, scopeVars, (MatchExpression)     statement);
-            case REFERENCE_EXPR ->        this.analyseReference(sourceFile, scope, scopeMangled, scopeVars, (ReferenceExpression) statement);
+            case ELEMENT_REFERENCE_EXPR ->this.analyseReference(sourceFile, scope, scopeMangled, scopeVars, (ElementReferenceExpression) statement);
             case BOOLEAN_EXPR ->          this.analyseBoolean(  sourceFile, scope, scopeMangled, scopeVars, (BooleanExpression)   statement);
             case NUMBER_EXPR ->           this.analyseNumber(   sourceFile, scope, scopeMangled, scopeVars, (NumberExpression)    statement);
             case STRING_EXPR ->           this.analyseString(   sourceFile, scope, scopeMangled, scopeVars, (StringExpression)    statement);
@@ -368,7 +368,7 @@ public class StaticAnalysis implements RootNodeProcessor<Void> {
     private void analyseMatch(SourceFile sourceFile, String scope, String scopeMangled, List<ScopeVariable> scopeVars, MatchExpression statement) {
     }
 
-    private void analyseReference(SourceFile sourceFile, String scope, String scopeMangled, List<ScopeVariable> scopeVars, ReferenceExpression statement) {
+    private void analyseReference(SourceFile sourceFile, String scope, String scopeMangled, List<ScopeVariable> scopeVars, ElementReferenceExpression statement) {
     }
 
     private void analyseBoolean(SourceFile sourceFile, String scope, String scopeMangled, List<ScopeVariable> scopeVars, BooleanExpression statement) {

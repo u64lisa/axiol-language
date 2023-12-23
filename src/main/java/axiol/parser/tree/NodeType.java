@@ -4,7 +4,7 @@ public enum NodeType {
 
     // EXPRESSIONS
     MATCH_EXPR,
-    REFERENCE_EXPR,
+    ELEMENT_REFERENCE_EXPR,
     BOOLEAN_EXPR,
     NUMBER_EXPR,
     STRING_EXPR,

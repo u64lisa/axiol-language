@@ -5,9 +5,9 @@ import axiol.types.Type;
 
 public class NumberInstructionOperand extends InstructionOperand {
     private final Type type;
-    private final long value;
+    private final Number value;
 
-    public NumberInstructionOperand(Type type, long value) {
+    public NumberInstructionOperand(Type type, Number value) {
         this.type = type;
         this.value = value;
     }
@@ -17,7 +17,7 @@ public class NumberInstructionOperand extends InstructionOperand {
         return type;
     }
 
-    public long getValue() {
+    public Number getValue() {
         return value;
     }
 }

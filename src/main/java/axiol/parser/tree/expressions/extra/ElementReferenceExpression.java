@@ -7,11 +7,11 @@ import axiol.parser.util.error.TokenPosition;
 
 import java.util.List;
 
-public class ReferenceExpression extends Expression {
+public class ElementReferenceExpression extends Expression {
 
     private final Expression toReference;
 
-    public ReferenceExpression(Expression toReference, TokenPosition position) {
+    public ElementReferenceExpression(Expression toReference, TokenPosition position) {
         this.toReference = toReference;
         this.position = position;
     }
@@ -30,7 +30,7 @@ public class ReferenceExpression extends Expression {
 
     @Override
     public NodeType type() {
-        return NodeType.REFERENCE_EXPR;
+        return NodeType.ELEMENT_REFERENCE_EXPR;
     }
 
 
