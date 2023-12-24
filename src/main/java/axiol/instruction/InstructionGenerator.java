@@ -1,6 +1,8 @@
 package axiol.instruction;
 
 import axiol.instruction.reference.InstructionReference;
+import axiol.parser.expression.Operator;
+import axiol.parser.tree.Expression;
 import axiol.parser.tree.NodeType;
 import axiol.parser.tree.RootNode;
 import axiol.parser.tree.Statement;
@@ -15,8 +17,8 @@ import axiol.parser.tree.statements.VariableStatement;
 import axiol.parser.tree.statements.control.*;
 import axiol.parser.tree.statements.oop.*;
 import axiol.parser.tree.statements.special.NativeStatement;
-import axiol.types.Reference;
 import axiol.types.ReferenceStorage;
+import axiol.types.SimpleType;
 
 public class InstructionGenerator {
     private final InstructionSetBuilder instructionSet;
@@ -142,8 +144,93 @@ public class InstructionGenerator {
         return none;
     }
 
+    public InstructionReference emitAssign(BinaryExpression binaryExpression) {
+        Expression left = binaryExpression.getLeftAssociate();
+        Expression right = binaryExpression.getRightAssociate();
+    }
+
+    private final Operator[] assignOperators = {
+            Operator.ASSIGN,
+            Operator.MIN_ASSIGN,
+            Operator.MUL_ASSIGN,
+            Operator.DIVIDE_ASSIGN,
+            Operator.XOR_ASSIGN,
+            Operator.NOR_ASSIGN,
+            Operator.QUESTION_ASSIGN,
+            Operator.OR_ASSIGN,
+    };
     private InstructionReference emitBinaryExpression(BinaryExpression statement) {
-        return null;
+        InstructionReference reference = this.instructionSet.createDataReference(".bin", statement.valuedType(), referenceId);
+        SimpleType type = statement.valuedType();
+        Operator operator = statement.getOperator();
+
+        for (Operator assignOperator : assignOperators) {
+            if (assignOperator == statement.getOperator())
+                return emitAssign(statement);
+        }
+
+        OpCode opCode = chooseBinaryOpCode(operator,
+                !type.getType().getPrimitiveTypes().isSigned(),
+                type.getType().getPrimitiveTypes().isFloating(),
+                type.getType().getPrimitiveTypes().isBig());
+
+        InstructionReference left = this.generateStatement(statement.getLeftAssociate());
+        InstructionReference right = this.generateStatement(statement.getRightAssociate());
+
+        SimpleType leftType = statement.getLeftAssociate().valuedType();
+        SimpleType rightType = statement.getRightAssociate().valuedType();
+
+        assert leftType.assetEqualityFor(rightType);
+
+        instructionSet.instruction(OpCode.MOVE, builder -> builder
+                .referenceOperand(reference)
+                .referenceOperand(left));
+
+        instructionSet.instruction(opCode, builder -> builder
+                .referenceOperand(reference)
+                .referenceOperand(right));
+
+        return reference;
+    }
+
+    private OpCode chooseBinaryOpCode(Operator operator, boolean unsigned, boolean floating, boolean bigNumber) {
+        if (unsigned && floating)
+            throw new IllegalArgumentException("floating number can't be unsigned!");
+
+        // unsigned - floating - signed
+        return switch (operator) {
+            case PLUS -> unsigned ? OpCode.ADD : floating ? OpCode.FLOATING_ADD : OpCode.ADD;
+            case MINUS -> unsigned ? OpCode.SUB : floating ? OpCode.FLOATING_SUB : OpCode.SUB;
+
+            case MULTIPLE -> unsigned ? OpCode.MULTIPLY : floating ? OpCode.FLOATING_MULTIPLY : OpCode.MULTIPLY;
+            case DIVIDE -> unsigned ? OpCode.DIVIDE : floating ? OpCode.FLOATING_DIVIDE : OpCode.DIVIDE;
+            case MOD -> unsigned ? OpCode.MODULO : floating ? OpCode.FLOATING_MODULO : OpCode.MODULO;
+
+            case AND -> OpCode.AND;
+            case OR -> OpCode.OR;
+            case XOR -> OpCode.XOR;
+            case NOT_EQUAL -> OpCode.NEGATED_EQUALS;
+            case BIT_OR -> OpCode.BIT_OR;
+
+            case SHIFT_LEFT -> OpCode.SHIFT_LEFT;
+            case SHIFT_RIGHT -> OpCode.SHIFT_RIGHT;
+
+            case MORE_THAN ->
+                    unsigned ? OpCode.GREATER_THAN : floating ? OpCode.FLOATING_GREATER_THAN : OpCode.GREATER_THAN;
+            case MORE_EQUAL ->
+                    unsigned ? OpCode.GREATER_THAN_EQUAL : floating ? OpCode.FLOATING_GREATER_THAN_EQUAL : OpCode.GREATER_THAN_EQUAL;
+            case LESS_THAN -> unsigned ? OpCode.LESS_THAN : floating ? OpCode.FLOATING_LESS_THAN : OpCode.LESS_THAN;
+            case LESS_EQUAL ->
+                    unsigned ? OpCode.LESS_THAN_EQUAL : floating ? OpCode.FLOATING_LESS_THAN_EQUAL : OpCode.LESS_THAN_EQUAL;
+
+            case TERNARY -> ;
+            case QUESTION -> ;
+            case ASSIGN -> ;
+
+            case EQUAL_EQUAL -> floating ? OpCode.FLOATING_EQUALS : OpCode.EQUALS;
+
+            default -> null;
+        };
     }
 
     private InstructionReference emitUnaryExpression(UnaryExpression statement) {
@@ -151,9 +238,12 @@ public class InstructionGenerator {
         InstructionReference value = this.generateStatement(statement.getValue());
 
         OpCode opCode = switch (statement.getOperator()) {
-            case NOT ->   OpCode.NEGATE;
-            case NOR ->   OpCode.NEGATE_OR;
+            case NOT -> OpCode.NEGATE;
+            case NOR -> OpCode.NEGATE_OR;
             case MINUS -> OpCode.SUBSTR;
+
+            case INCREASE -> ;
+            case DECREASE -> ;
             default -> throw new IllegalArgumentException("Unknown unary operation");
         };
         this.instructionSet.instruction(opCode, builder -> builder
