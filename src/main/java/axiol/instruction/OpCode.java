@@ -5,9 +5,11 @@ public enum OpCode {
     MOVE,                       // v1 = v2
     ADD,                        // v1 = v2 +  v1
     SUB,                        // v1 = v2 -  v1
-    AND,                        // v1 = v2 &  v1
-    XOR,                        // v1 = v2 ^  v1
-    OR,                         // v1 = v2 |  v1
+    AND,                        // v3 = v2 &  v1
+    XOR,                        // v3 = v2 ^  v1
+    BIT_OR,                     // v3 = v2 |  v1
+    OR,                         // v3 = v2 || v1
+    XOR_EQUAL,                  // v2 = v2 ^  v1
     SHIFT_RIGHT,                // v1 = v2 >> v1
     SHIFT_LEFT,                 // v1 = v2 << v1
     EQUALS,                     // v1 = v2 == v1

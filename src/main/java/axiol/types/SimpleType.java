@@ -46,4 +46,12 @@ public class SimpleType {
                 ", pointerDepth=" + pointerDepth +
                 '}';
     }
+
+    public boolean assetEqualityFor(SimpleType rightType) {
+        if (rightType.type.equals(this.type)) {
+            return this.arrayDepth == rightType.arrayDepth &&
+                    this.pointerDepth == rightType.pointerDepth;
+        }
+        return false;
+    }
 }

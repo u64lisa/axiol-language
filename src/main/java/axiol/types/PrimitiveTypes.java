@@ -4,33 +4,35 @@ import axiol.lexer.Token;
 
 public enum PrimitiveTypes {
 
-    U8(8, false, false),
-    U16(16, false, false),
-    U32(32, false, false),
-    U64(64, false, false),
-    U128(128, false, false),
+    U8(8, false, false, false),
+    U16(16, false, false, false),
+    U32(32, false, false, false),
+    U64(64, false, false, false),
+    U128(128, false, false, true),
 
-    I8(8, true, false),
-    I16(16, true, false),
-    I32(32, true, false),
-    I64(64, true, false),
-    I128(128, true, false),
+    I8(8, true, false, false),
+    I16(16, true, false, false),
+    I32(32, true, false, false),
+    I64(64, true, false, false),
+    I128(128, true, false, true),
 
-    F32(32, true, true),
-    F64(64, true, true),
+    F32(32, true, true, false),
+    F64(64, true, true, false),
 
-    U0(0, false, false),
+    U0(0, false, false, false),
 
     ;
 
     private final int bits;
     private final boolean signed;
     private final boolean floating;
+    private final boolean big;
 
-    PrimitiveTypes(int bits, boolean signed, boolean floating) {
+    PrimitiveTypes(int bits, boolean signed, boolean floating, boolean big) {
         this.bits = bits;
         this.signed = signed;
         this.floating = floating;
+        this.big = big;
     }
 
     public static PrimitiveTypes fromToken(Token token) {
@@ -55,5 +57,9 @@ public enum PrimitiveTypes {
 
     public boolean isFloating() {
         return floating;
+    }
+
+    public boolean isBig() {
+        return big;
     }
 }

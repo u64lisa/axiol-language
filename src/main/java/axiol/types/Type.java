@@ -32,12 +32,10 @@ public class Type {
         return primitiveTypes;
     }
 
-    @Override
-    public boolean equals(Object object) {
-        if (this == object) return true;
-        if (object == null || getClass() != object.getClass()) return false;
-        Type type = (Type) object;
-        return arrayDepth == type.arrayDepth && Objects.equals(name, type.name) && primitiveTypes == type.primitiveTypes;
+    public boolean equals(Type other) {
+        return Objects.equals(other.name, this.name) &&
+                other.arrayDepth == this.arrayDepth &&
+                other.primitiveTypes == this.primitiveTypes;
     }
 
     @Override

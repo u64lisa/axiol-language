@@ -33,19 +33,20 @@ public enum Operator {
     LESS_THAN(     "<",  TokenType.LESS_THAN,      4,  false, false),
     MORE_THAN(     ">",  TokenType.MORE_THAN,      4,  false, false),
     EQUAL_EQUAL(   "==", TokenType.EQUAL_EQUAL,    5,  false, false),
+    NOT_EQUAL(     "!=",   TokenType.EQUAL_NOT,    5,  false, false),
 
-    // Comparison with Assignment
+    // Comparison with Equal Check
     LESS_EQUAL(    "<=", TokenType.LESS_EQUAL,     4,  false, false),
     MORE_EQUAL(    ">=", TokenType.MORE_EQUAL,     4,  false, false),
 
     // Arithmetic with Assignment
-    MIN_EQUAL(     "-=", TokenType.MINUS_EQUAL,    12, false, false),
-    MUL_EQUAL(     "*=", TokenType.MULTIPLY_EQUAL, 12, false, false),
-    DIVIDE_EQUAL(  "/=", TokenType.DIVIDE_EQUAL,   12, false, false),
-    XOR_EQUAL(     "^=", TokenType.XOR_EQUAL,      12, false, false),
-    NOR_EQUAL(     "~=", TokenType.NOR_EQUAL,      12, false, false),
-    QUESTION_EQUAL("?=", TokenType.QUESTION_EQUAL, 12, false, false),
-    OR_EQUAL(      "|=", TokenType.OR_EQUAL,       12, false, false),
+    MIN_ASSIGN(     "-=", TokenType.MINUS_EQUAL,    12, false, false),
+    MUL_ASSIGN(     "*=", TokenType.MULTIPLY_EQUAL, 12, false, false),
+    DIVIDE_ASSIGN(  "/=", TokenType.DIVIDE_EQUAL,   12, false, false),
+    XOR_ASSIGN(     "^=", TokenType.XOR_EQUAL,      12, false, false),
+    NOR_ASSIGN(     "~=", TokenType.NOR_EQUAL,      12, false, false),
+    QUESTION_ASSIGN("?=", TokenType.QUESTION_EQUAL,  12, false, false),
+    OR_ASSIGN(      "|=", TokenType.OR_EQUAL,       12, false, false),
 
     // Bitwise and Shift Operators
     BIT_OR(        "|",  TokenType.OR,             6,  false, false),
