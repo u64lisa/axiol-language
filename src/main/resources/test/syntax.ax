@@ -127,7 +127,7 @@ function structTest() {
 }
 
 function subFunction(test: i32) -> u0 {
-    native [asm] {
+    native [asm, arm] {
         "mov rsi, $" <- test, 1
         "owo"
     }

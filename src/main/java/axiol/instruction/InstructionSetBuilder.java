@@ -39,6 +39,9 @@ public class InstructionSetBuilder {
         return new InstructionReference(new Reference("I",ReferenceType.VAR, name, TypeCollection.NONE.toSimpleType(), UUID.randomUUID()), referenceId++);
     }
 
+    public InstructionReference createLabel(String name, int referenceId) {
+        return createLocalReference(name, referenceId);
+    }
 
     public InstructionSetBuilder instruction(OpCode opCode, Consumer<InstructionBuilder> builder) {
         InstructionBuilder instructionBuilder = new InstructionBuilder();
@@ -58,4 +61,6 @@ public class InstructionSetBuilder {
     public InstructionSet build() {
         return instructionSet;
     }
+
+
 }

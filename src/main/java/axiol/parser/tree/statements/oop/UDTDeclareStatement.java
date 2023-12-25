@@ -1,5 +1,6 @@
 package axiol.parser.tree.statements.oop;
 
+import axiol.parser.statement.UDTType;
 import axiol.parser.tree.Expression;
 import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
@@ -13,6 +14,9 @@ public class UDTDeclareStatement extends Statement {
     private final String typeName;
     private final String referenceName;
     private final List<Expression> parameters;
+
+    // needs to be set by @StaticAnalysis
+    private UDTType type;
 
     public UDTDeclareStatement(String typeName, String referenceName, List<Expression> parameters, TokenPosition position) {
         this.typeName = typeName;

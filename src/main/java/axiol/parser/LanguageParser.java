@@ -1,5 +1,6 @@
 package axiol.parser;
 
+import axiol.Architecture;
 import axiol.lexer.LanguageLexer;
 import axiol.lexer.Token;
 import axiol.lexer.TokenType;
@@ -373,6 +374,16 @@ public class LanguageParser extends Parser {
         }
         this.tokenStream.advance();
 
+        Architecture architecture = Architecture.IR;
+        if (type == NativeStatement.Type.ASM) {
+            if (this.expected(TokenType.COMMA)) {
+                this.tokenStream.advance();
+            }
+            String arch = this.tokenStream.current().getValue();
+            architecture = Architecture.valueOf(arch.toUpperCase(Locale.ROOT));
+            this.tokenStream.advance();
+        }
+
         if (!this.expected(TokenType.R_SQUARE)) {
             return null;
         }
@@ -411,7 +422,7 @@ public class LanguageParser extends Parser {
         this.tokenStream.matches(TokenType.R_CURLY);
         this.tokenStream.advance();
 
-        return new NativeStatement(position, type, instructions);
+        return new NativeStatement(position, type, architecture, instructions);
     }
 
     private SwitchStatement parseSwitchStatement(Scope scope) {
