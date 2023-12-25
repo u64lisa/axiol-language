@@ -106,6 +106,7 @@ public enum TokenType {
     LINKED,
     ISA,
     UNSAFE,
+    CAST,
 
     EOF,
 

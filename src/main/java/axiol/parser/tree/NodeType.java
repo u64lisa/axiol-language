@@ -13,6 +13,7 @@ public enum NodeType {
     UNARY_EXPR,
     LITERAL_EXPR,
     CALL_EXPR,
+    CAST_EXPR,
 
     // CONTROL FLOW
     BREAK_STATEMENT,

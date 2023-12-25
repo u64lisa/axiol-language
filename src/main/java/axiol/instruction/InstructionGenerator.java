@@ -10,6 +10,7 @@ import axiol.parser.tree.RootNode;
 import axiol.parser.tree.Statement;
 import axiol.parser.tree.expressions.*;
 import axiol.parser.tree.expressions.control.MatchExpression;
+import axiol.parser.tree.expressions.extra.CastExpression;
 import axiol.parser.tree.expressions.extra.ElementReferenceExpression;
 import axiol.parser.tree.expressions.sub.BooleanExpression;
 import axiol.parser.tree.expressions.sub.NumberExpression;
@@ -112,6 +113,7 @@ public class InstructionGenerator {
             case BOOLEAN_EXPR ->            emitBooleanExpression(           (BooleanExpression)          statement); //
             case ELEMENT_REFERENCE_EXPR ->  emitElementReferenceExpression(  (ElementReferenceExpression) statement);
             case MATCH_EXPR ->              emitMatchExpression(             (MatchExpression)            statement);
+            case CAST_EXPR ->               emitCastExpression(              (CastExpression)             statement);
 
             // linking, root
             default -> throw new IllegalArgumentException("unexpected statement '%s' at body!"
@@ -158,6 +160,43 @@ public class InstructionGenerator {
                 .referenceOperand(this.instructionSet.createStringReference(referenceId))
                 .stringOperand(statement.getValue()));
         return none;
+    }
+
+    private InstructionReference emitCastExpression(CastExpression statement) {
+        InstructionReference proprietor = this.instructionSet.createDataReference(".cast",statement.valuedType(), referenceId);
+        InstructionReference reference = generateStatement(statement.getValue());
+
+        SimpleType from = statement.valuedType();
+        int sizeFrom = from.getType().getPrimitiveTypes().getBits() / 8;
+        SimpleType to = statement.valuedType();
+        int sizeTo = from.getType().getPrimitiveTypes().getBits() / 8;
+
+        OpCode opCode = OpCode.ZERO_EXTEND;
+        if (sizeTo <= sizeFrom &&
+                !(from.getType().getPrimitiveTypes().isBig() ||
+                        to.getType().getPrimitiveTypes().isBig()))
+            opCode = OpCode.TRUNCATE;
+        if (sizeTo <= sizeFrom &&
+                (from.getType().getPrimitiveTypes().isBig() ||
+                        to.getType().getPrimitiveTypes().isBig()))
+            opCode = OpCode.BIG_TRUNCATE;
+        if (from.getType().getPrimitiveTypes().isSigned() &&
+                to.getType().getPrimitiveTypes().isSigned())
+            opCode = OpCode.SIGN_EXTEND;
+        if (from.getType().getPrimitiveTypes().isFloating() ||
+                to.getType().getPrimitiveTypes().isFloating())
+            opCode = OpCode.FLOATING_EXTEND;
+        if (from.getType().getPrimitiveTypes().isBig() &&
+                to.getType().getPrimitiveTypes().isBig())
+            opCode = OpCode.BIG_ZERO_EXTEND;
+        else
+            opCode = OpCode.ZERO_EXTEND;
+
+        instructionSet.instruction(opCode, builder -> builder
+                .referenceOperand(proprietor)
+                .referenceOperand(reference));
+
+        return proprietor;
     }
 
     public InstructionReference emitArrayIndexWrite(BinaryExpression leftExpression) {

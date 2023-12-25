@@ -39,6 +39,9 @@ public enum OpCode {
     SIGN_EXTEND,
     ZERO_EXTEND,
     TRUNCATE,
+    BIG_ZERO_EXTEND,
+    BIG_TRUNCATE,
+    FLOATING_EXTEND,
 
     // compare
     GREATER_THAN,               // v1 = v2 >  v1
