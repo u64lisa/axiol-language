@@ -3,7 +3,6 @@ package axiol.instruction;
 import axiol.instruction.reference.InstructionReference;
 import axiol.instruction.value.NumberInstructionOperand;
 import axiol.parser.expression.Operator;
-import axiol.parser.statement.Parameter;
 import axiol.parser.tree.Expression;
 import axiol.parser.tree.NodeType;
 import axiol.parser.tree.RootNode;
@@ -26,7 +25,6 @@ import axiol.types.ReferenceStorage;
 import axiol.types.SimpleType;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -122,10 +120,6 @@ public class InstructionGenerator {
     }
     //@formatter:on
 
-    private InstructionReference emitMatchExpression(MatchExpression statement) {
-        return null;
-    }
-
     private InstructionReference emitElementReferenceExpression(ElementReferenceExpression statement) {
         InstructionReference proprietor = this.instructionSet.createDataReference(".deref", statement.valuedType(), referenceId);
         InstructionReference pointer = this.generateStatement(statement);
@@ -163,7 +157,7 @@ public class InstructionGenerator {
     }
 
     private InstructionReference emitCastExpression(CastExpression statement) {
-        InstructionReference proprietor = this.instructionSet.createDataReference(".cast",statement.valuedType(), referenceId);
+        InstructionReference proprietor = this.instructionSet.createDataReference(".cast", statement.valuedType(), referenceId);
         InstructionReference reference = generateStatement(statement.getValue());
 
         SimpleType from = statement.valuedType();
@@ -272,6 +266,72 @@ public class InstructionGenerator {
         return proprietor;
     }
 
+    public InstructionReference emitAndLogic(BinaryExpression binaryExpression) {
+        InstructionReference endingReference = instructionSet.createLabel(".and_end", referenceId);
+        InstructionReference proprietor = instructionSet.createDataReference(".and", binaryExpression.valuedType(), referenceId);
+
+        instructionSet.instruction(OpCode.MOVE, builder -> builder
+                .referenceOperand(proprietor)
+                .numberOperand(binaryExpression.valuedType().getType().getPrimitiveTypes(), 1));
+
+        InstructionReference leftReference = generateStatement(binaryExpression.getLeftAssociate());
+        InstructionReference rightReference = generateStatement(binaryExpression.getLeftAssociate());
+
+        instructionSet.instruction(OpCode.GOTO_IF, builder -> builder
+                .referenceOperand(leftReference)
+                .referenceOperand(endingReference));
+
+        instructionSet.instruction(OpCode.GOTO_IF, builder -> builder
+                .referenceOperand(rightReference)
+                .referenceOperand(endingReference));
+
+        instructionSet.instruction(OpCode.MOVE, builder -> builder
+                .referenceOperand(proprietor)
+                .numberOperand(binaryExpression.valuedType().getType().getPrimitiveTypes(), 1));
+
+        instructionSet.instruction(OpCode.LABEL, builder -> builder
+                .referenceOperand(endingReference));
+
+        return proprietor;
+    }
+
+    public InstructionReference emitOrLogic(BinaryExpression binaryExpression) {
+        InstructionReference endingReference = instructionSet.createLabel(".or_end", referenceId);
+        InstructionReference proprietor = instructionSet.createDataReference(".or",binaryExpression.valuedType(), referenceId);
+        InstructionReference orValue = instructionSet.createLabel(".or_val",referenceId);
+
+        instructionSet.instruction(OpCode.MOVE, builder -> builder
+                .referenceOperand(proprietor)
+                .numberOperand(binaryExpression.valuedType().getType().getPrimitiveTypes(), 1));
+
+        InstructionReference leftReference = generateStatement(binaryExpression.getLeftAssociate());
+        InstructionReference rightReference = generateStatement(binaryExpression.getLeftAssociate());
+
+
+        instructionSet.instruction(OpCode.GOTO_IF_NOT_EQ, builder -> builder
+                .referenceOperand(leftReference)
+                .referenceOperand(endingReference));
+
+        instructionSet.instruction(OpCode.GOTO_IF_NOT_EQ, builder -> builder
+                .referenceOperand(rightReference)
+                .referenceOperand(endingReference));
+
+        instructionSet.instruction(OpCode.GOTO, builder -> builder
+                .referenceOperand(endingReference));
+
+        instructionSet.instruction(OpCode.LABEL, builder -> builder
+                .referenceOperand(orValue));
+
+        instructionSet.instruction(OpCode.MOVE, builder -> builder
+                .referenceOperand(proprietor)
+                .numberOperand(binaryExpression.valuedType().getType().getPrimitiveTypes(), 1));
+
+        instructionSet.instruction(OpCode.LABEL, builder -> builder
+                .referenceOperand(endingReference));
+
+        return proprietor;
+    }
+
     private final Operator[] assignOperators = {
             Operator.ASSIGN,
             Operator.MIN_ASSIGN,
@@ -282,11 +342,15 @@ public class InstructionGenerator {
             Operator.QUESTION_ASSIGN,
             Operator.OR_ASSIGN,
     };
-
     private InstructionReference emitBinaryExpression(BinaryExpression statement) {
         InstructionReference proprietor = this.instructionSet.createDataReference(".bin", statement.valuedType(), referenceId);
         SimpleType type = statement.valuedType();
         Operator operator = statement.getOperator();
+
+        if (operator == Operator.OR)
+            return emitOrLogic(statement);
+        if (operator == Operator.AND)
+            return emitAndLogic(statement);
 
         for (Operator assignOperator : assignOperators) {
             if (assignOperator == operator)
@@ -419,7 +483,7 @@ public class InstructionGenerator {
     }
 
     private InstructionReference emitCallExpression(CallExpression statement) {
-        InstructionReference proprietor = instructionSet.createDataReference(".call", statement.valuedType(),referenceId);
+        InstructionReference proprietor = instructionSet.createDataReference(".call", statement.valuedType(), referenceId);
 
         Map<Expression, InstructionReference> parameters = new HashMap<>();
         for (Expression parameter : statement.getParameters()) {
@@ -586,6 +650,10 @@ public class InstructionGenerator {
 
     private InstructionReference emitStructureType(StructTypeStatement statement) {
 
+        return null;
+    }
+
+    private InstructionReference emitMatchExpression(MatchExpression statement) {
         return null;
     }
 
