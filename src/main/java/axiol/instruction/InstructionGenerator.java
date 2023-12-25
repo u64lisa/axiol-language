@@ -1,7 +1,9 @@
 package axiol.instruction;
 
 import axiol.instruction.reference.InstructionReference;
+import axiol.instruction.value.NumberInstructionOperand;
 import axiol.parser.expression.Operator;
+import axiol.parser.statement.Parameter;
 import axiol.parser.tree.Expression;
 import axiol.parser.tree.NodeType;
 import axiol.parser.tree.RootNode;
@@ -17,8 +19,15 @@ import axiol.parser.tree.statements.VariableStatement;
 import axiol.parser.tree.statements.control.*;
 import axiol.parser.tree.statements.oop.*;
 import axiol.parser.tree.statements.special.NativeStatement;
+import axiol.types.PrimitiveTypes;
+import axiol.types.Reference;
 import axiol.types.ReferenceStorage;
 import axiol.types.SimpleType;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public class InstructionGenerator {
     private final InstructionSetBuilder instructionSet;
@@ -116,7 +125,14 @@ public class InstructionGenerator {
     }
 
     private InstructionReference emitElementReferenceExpression(ElementReferenceExpression statement) {
-        return null;
+        InstructionReference proprietor = this.instructionSet.createDataReference(".deref", statement.valuedType(), referenceId);
+        InstructionReference pointer = this.generateStatement(statement);
+
+        instructionSet.instruction(OpCode.LOAD, builder -> builder
+                .referenceOperand(pointer)
+                .referenceOperand(proprietor));
+
+        return proprietor;
     }
 
     private InstructionReference emitBooleanExpression(BooleanExpression statement) {
@@ -144,9 +160,77 @@ public class InstructionGenerator {
         return none;
     }
 
+    public InstructionReference emitArrayIndexWrite(BinaryExpression leftExpression) {
+        InstructionReference leftArrayReference = generateStatement(leftExpression.getLeftAssociate());
+        InstructionReference rightArrayIndex = generateStatement(leftExpression.getRightAssociate());
+        InstructionReference right = generateStatement(leftExpression.getRightAssociate());
+
+        assert right.getValueType().assetEqualityFor(leftArrayReference.getValueType().increaseArrayDepth(1));
+
+        instructionSet.instruction(OpCode.STORE, builder -> builder
+                .referenceOperand(leftArrayReference)
+                .referenceOperand(rightArrayIndex)
+                .referenceOperand(right));
+
+        return right;
+    }
+
+    public InstructionReference emitArrayIndexRead(BinaryExpression binaryExpression) {
+        InstructionReference proprietor = instructionSet.createDataReference(".arr",
+                binaryExpression.valuedType().increaseArrayDepth(1), referenceId);
+        InstructionReference left = generateStatement(binaryExpression.getLeftAssociate());
+        InstructionReference right = generateStatement(binaryExpression.getRightAssociate());
+
+        instructionSet.instruction(OpCode.LOAD, builder -> builder
+                .referenceOperand(proprietor)
+                .referenceOperand(left)
+                .referenceOperand(right));
+
+        return proprietor;
+    }
+
     public InstructionReference emitAssign(BinaryExpression binaryExpression) {
+        InstructionReference proprietor = null;
         Expression left = binaryExpression.getLeftAssociate();
         Expression right = binaryExpression.getRightAssociate();
+
+        InstructionReference leftReference = generateStatement(left);
+        InstructionReference rightReference = generateStatement(right);
+        proprietor = leftReference;
+
+        assert left.valuedType().assetEqualityFor(right.valuedType());
+
+        instructionSet.instruction(OpCode.MOVE, builder -> builder
+                .referenceOperand(leftReference)
+                .referenceOperand(rightReference));
+
+        return proprietor;
+    }
+
+    // reference = (stateExpression) ? (ternaryLeft : ternaryRight)
+    private InstructionReference emitTernary(Expression stateExpression, BinaryExpression ternaryValues) {
+        InstructionReference proprietor = this.instructionSet.createDataReference(".ter", ternaryValues.valuedType(), referenceId);
+
+        InstructionReference condition = generateStatement(stateExpression);
+
+        InstructionReference trueValue = generateStatement(ternaryValues.getRightAssociate());
+        InstructionReference falseValue = generateStatement(ternaryValues.getRightAssociate());
+
+        InstructionReference endLabel = instructionSet.createLabel(".ter_end", referenceId);
+
+        instructionSet.instruction(OpCode.GOTO_IF, builder -> builder
+                .referenceOperand(condition)
+                .referenceOperand(endLabel)
+                .referenceOperand(trueValue));
+
+        instructionSet.instruction(OpCode.MOVE, builder -> builder
+                .referenceOperand(proprietor)
+                .referenceOperand(falseValue));
+
+        instructionSet.instruction(OpCode.LABEL, builder -> builder
+                .referenceOperand(endLabel));
+
+        return proprietor;
     }
 
     private final Operator[] assignOperators = {
@@ -159,15 +243,35 @@ public class InstructionGenerator {
             Operator.QUESTION_ASSIGN,
             Operator.OR_ASSIGN,
     };
+
     private InstructionReference emitBinaryExpression(BinaryExpression statement) {
-        InstructionReference reference = this.instructionSet.createDataReference(".bin", statement.valuedType(), referenceId);
+        InstructionReference proprietor = this.instructionSet.createDataReference(".bin", statement.valuedType(), referenceId);
         SimpleType type = statement.valuedType();
         Operator operator = statement.getOperator();
 
         for (Operator assignOperator : assignOperators) {
-            if (assignOperator == statement.getOperator())
+            if (assignOperator == operator)
                 return emitAssign(statement);
         }
+
+        // array read
+        // value = array[1]
+        if (operator == Operator.ARRAY) {
+            return emitArrayIndexRead(statement);
+        }
+        // array write
+        // array[1] = value;
+        if (statement.getLeftAssociate() instanceof BinaryExpression leftExpression &&
+                leftExpression.getOperator() == Operator.ARRAY) {
+            return emitArrayIndexWrite(statement);
+        }
+
+        // binLeft(bool) ? binRight(ternary(binLeft : binRight))
+        if (statement.getRightAssociate() instanceof BinaryExpression rightExpression &&
+                rightExpression.getOperator() == Operator.TERNARY) {
+            return emitTernary(statement.getLeftAssociate(), rightExpression);
+        }
+
 
         OpCode opCode = chooseBinaryOpCode(operator,
                 !type.getType().getPrimitiveTypes().isSigned(),
@@ -183,14 +287,14 @@ public class InstructionGenerator {
         assert leftType.assetEqualityFor(rightType);
 
         instructionSet.instruction(OpCode.MOVE, builder -> builder
-                .referenceOperand(reference)
+                .referenceOperand(proprietor)
                 .referenceOperand(left));
 
         instructionSet.instruction(opCode, builder -> builder
-                .referenceOperand(reference)
+                .referenceOperand(proprietor)
                 .referenceOperand(right));
 
-        return reference;
+        return proprietor;
     }
 
     private OpCode chooseBinaryOpCode(Operator operator, boolean unsigned, boolean floating, boolean bigNumber) {
@@ -223,10 +327,6 @@ public class InstructionGenerator {
             case LESS_EQUAL ->
                     unsigned ? OpCode.LESS_THAN_EQUAL : floating ? OpCode.FLOATING_LESS_THAN_EQUAL : OpCode.LESS_THAN_EQUAL;
 
-            case TERNARY -> ;
-            case QUESTION -> ;
-            case ASSIGN -> ;
-
             case EQUAL_EQUAL -> floating ? OpCode.FLOATING_EQUALS : OpCode.EQUALS;
 
             default -> null;
@@ -237,13 +337,29 @@ public class InstructionGenerator {
         InstructionReference proprietor = this.instructionSet.createDataReference(".unary", statement.valuedType(), referenceId);
         InstructionReference value = this.generateStatement(statement.getValue());
 
+        if (statement.getOperator() == Operator.INCREASE || statement.getOperator() == Operator.DECREASE) {
+            InstructionReference oneReference = this.instructionSet.createNumberReference(PrimitiveTypes.I32.toType(), referenceId);
+            this.instructionSet.instruction(OpCode.MOVE, builder -> builder
+                    .referenceOperand(oneReference)
+                    .numberOperand(PrimitiveTypes.I32, 1));
+
+            boolean increase = statement.getOperator() == Operator.INCREASE;
+
+            this.instructionSet.instruction(OpCode.MOVE, builder -> builder
+                    .referenceOperand(proprietor)
+                    .referenceOperand(value));
+            this.instructionSet.instruction(increase ? OpCode.ADD : OpCode.SUB, builder -> builder
+                    .referenceOperand(proprietor)
+                    .referenceOperand(oneReference));
+
+            return proprietor;
+        }
+
         OpCode opCode = switch (statement.getOperator()) {
             case NOT -> OpCode.NEGATE;
             case NOR -> OpCode.NEGATE_OR;
             case MINUS -> OpCode.SUBSTR;
 
-            case INCREASE -> ;
-            case DECREASE -> ;
             default -> throw new IllegalArgumentException("Unknown unary operation");
         };
         this.instructionSet.instruction(opCode, builder -> builder
@@ -253,16 +369,99 @@ public class InstructionGenerator {
         return proprietor;
     }
 
+    // wrapping references
     private InstructionReference emitLiteralExpression(LiteralExpression statement) {
-        return null;
+        InstructionReference proprietor = instructionSet.createDataReference(".lit", statement.valuedType(), referenceId);
+        instructionSet.instruction(OpCode.MOVE, builder -> builder
+                .referenceOperand(proprietor)
+                .referenceOperand(new InstructionReference(statement.getReference(), referenceId)));
 
+        return proprietor;
     }
 
     private InstructionReference emitCallExpression(CallExpression statement) {
-        return null;
+        InstructionReference proprietor = instructionSet.createDataReference(".call", statement.valuedType(),referenceId);
+
+        Map<Expression, InstructionReference> parameters = new HashMap<>();
+        for (Expression parameter : statement.getParameters()) {
+            InstructionReference reference = this.generateStatement(parameter);
+            parameters.put(parameter, reference);
+        }
+
+        instructionSet.instruction(OpCode.CALL, builder -> {
+            builder.referenceOperand(proprietor)
+                    .referenceOperand(new InstructionReference(statement.getReference(), referenceId));
+
+            parameters.forEach((expression, instructionReference) -> builder.referenceOperand(instructionReference));
+        });
+
+        return proprietor;
     }
 
     private InstructionReference emitArrayExpression(ArrayInitExpression statement) {
+        InstructionReference proprietor = instructionSet.createDataReference(".arc", statement.valuedType(), referenceId);
+        instructionSet.instruction(OpCode.ALLOC, builder -> builder
+                .referenceOperand(proprietor)
+                .numberOperand(PrimitiveTypes.I32, statement.getValues().size()));
+
+        for (int i = 0; i < statement.getValues().size(); i++) {
+            Expression element = statement.getValues().get(i);
+
+            InstructionReference valueReference = generateStatement(element);
+            NumberInstructionOperand index = new NumberInstructionOperand(PrimitiveTypes.I32.toType(), i);
+
+            instructionSet.instruction(OpCode.STORE, builder -> builder
+                    .referenceOperand(proprietor)
+                    .numberOperand(index)
+                    .referenceOperand(valueReference));
+        }
+        return proprietor;
+    }
+
+
+    private InstructionReference emitVarStatement(VariableStatement statement) {
+        Optional<Reference> reference = this.referenceStorage.getReferenceToStatement(statement);
+        if (reference.isEmpty())
+            throw new IllegalStateException("Function without reference fn: '%s'!".formatted(statement.getName()));
+
+        InstructionReference proprietor = new InstructionReference(reference.get(), referenceId);
+        InstructionReference value = generateStatement(statement.getValue());
+
+        assert statement.getValue().valuedType().assetEqualityFor(proprietor.getValueType());
+
+        instructionSet.instruction(OpCode.MOVE, builder -> builder
+                .referenceOperand(proprietor)
+                .referenceOperand(value));
+
+        return proprietor;
+    }
+
+
+    private InstructionReference emitIfStatement(IfStatement statement) {
+        InstructionReference elseLabel = this.instructionSet.createLabel(".else", referenceId);
+        InstructionReference endLabel = this.instructionSet.createLabel(".if_end", referenceId);
+
+        InstructionReference condition = this.generateStatement(statement.getCondition());
+
+        instructionSet.instruction(OpCode.GOTO_IF, builder -> builder
+                .referenceOperand(condition)
+                .referenceOperand(elseLabel));
+
+        this.loopBodyStatement(statement.getBody());
+        instructionSet.instruction(OpCode.GOTO, builder -> builder
+                .referenceOperand(endLabel));
+
+        instructionSet.instruction(OpCode.LABEL, builder -> builder
+                .referenceOperand(elseLabel));
+        this.generateStatement(statement.getElseStatement());
+
+        instructionSet.instruction(OpCode.LABEL, builder -> builder
+                .referenceOperand(endLabel));
+
+        return none;
+    }
+
+    private InstructionReference emitForStatement(ForStatement statement) {
         return null;
     }
 
@@ -270,21 +469,7 @@ public class InstructionGenerator {
         return null;
     }
 
-    private InstructionReference emitVarStatement(VariableStatement statement) {
-        return null;
-    }
-
-    private InstructionReference emitUDTDeclareStatement(UDTDeclareStatement statement) {
-        return null;
-    }
-
-    private InstructionReference emitBreakStatement(BreakStatement statement) {
-        this.instructionSet.instruction(OpCode.GOTO,
-                builder -> builder.referenceOperand(this.brakeLabel));
-        return none;
-    }
-
-    private InstructionReference emitConstructStatement(ConstructStatement statement) {
+    private InstructionReference emitDoWhileStatement(DoWhileStatement statement) {
         return null;
     }
 
@@ -294,20 +479,15 @@ public class InstructionGenerator {
         return none;
     }
 
-    private InstructionReference emitIfStatement(IfStatement statement) {
-        return null;
-    }
-
-    private InstructionReference emitForStatement(ForStatement statement) {
-        return null;
-    }
-
-    private InstructionReference emitDoWhileStatement(DoWhileStatement statement) {
-        return null;
-    }
-
     private InstructionReference emitReturnStatement(ReturnStatement statement) {
-        return null;
+
+        instructionSet.instruction(OpCode.RETURN, builder -> builder
+                .referenceOperand(statement.getValue() == null ?
+                        none :
+                        generateStatement(statement.getValue())
+                ));
+
+        return none;
     }
 
     private InstructionReference emitUnreachableStatement(UnreachableStatement statement) {
@@ -316,7 +496,25 @@ public class InstructionGenerator {
         return none;
     }
 
+    private InstructionReference emitBreakStatement(BreakStatement statement) {
+        this.instructionSet.instruction(OpCode.GOTO,
+                builder -> builder.referenceOperand(this.brakeLabel));
+        return none;
+    }
+
     private InstructionReference emitNativeStatement(NativeStatement statement) {
+        for (NativeStatement.NativeInstruction instruction : statement.getInstructions()) {
+            switch (statement.getType()) {
+                case ASM -> {
+                    instructionSet.instruction(OpCode.INLINE_ASSEMBLY, builder -> builder
+                            .stringOperand(statement.getArchitecture().name())
+                            .stringOperand(instruction.getLine()));
+                }
+                case IR -> {
+
+                }
+            }
+        }
         return null;
     }
 
@@ -335,6 +533,15 @@ public class InstructionGenerator {
     private InstructionReference emitFunctionType(FunctionStatement statement) {
 
         this.loopBodyStatement(statement.getBodyStatement());
+        return null;
+    }
+
+    private InstructionReference emitUDTDeclareStatement(UDTDeclareStatement statement) {
+
+        return null;
+    }
+
+    private InstructionReference emitConstructStatement(ConstructStatement statement) {
         return null;
     }
 
