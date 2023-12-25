@@ -300,8 +300,8 @@ public class InstructionGenerator {
 
     public InstructionReference emitOrLogic(BinaryExpression binaryExpression) {
         InstructionReference endingReference = instructionSet.createLabel(".or_end", referenceId);
-        InstructionReference proprietor = instructionSet.createDataReference(".or",binaryExpression.valuedType(), referenceId);
-        InstructionReference orValue = instructionSet.createLabel(".or_val",referenceId);
+        InstructionReference proprietor = instructionSet.createDataReference(".or", binaryExpression.valuedType(), referenceId);
+        InstructionReference orValue = instructionSet.createLabel(".or_val", referenceId);
 
         instructionSet.instruction(OpCode.MOVE, builder -> builder
                 .referenceOperand(proprietor)
@@ -345,6 +345,7 @@ public class InstructionGenerator {
             Operator.QUESTION_ASSIGN,
             Operator.OR_ASSIGN,
     };
+
     private InstructionReference emitBinaryExpression(BinaryExpression statement) {
         InstructionReference proprietor = this.instructionSet.createDataReference(".bin", statement.valuedType(), referenceId);
         SimpleType type = statement.valuedType();
@@ -678,10 +679,74 @@ public class InstructionGenerator {
 
 
     private InstructionReference emitForStatement(ForStatement statement) {
+        if (statement.getCondition() instanceof ForStatement.NumberRangeCondition rangeCondition) {
+            InstructionReference gotoLabel = instructionSet.createLabel(".f_goto", referenceId);
+            InstructionReference loopLabel = instructionSet.createLabel(".f_b", referenceId);
+            InstructionReference endLabel = instructionSet.createLabel(".f_end", referenceId);
+
+            this.currentContinueLabel = this.continueLabel;
+            this.currentBrakeLabel = this.brakeLabel;
+
+            continueLabel = gotoLabel;
+            brakeLabel = endLabel;
+
+            this.generateStatement(rangeCondition.getStatement());
+
+            InstructionReference condition = this.generateStatement(rangeCondition.getCondition());
+            instructionSet.instruction(OpCode.GOTO_IF, builder -> builder
+                    .referenceOperand(condition)
+                    .referenceOperand(endLabel));
+
+            instructionSet.instruction(OpCode.GOTO, builder -> builder
+                    .referenceOperand(loopLabel));
+
+            instructionSet.instruction(OpCode.LABEL, builder -> builder
+                    .referenceOperand(gotoLabel));
+            this.generateStatement(rangeCondition.getAppliedAction());
+
+            // condition get changed due to applied action!
+            InstructionReference actionAppliedCondition = this.generateStatement(rangeCondition.getCondition());
+            instructionSet.instruction(OpCode.GOTO_IF, builder -> builder
+                    .referenceOperand(actionAppliedCondition)
+                    .referenceOperand(endLabel));
+
+            instructionSet.instruction(OpCode.LABEL, builder -> builder
+                    .referenceOperand(loopLabel));
+            this.loopBodyStatement(statement.getBodyStatement());
+
+            instructionSet.instruction(OpCode.GOTO, builder -> builder
+                    .referenceOperand(gotoLabel));
+
+            instructionSet.instruction(OpCode.LABEL, builder -> builder
+                    .referenceOperand(endLabel));
+
+            brakeLabel = currentBrakeLabel;
+            continueLabel = currentContinueLabel;
+        }
+        if (statement.getCondition() instanceof ForStatement.IterateCondition iterateCondition) {
+            InstructionReference gotoLabel = instructionSet.createLabel(".f_goto", referenceId);
+            InstructionReference loopLabel = instructionSet.createLabel(".f_b", referenceId);
+            InstructionReference endLabel = instructionSet.createLabel(".f_end", referenceId);
+
+            this.currentContinueLabel = this.continueLabel;
+            this.currentBrakeLabel = this.brakeLabel;
+
+            continueLabel = gotoLabel;
+            brakeLabel = endLabel;
+
+            // instructions
+
+            brakeLabel = currentBrakeLabel;
+            continueLabel = currentContinueLabel;
+        }
         return null;
     }
 
     private InstructionReference emitSwitchStatement(SwitchStatement statement) {
+        return null;
+    }
+
+    private InstructionReference emitMatchExpression(MatchExpression statement) {
         return null;
     }
 
@@ -721,7 +786,7 @@ public class InstructionGenerator {
 
 
     private InstructionReference emitYieldStatement(YieldStatement statement) {
-        return null;
+        return this.emitReturnStatement(statement); // todo change this only temporary
     }
 
     private InstructionReference emitFunctionType(FunctionStatement statement) {
@@ -744,9 +809,6 @@ public class InstructionGenerator {
         return null;
     }
 
-    private InstructionReference emitMatchExpression(MatchExpression statement) {
-        return null;
-    }
 
     private InstructionReference emitClassType(ClassTypeStatement statement) {
 
