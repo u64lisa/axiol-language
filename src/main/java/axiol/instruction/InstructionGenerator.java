@@ -567,18 +567,6 @@ public class InstructionGenerator {
         return null;
     }
 
-    private InstructionReference emitForStatement(ForStatement statement) {
-        return null;
-    }
-
-    private InstructionReference emitSwitchStatement(SwitchStatement statement) {
-        return null;
-    }
-
-    private InstructionReference emitDoWhileStatement(DoWhileStatement statement) {
-        return null;
-    }
-
     private InstructionReference emitContinueStatement(ContinueStatement statement) {
         this.instructionSet.instruction(OpCode.GOTO,
                 builder -> builder.referenceOperand(this.continueLabel));
@@ -687,6 +675,50 @@ public class InstructionGenerator {
 
         return null;
     }
+
+
+    private InstructionReference emitForStatement(ForStatement statement) {
+        return null;
+    }
+
+    private InstructionReference emitSwitchStatement(SwitchStatement statement) {
+        return null;
+    }
+
+    private InstructionReference emitDoWhileStatement(DoWhileStatement statement) {
+        InstructionReference gotoLabel = instructionSet.createLabel(".dw_goto", referenceId);
+        InstructionReference endLabel = instructionSet.createLabel(".dw_end", referenceId);
+        InstructionReference conditionLabel = instructionSet.createLabel(".dw_check", referenceId);
+
+        this.currentContinueLabel = this.continueLabel;
+        this.currentBrakeLabel = this.brakeLabel;
+
+        continueLabel = gotoLabel;
+        brakeLabel = endLabel;
+
+        instructionSet.instruction(OpCode.LABEL, builder -> builder
+                .referenceOperand(gotoLabel));
+
+        loopBodyStatement(statement.getBodyStatement());
+
+        InstructionReference conditionReference = generateStatement(statement.getCondition());
+        instructionSet.instruction(OpCode.MOVE, builder -> builder
+                .referenceOperand(conditionLabel)
+                .referenceOperand(conditionReference));
+
+        instructionSet.instruction(OpCode.GOTO_IF, builder -> builder
+                .referenceOperand(conditionLabel)
+                .referenceOperand(gotoLabel));
+
+        instructionSet.instruction(OpCode.LABEL, builder -> builder
+                .referenceOperand(endLabel));
+
+        brakeLabel = currentBrakeLabel;
+        continueLabel = currentContinueLabel;
+
+        return null;
+    }
+
 
     private InstructionReference emitYieldStatement(YieldStatement statement) {
         return null;
