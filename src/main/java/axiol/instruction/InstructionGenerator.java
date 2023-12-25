@@ -662,6 +662,29 @@ public class InstructionGenerator {
     }
 
     private InstructionReference emitLoopStatement(LoopStatement statement) {
+        InstructionReference gotoLabel = instructionSet.createLabel(".loop_goto", referenceId);
+        InstructionReference endLabel = instructionSet.createLabel(".loop_end", referenceId);
+
+        this.currentContinueLabel = this.continueLabel;
+        this.currentBrakeLabel = this.brakeLabel;
+
+        continueLabel = gotoLabel;
+        brakeLabel = endLabel;
+
+        instructionSet.instruction(OpCode.LABEL, builder -> builder
+                .referenceOperand(gotoLabel));
+
+        loopBodyStatement(statement.getBodyStatement());
+
+        instructionSet.instruction(OpCode.GOTO, builder -> builder
+                .referenceOperand(gotoLabel));
+
+        instructionSet.instruction(OpCode.LABEL, builder -> builder
+                .referenceOperand(endLabel));
+
+        brakeLabel = currentBrakeLabel;
+        continueLabel = currentContinueLabel;
+
         return null;
     }
 
