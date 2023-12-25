@@ -36,6 +36,10 @@ public class InstructionBuilder {
         elements.add(new NumberInstructionOperand(type.toType(), value));
         return this;
     }
+    public InstructionBuilder numberOperand(NumberInstructionOperand value) {
+        elements.add(value);
+        return this;
+    }
 
     public InstructionBuilder stringOperand(String text) {
         elements.add(new StringInstructionOperand(text));
@@ -44,11 +48,6 @@ public class InstructionBuilder {
 
     public InstructionBuilder booleanOperand(boolean value) {
         elements.add(new BooleanInstructionOperand(value));
-        return this;
-    }
-
-    public InstructionBuilder referenceOperand(Reference reference, int referenceId) {
-        elements.add(new ReferenceInstructionOperand(new InstructionReference(reference, referenceId++)));
         return this;
     }
 

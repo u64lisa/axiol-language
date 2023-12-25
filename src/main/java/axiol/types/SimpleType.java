@@ -25,6 +25,16 @@ public class SimpleType {
         return pointerDepth;
     }
 
+    @Deprecated
+    public SimpleType increaseArrayDepth(int length) {
+        return new SimpleType(this.type,arrayDepth + length, pointerDepth);
+    }
+
+    @Deprecated
+    public SimpleType increasePointerDepth(int length) {
+        return new SimpleType(this.type,arrayDepth, pointerDepth + length);
+    }
+
     @Override
     public boolean equals(Object object) {
         if (this == object) return true;

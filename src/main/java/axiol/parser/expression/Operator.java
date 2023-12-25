@@ -53,6 +53,9 @@ public enum Operator {
     SHIFT_LEFT(    "<<", TokenType.SHIFT_LEFT,     13, false, false),
     SHIFT_RIGHT(   ">>", TokenType.SHIFT_RIGHT,    13, false, false),
     NOR(           "~",  TokenType.NOR,            7,  true,  false), // unary
+
+    // value = array[expr];
+    ARRAY(         "[]", TokenType.L_SQUARE,        5, false, true),
     ;
 
     private static final Map<Integer, List<Operator>> SORTED_PRIORITY = new ConcurrentHashMap<>();

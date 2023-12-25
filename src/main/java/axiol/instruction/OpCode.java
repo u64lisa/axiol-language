@@ -68,6 +68,7 @@ public enum OpCode {
     GOTO_IF,                    // v1 == r2 ? goto LABEL
     GOTO_IF_NOT_EQ,             // v1 != r2 ? goto LABEL
     CALL,
+    TERNARY,                    // v1 == (boolExpr) true : false
     ;
 
 
