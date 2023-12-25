@@ -6,6 +6,7 @@ import axiol.parser.expression.Operator;
 import axiol.parser.tree.Expression;
 import axiol.parser.tree.expressions.*;
 import axiol.parser.tree.expressions.control.MatchExpression;
+import axiol.parser.tree.expressions.extra.CastExpression;
 import axiol.parser.tree.expressions.extra.ElementReferenceExpression;
 import axiol.parser.tree.expressions.sub.BooleanExpression;
 import axiol.parser.tree.expressions.sub.NumberExpression;
@@ -60,6 +61,7 @@ public class ExpressionParser {
      * x var = expr ? expr : expr;
      *
      * x ref = &expression;
+     * x ref = cast[type] expression;
      *
      * x var = test.t;
      * - var = test.*t; TODO
@@ -103,6 +105,21 @@ public class ExpressionParser {
                 this.tokenStream.advance();
 
                 return new ArrayInitExpression(new ArrayList<>(), simpleType, expression, this.tokenStream.currentPosition());
+            }
+            if (tokenStream.matches(TokenType.CAST)) {
+                TokenPosition tokenPosition = tokenStream.currentPosition();
+                this.tokenStream.advance();
+
+                this.languageParser.expected(TokenType.L_SQUARE);
+                this.tokenStream.advance();
+
+                SimpleType type = languageParser.parseType();
+
+                this.languageParser.expected(TokenType.R_SQUARE);
+                this.tokenStream.advance();
+
+                Expression expression = this.languageParser.parseExpression(type);
+                return new CastExpression(tokenPosition, type, expression);
             }
             // {expr, expr, expr, ...}
             if (tokenStream.matches(TokenType.L_CURLY)) {
