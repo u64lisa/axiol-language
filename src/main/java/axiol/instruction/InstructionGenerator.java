@@ -34,16 +34,18 @@ public class InstructionGenerator {
 
     private int referenceId = 0;
 
-    private InstructionReference brakeLabel;
     private InstructionReference unreachableLabel;
-    private InstructionReference continueLabel;
 
-    private InstructionReference none;
+    private InstructionReference loopBrakeLabel;
+    private InstructionReference loopContinueLabel;
+
+    private InstructionReference brakeLabel;
+    private InstructionReference currentBrakeLabel;
+    private InstructionReference continueLabel;
+    private InstructionReference currentContinueLabel;
 
     public InstructionGenerator() {
         instructionSet = new InstructionSetBuilder();
-
-        none = instructionSet.createNoneReference(-99);
     }
 
 
@@ -132,12 +134,12 @@ public class InstructionGenerator {
     }
 
     private InstructionReference emitBooleanExpression(BooleanExpression statement) {
-        InstructionReference booleanReference = instructionSet.createBooleanReference(referenceId);
+        InstructionReference reference = instructionSet.createBooleanReference(referenceId);
         instructionSet.instruction(OpCode.MOVE, builder -> builder
-                .referenceOperand(booleanReference)
+                .referenceOperand(reference)
                 .booleanOperand(statement.isValue()));
 
-        return booleanReference;
+        return reference;
     }
 
     private InstructionReference emitNumberExpression(NumberExpression statement) {
@@ -150,10 +152,11 @@ public class InstructionGenerator {
     }
 
     private InstructionReference emitStringExpression(StringExpression statement) {
+        InstructionReference reference = instructionSet.createStringReference(referenceId);
         instructionSet.instruction(OpCode.MOVE, builder -> builder
-                .referenceOperand(this.instructionSet.createStringReference(referenceId))
+                .referenceOperand(reference)
                 .stringOperand(statement.getValue()));
-        return none;
+        return reference;
     }
 
     private InstructionReference emitCastExpression(CastExpression statement) {
@@ -561,7 +564,7 @@ public class InstructionGenerator {
         instructionSet.instruction(OpCode.LABEL, builder -> builder
                 .referenceOperand(endLabel));
 
-        return none;
+        return null;
     }
 
     private InstructionReference emitForStatement(ForStatement statement) {
@@ -579,30 +582,30 @@ public class InstructionGenerator {
     private InstructionReference emitContinueStatement(ContinueStatement statement) {
         this.instructionSet.instruction(OpCode.GOTO,
                 builder -> builder.referenceOperand(this.continueLabel));
-        return none;
+        return null;
     }
 
     private InstructionReference emitReturnStatement(ReturnStatement statement) {
 
         instructionSet.instruction(OpCode.RETURN, builder -> builder
                 .referenceOperand(statement.getValue() == null ?
-                        none :
+                        null :
                         generateStatement(statement.getValue())
                 ));
 
-        return none;
+        return null;
     }
 
     private InstructionReference emitUnreachableStatement(UnreachableStatement statement) {
         this.instructionSet.instruction(OpCode.GOTO,
                 builder -> builder.referenceOperand(unreachableLabel));
-        return none;
+        return null;
     }
 
     private InstructionReference emitBreakStatement(BreakStatement statement) {
         this.instructionSet.instruction(OpCode.GOTO,
                 builder -> builder.referenceOperand(this.brakeLabel));
-        return none;
+        return null;
     }
 
     private InstructionReference emitNativeStatement(NativeStatement statement) {
@@ -622,6 +625,39 @@ public class InstructionGenerator {
     }
 
     private InstructionReference emitWhileStatement(WhileStatement statement) {
+        InstructionReference gotoLabel = instructionSet.createLabel(".w_goto", referenceId);
+        InstructionReference endLabel = instructionSet.createLabel(".w_end", referenceId);
+        InstructionReference conditionLabel = instructionSet.createLabel(".w_check", referenceId);
+
+        this.currentContinueLabel = this.continueLabel;
+        this.currentBrakeLabel = this.brakeLabel;
+
+        InstructionReference conditionReference = generateStatement(statement.getCondition());
+        instructionSet.instruction(OpCode.MOVE, builder -> builder
+                .referenceOperand(conditionLabel)
+                .referenceOperand(conditionReference));
+
+        continueLabel = gotoLabel;
+        brakeLabel = endLabel;
+
+        instructionSet.instruction(OpCode.LABEL, builder -> builder
+                .referenceOperand(gotoLabel));
+
+        instructionSet.instruction(OpCode.GOTO_IF, builder -> builder
+                .referenceOperand(conditionLabel)
+                .referenceOperand(endLabel));
+
+        loopBodyStatement(statement.getBodyStatement());
+
+        instructionSet.instruction(OpCode.GOTO, builder -> builder
+                .referenceOperand(gotoLabel));
+
+        instructionSet.instruction(OpCode.LABEL, builder -> builder
+                .referenceOperand(endLabel));
+
+        brakeLabel = currentBrakeLabel;
+        continueLabel = currentContinueLabel;
+
         return null;
     }
 
