@@ -52,7 +52,6 @@ public class InstructionGenerator {
         instructionSet = new InstructionSetBuilder();
     }
 
-
     //@formatter:off
     public InstructionSet emit(RootNode rootNode) {
         this.referenceStorage = rootNode.getReferences();
@@ -87,6 +86,7 @@ public class InstructionGenerator {
     }
 
     public InstructionReference generateStatement(Statement statement) {
+
         return switch (statement.type()) {
             // inner body statements
             case NATIVE_STATEMENT ->        emitNativeStatement(             (NativeStatement)            statement); //
@@ -959,15 +959,14 @@ public class InstructionGenerator {
                 InstructionReference instructionReference = instructionSet.createDataReference(".fun_par_%s".formatted(parameter.getName()),
                         parameter.getParsedType(), referenceId);
 
-                InstructionReference valueReference = generateStatement(parameter.getDefaultValue());
-
                 if (parameter.getDefaultValue() != null) {
+                    InstructionReference valueReference = generateStatement(parameter.getDefaultValue());
                     instructionSet.instruction(OpCode.MOVE, builder2 -> builder2
                             .referenceOperand(instructionReference)
                             .referenceOperand(valueReference));
                 }
 
-                builder.referenceOperand(valueReference);
+                builder.referenceOperand(instructionReference);
             }
         });
 

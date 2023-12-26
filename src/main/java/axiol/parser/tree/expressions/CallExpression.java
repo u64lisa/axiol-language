@@ -13,12 +13,11 @@ import java.util.List;
 
 public class CallExpression extends Expression {
 
-    private final Reference reference;
     private final String path;
     private final List<Expression> parameters;
+    private Reference reference;
 
-    public CallExpression(Reference reference, String path, List<Expression> parameters, TokenPosition position) {
-        this.reference = reference;
+    public CallExpression(String path, List<Expression> parameters, TokenPosition position) {
         this.path = path;
         this.parameters = parameters;
         this.position = position;
@@ -35,10 +34,6 @@ public class CallExpression extends Expression {
         return parameters;
     }
 
-    public Reference getReference() {
-        return reference;
-    }
-
     @Override
     public List<Statement> childStatements() {
         return new ArrayList<>(parameters);
@@ -51,6 +46,14 @@ public class CallExpression extends Expression {
 
     public String getPath() {
         return path;
+    }
+
+    public void setReference(Reference reference) {
+        this.reference = reference;
+    }
+
+    public Reference getReference() {
+        return reference;
     }
 
     @Override

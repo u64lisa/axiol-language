@@ -5,6 +5,7 @@ import axiol.parser.tree.Expression;
 import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.util.error.TokenPosition;
+import axiol.types.Reference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,13 +16,16 @@ public class UDTDeclareStatement extends Statement {
     private final String referenceName;
     private final List<Expression> parameters;
 
+    private final Reference reference;
+
     // needs to be set by @StaticAnalysis
     private UDTType type;
 
-    public UDTDeclareStatement(String typeName, String referenceName, List<Expression> parameters, TokenPosition position) {
+    public UDTDeclareStatement(String typeName, String referenceName, List<Expression> parameters, Reference reference, TokenPosition position) {
         this.typeName = typeName;
         this.referenceName = referenceName;
         this.parameters = parameters;
+        this.reference = reference;
         this.position = position;
     }
 
@@ -48,6 +52,10 @@ public class UDTDeclareStatement extends Statement {
 
     public String getReferenceName() {
         return referenceName;
+    }
+
+    public Reference getReference() {
+        return reference;
     }
 
     public List<Expression> getParameters() {

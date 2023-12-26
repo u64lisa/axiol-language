@@ -13,6 +13,6 @@ public abstract class Parser {
     public abstract RootNode parseSource(final String path, final String content);
 
     public abstract Statement parseStatement();
-    public abstract Expression parseExpression(SimpleType simpleType);
+    public abstract Expression parseExpression(Scope scope, SimpleType simpleType);
 
 }

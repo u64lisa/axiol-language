@@ -1,5 +1,6 @@
 package axiol.parser;
 
+import axiol.instruction.Instruction;
 import axiol.lexer.Token;
 import axiol.lexer.TokenType;
 import axiol.parser.expression.Operator;
@@ -12,9 +13,11 @@ import axiol.parser.tree.expressions.extra.StackAllocExpression;
 import axiol.parser.tree.expressions.sub.BooleanExpression;
 import axiol.parser.tree.expressions.sub.NumberExpression;
 import axiol.parser.tree.expressions.sub.StringExpression;
+import axiol.parser.util.Scope;
 import axiol.parser.util.error.TokenPosition;
 import axiol.parser.util.stream.TokenStream;
 import axiol.types.PrimitiveTypes;
+import axiol.types.Reference;
 import axiol.types.SimpleType;
 import axiol.types.custom.I128;
 import axiol.types.custom.U128;
@@ -73,7 +76,7 @@ public class ExpressionParser {
      * - var = () -> null;
      * - var = () -> {};
      **/
-    public Expression parseExpression(SimpleType simpleType, int priority) {
+    public Expression parseExpression(Scope scope, SimpleType simpleType, int priority) {
         if (priority < 0)
             priority = 0;
 
@@ -84,7 +87,7 @@ public class ExpressionParser {
             if (tokenStream.matches(TokenType.AND)) {
                 this.tokenStream.advance();
 
-                return new ElementReferenceExpression(this.parseExpression(simpleType, Operator.MAX_PRIORITY), this.tokenStream.currentPosition());
+                return new ElementReferenceExpression(this.parseExpression(scope, simpleType, Operator.MAX_PRIORITY), this.tokenStream.currentPosition());
             }
             // [_] empty array 0 elements
             // [expression] sized empty array
@@ -101,7 +104,7 @@ public class ExpressionParser {
                     return new ArrayInitExpression(new ArrayList<>(), simpleType, new NumberExpression(
                             current.getTokenPosition(), 0, PrimitiveTypes.I32.toType(), true), this.tokenStream.currentPosition());
                 }
-                Expression expression = this.parseExpression(simpleType,0);
+                Expression expression = this.parseExpression(scope, simpleType,0);
 
                 this.languageParser.expected(TokenType.R_SQUARE);
                 this.tokenStream.advance();
@@ -120,7 +123,7 @@ public class ExpressionParser {
                 this.languageParser.expected(TokenType.R_SQUARE);
                 this.tokenStream.advance();
 
-                Expression expression = this.languageParser.parseExpression(type);
+                Expression expression = this.languageParser.parseExpression(scope, type);
                 return new CastExpression(tokenPosition, type, expression);
             }
             if (tokenStream.matches(TokenType.STACK_ALLOC)) {
@@ -136,12 +139,20 @@ public class ExpressionParser {
                 if (this.tokenStream.matches(TokenType.COMMA)) {
                     this.tokenStream.advance();
 
-                    depth = parseMatchExpression(type);
-                }
+                    depth = parseExpression(scope, type, 0);
 
+                    if (depth instanceof NumberExpression expression) {
+                        this.languageParser.expected(TokenType.R_SQUARE);
+                        this.tokenStream.advance();
+
+                        return new StackAllocExpression(tokenPosition, type, expression);
+                    }
+                    languageParser.createSyntaxError(depth.position(),"expected number but got %s", depth.type().name());
+                }
                 this.languageParser.expected(TokenType.R_SQUARE);
                 this.tokenStream.advance();
-                return new StackAllocExpression(tokenPosition, type, depth);
+                return new StackAllocExpression(tokenPosition, type,
+                        new NumberExpression(tokenPosition, 1, PrimitiveTypes.I32.toType(), true));
             }
             // {expr, expr, expr, ...}
             if (tokenStream.matches(TokenType.L_CURLY)) {
@@ -150,7 +161,7 @@ public class ExpressionParser {
                 List<Expression> expressions = new ArrayList<>();
 
                 while (!tokenStream.matches(TokenType.R_CURLY)) {
-                    Expression element = this.parseExpression(simpleType, 0);
+                    Expression element = this.parseExpression(scope, simpleType, 0);
                     expressions.add(element);
 
                     if (this.tokenStream.matches(TokenType.R_CURLY))
@@ -171,14 +182,14 @@ public class ExpressionParser {
 
             if (Arrays.stream(valueContainingTypes)
                     .anyMatch(type -> type.equals(this.tokenStream.current().getType()))) {
-                return parseTypeExpression(simpleType);
+                return parseTypeExpression(scope, simpleType);
             }
             if (tokenStream.matches(TokenType.MATCH)) {
-                return this.parseMatchExpression(simpleType);
+                return this.parseMatchExpression(scope, simpleType);
             }
             if (tokenStream.matches(TokenType.L_PAREN)) {
                 this.tokenStream.advance();
-                Expression expression = parseExpression(simpleType, Operator.MAX_PRIORITY);
+                Expression expression = parseExpression(scope, simpleType, Operator.MAX_PRIORITY);
                 if (tokenStream.matches(TokenType.R_PAREN)) {
                     this.tokenStream.advance();
                 } else {
@@ -202,11 +213,11 @@ public class ExpressionParser {
 
             this.tokenStream.advance();
 
-            leftAssociated = new UnaryExpression(operator, this.parseExpression(simpleType, priority),
+            leftAssociated = new UnaryExpression(operator, this.parseExpression(scope, simpleType, priority),
                     this.tokenStream.currentPosition());
         }
         if (leftAssociated == null) {
-            leftAssociated = this.parseExpression(simpleType,priority - 1);
+            leftAssociated = this.parseExpression(scope, simpleType,priority - 1);
         }
 
         // append last lef-associated Expression
@@ -241,7 +252,7 @@ public class ExpressionParser {
                 operatorCycles = 0;
 
                 Expression right = operator.isLeftAssociated() ?
-                        parseExpression(simpleType, priority - 1) : parseExpression(simpleType, priority);
+                        parseExpression(scope, simpleType, priority - 1) : parseExpression(scope, simpleType, priority);
 
                 leftAssociated = new BinaryExpression(operator, leftAssociated, right,
                         this.tokenStream.currentPosition());
@@ -252,7 +263,7 @@ public class ExpressionParser {
         return leftAssociated;
     }
 
-    private Expression parseTypeExpression(SimpleType simpleType) {
+    private Expression parseTypeExpression(Scope scope, SimpleType simpleType) {
         if (Arrays.stream(numberContainingTypes)
                 .anyMatch(type -> type.equals(tokenStream.current().getType()))) {
 
@@ -355,7 +366,7 @@ public class ExpressionParser {
 
                 List<Expression> parameters = new ArrayList<>();
                 while (!this.tokenStream.matches(TokenType.R_PAREN)) {
-                    Expression expression = this.parseExpression(simpleType, Operator.MAX_PRIORITY);
+                    Expression expression = this.parseExpression(scope, simpleType, Operator.MAX_PRIORITY);
 
                     if (expression != null)
                         parameters.add(expression);
@@ -369,10 +380,14 @@ public class ExpressionParser {
                 if (this.tokenStream.matches(TokenType.SEMICOLON))
                     this.tokenStream.advance();
 
-                // todo search ref
-                return new CallExpression(null, path.toString(), parameters, namePosition);
+                return new CallExpression(path.toString(), parameters, namePosition);
             }
-            // todo search ref
+
+            System.out.println("-".repeat(200));
+            System.out.println("+ " + scope.dumpPath() + "-" + path);
+            for (Reference reference : this.languageParser.getReferences()) {
+                System.out.println(reference.getProprietorPath());
+            }
             return new LiteralExpression(null, path.toString(), namePosition);
         }
 
@@ -382,7 +397,7 @@ public class ExpressionParser {
         return null;
     }
 
-    private MatchExpression parseMatchExpression(SimpleType simpleType) {
+    private MatchExpression parseMatchExpression(Scope scope, SimpleType simpleType) {
         this.tokenStream.advance();
 
         Token start = this.tokenStream.current();
@@ -391,7 +406,7 @@ public class ExpressionParser {
             return null;
         this.tokenStream.advance();
 
-        Expression expression = parseExpression(simpleType, Operator.MAX_PRIORITY);
+        Expression expression = parseExpression(scope, simpleType, Operator.MAX_PRIORITY);
 
         if (!languageParser.expected(TokenType.R_PAREN))
             return null;
@@ -414,7 +429,7 @@ public class ExpressionParser {
 
                     while (!this.tokenStream.matches(TokenType.LAMBDA) &&
                             !this.tokenStream.matches(TokenType.COLON)) {
-                        conditions.add(parseExpression(simpleType, Operator.MAX_PRIORITY));
+                        conditions.add(parseExpression(scope, simpleType, Operator.MAX_PRIORITY));
 
                         if (!this.tokenStream.matches(TokenType.LAMBDA) &&
                                 !this.tokenStream.matches(TokenType.COLON)) {
@@ -438,7 +453,7 @@ public class ExpressionParser {
                 if (this.tokenStream.matches(TokenType.LAMBDA)) {
                     this.tokenStream.advance();
 
-                    body = parseExpression(simpleType, Operator.MAX_PRIORITY);
+                    body = parseExpression(scope, simpleType, Operator.MAX_PRIORITY);
                 }
 
                 if (this.tokenStream.matches(TokenType.SEMICOLON)) {

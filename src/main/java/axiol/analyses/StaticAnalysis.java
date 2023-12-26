@@ -19,12 +19,14 @@ import axiol.parser.tree.statements.control.*;
 import axiol.parser.tree.statements.oop.*;
 import axiol.parser.tree.statements.special.NativeStatement;
 import axiol.parser.util.SourceFile;
+import axiol.types.Reference;
 import axiol.types.ScopeVariable;
 import axiol.types.SimpleType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @SuppressWarnings("unused")
 public class StaticAnalysis implements RootNodeProcessor<Void> {
@@ -198,17 +200,17 @@ public class StaticAnalysis implements RootNodeProcessor<Void> {
                 scope = scope + splitElement + classTypeStatement.getName();
 
                 this.analyseDefinitions(scope, classTypeStatement.getBodyStatement());
-                this.analyseContext.getClasses().add(scope);
+                this.analyseContext.getClasses().put(scope, classTypeStatement.getReference());
             }
             case STRUCT_TYPE_STATEMENT -> {
                 StructTypeStatement structTypeStatement = (StructTypeStatement) statement;
                 scope = scope + splitElement + structTypeStatement.getName();
 
-                this.analyseContext.getStructures().add(scope);
+                this.analyseContext.getStructures().put(scope, structTypeStatement.getReference());
 
                 for (Parameter parameter : structTypeStatement.getEntries()) {
                     String scopeCopy = scope + splitElement + parameter.getName();
-                    this.analyseContext.getStructuresFields().add(scopeCopy);
+                    this.analyseContext.getStructuresFields().put(scopeCopy, structTypeStatement.getReference());
                 }
             }
 
@@ -216,7 +218,7 @@ public class StaticAnalysis implements RootNodeProcessor<Void> {
                 FunctionStatement functionStatement = (FunctionStatement) statement;
                 scope = scope + splitElement + functionStatement.getName();
                 this.analyseDefinitions(scope, functionStatement.getBodyStatement());
-                this.analyseContext.getFunctions().add(scope);
+                this.analyseContext.getFunctions().put(scope, functionStatement.getReference());
             }
             case BODY_STATEMENT -> {
                 BodyStatement bodyStatement = (BodyStatement) statement;
@@ -227,12 +229,12 @@ public class StaticAnalysis implements RootNodeProcessor<Void> {
             case VAR_STATEMENT -> {
                 VariableStatement variableStatement = (VariableStatement) statement;
                 scope = scope + splitElement + variableStatement.getName();
-                this.analyseContext.getVariable().add(scope);
+                this.analyseContext.getVariable().put(scope, variableStatement.getReference());
             }
             case UDT_DECLARE_STATEMENT -> {
                 UDTDeclareStatement udtDeclareStatement = (UDTDeclareStatement) statement;
                 scope = scope + splitElement + udtDeclareStatement.getReferenceName();
-                this.analyseContext.getUdt().add(scope);
+                this.analyseContext.getUdt().put(scope, udtDeclareStatement.getReference());
             }
         }
     }
@@ -406,19 +408,37 @@ public class StaticAnalysis implements RootNodeProcessor<Void> {
         }
 
         boolean foundMatchingUdt = false;
-        for (String currentUDT : this.analyseContext.getUdt()) {
-            String[] parts = currentUDT.split("/");
+        for (Map.Entry<String, Reference> stringReferenceEntry : this.analyseContext.getUdt().entrySet()) {
+            String[] parts = stringReferenceEntry.getKey().split("/");
             String functionScopeName = parts[0];
 
             if (functionScopeName.equals(scope)) {
                 foundMatchingUdt = true;
                 break;
             }
+
         }
 
-        if (!this.analyseContext.getFunctions().contains(statement.getPath()) && !foundMatchingUdt) {
+        if (!this.analyseContext.getFunctions().containsKey(statement.getPath()) && !foundMatchingUdt) {
             ValidationException.UNDECLARED_FUNCTION.throwException(sourceFile,
                     statement.position(), statement.getPath());
+        }
+
+        if (foundMatchingUdt) {
+            for (Map.Entry<String, Reference> stringReferenceEntry : this.analyseContext.getUdt().entrySet()) {
+                String[] parts = stringReferenceEntry.getKey().split("/");
+                String functionScopeName = parts[0];
+
+                if (functionScopeName.equals(scope)) {
+                    Reference reference = stringReferenceEntry.getValue();
+
+                    statement.setReference(reference);
+                    break;
+                }
+
+            }
+        } else {
+            statement.setReference(this.analyseContext.getFunctions().get(statement.getPath()));
         }
     }
 

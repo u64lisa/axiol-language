@@ -1,9 +1,11 @@
 package axiol.parser.tree.statements.oop;
 
+import axiol.parser.statement.Accessibility;
 import axiol.parser.statement.Parameter;
 import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.util.error.TokenPosition;
+import axiol.types.Reference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,11 +16,16 @@ public class StructTypeStatement extends Statement {
     private final List<Parameter> entries;
     private final String name;
     private final UUID uuid;
+    private final Accessibility[] accessibility;
 
-    public StructTypeStatement(List<Parameter> entries, String name, UUID uuid, TokenPosition position) {
+    private final Reference reference;
+
+    public StructTypeStatement(List<Parameter> entries, String name, UUID uuid, Accessibility[] accessibility, Reference reference, TokenPosition position) {
         this.entries = entries;
         this.name = name;
         this.uuid = uuid;
+        this.accessibility = accessibility;
+        this.reference = reference;
         this.position = position;
     }
 
@@ -39,6 +46,9 @@ public class StructTypeStatement extends Statement {
         return new ArrayList<>();
     }
 
+    public Accessibility[] getAccessibility() {
+        return accessibility;
+    }
 
     public UUID getUuid() {
         return uuid;
@@ -46,6 +56,10 @@ public class StructTypeStatement extends Statement {
 
     public List<Parameter> getEntries() {
         return entries;
+    }
+
+    public Reference getReference() {
+        return reference;
     }
 
     public String getName() {

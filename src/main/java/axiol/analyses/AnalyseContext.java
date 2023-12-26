@@ -1,20 +1,24 @@
 package axiol.analyses;
 
+import axiol.types.Reference;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AnalyseContext {
 
     private final List<String> mangelElements = new ArrayList<>();
 
-    private final List<String> functions = new ArrayList<>();
-    private final List<String> classes = new ArrayList<>();
+    private final Map<String, Reference> functions = new HashMap<>();
+    private final Map<String, Reference> classes = new HashMap<>();
 
-    private final List<String> structures = new ArrayList<>();
-    private final List<String> structuresFields = new ArrayList<>();
+    private final Map<String, Reference> structures = new HashMap<>();
+    private final Map<String, Reference> structuresFields = new HashMap<>();
 
-    private final List<String> variable = new ArrayList<>();
-    private final List<String> udt = new ArrayList<>();
+    private final Map<String, Reference> variable = new HashMap<>();
+    private final Map<String, Reference> udt = new HashMap<>();
 
     public boolean checkMangel(String mangel) {
         if (this.mangelElements.contains(mangel)) {
@@ -36,27 +40,32 @@ public class AnalyseContext {
                 '}';
     }
 
-    public List<String> getClasses() {
+    public List<String> getMangelElements() {
+        return mangelElements;
+    }
+
+    public Map<String, Reference> getClasses() {
         return classes;
     }
 
-    public List<String> getFunctions() {
+    public Map<String, Reference> getFunctions() {
         return functions;
     }
 
-    public List<String> getVariable() {
-        return variable;
-    }
-
-    public List<String> getStructures() {
+    public Map<String, Reference> getStructures() {
         return structures;
     }
 
-    public List<String> getStructuresFields() {
+    public Map<String, Reference> getStructuresFields() {
         return structuresFields;
     }
 
-    public List<String> getUdt() {
+    public Map<String, Reference> getUdt() {
         return udt;
     }
+
+    public Map<String, Reference> getVariable() {
+        return variable;
+    }
+
 }

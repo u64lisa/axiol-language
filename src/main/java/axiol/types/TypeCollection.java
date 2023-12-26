@@ -25,6 +25,9 @@ public class TypeCollection {
             PrimitiveTypes.U32.toType(),
             PrimitiveTypes.U64.toType(),
 
+            PrimitiveTypes.I128.toType(),
+            PrimitiveTypes.U128.toType(),
+
             PrimitiveTypes.F32.toType(),
             PrimitiveTypes.F64.toType(),
 
