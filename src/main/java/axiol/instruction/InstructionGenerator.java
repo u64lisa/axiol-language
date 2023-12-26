@@ -3,6 +3,7 @@ package axiol.instruction;
 import axiol.instruction.reference.InstructionReference;
 import axiol.instruction.value.NumberInstructionOperand;
 import axiol.parser.expression.Operator;
+import axiol.parser.statement.Parameter;
 import axiol.parser.tree.Expression;
 import axiol.parser.tree.NodeType;
 import axiol.parser.tree.RootNode;
@@ -24,9 +25,10 @@ import axiol.types.PrimitiveTypes;
 import axiol.types.Reference;
 import axiol.types.ReferenceStorage;
 import axiol.types.SimpleType;
-import axiol.utils.Pair;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 public class InstructionGenerator {
     private final InstructionSetBuilder instructionSet;
@@ -166,7 +168,7 @@ public class InstructionGenerator {
     }
 
     private InstructionReference emitStackAllocExpression(StackAllocExpression statement) {
-        InstructionReference proprietor = this.instructionSet.createDataReference(".alloc", statement.valuedType(),referenceId);
+        InstructionReference proprietor = this.instructionSet.createDataReference(".alloc", statement.valuedType(), referenceId);
 
         InstructionReference size = this.instructionSet.createNumberReference(PrimitiveTypes.I32.toType(), statement.getDepth().getNumberValue().intValue());
 
@@ -547,7 +549,7 @@ public class InstructionGenerator {
     private InstructionReference emitVarStatement(VariableStatement statement) {
         Optional<Reference> reference = this.referenceStorage.getReferenceToStatement(statement);
         if (reference.isEmpty())
-            throw new IllegalStateException("Function without reference fn: '%s'!".formatted(statement.getName()));
+            throw new IllegalStateException("Var without reference fn: '%s'!".formatted(statement.getName()));
 
         InstructionReference proprietor = new InstructionReference(reference.get(), referenceId);
         InstructionReference value = generateStatement(statement.getValue());
@@ -757,12 +759,13 @@ public class InstructionGenerator {
             continueLabel = gotoLabel;
             brakeLabel = endLabel;
 
-            loadingElement: {
+            loadingElement:
+            {
                 instructionSet.instruction(OpCode.LABEL, builder -> builder
                         .referenceOperand(gotoLabel));
 
                 instructionSet.instruction(OpCode.GOTO_IF, builder -> builder
-                      //todo  .referenceOperand(ARRAY INDEX CHECK)
+                        //todo  .referenceOperand(ARRAY INDEX CHECK)
                         .referenceOperand(endLabel));
 
                 instructionSet.instruction(OpCode.LOAD, builder -> builder
@@ -777,15 +780,17 @@ public class InstructionGenerator {
                 instructionSet.instruction(OpCode.GOTO, builder -> builder
                         .referenceOperand(loopLabel));
             }
-            loopingBody: {
+            loopingBody:
+            {
                 instructionSet.instruction(OpCode.LABEL, builder -> builder
-                    .referenceOperand(loopLabel));
+                        .referenceOperand(loopLabel));
                 this.loopBodyStatement(statement.getBodyStatement());
 
-               instructionSet.instruction(OpCode.GOTO, builder -> builder
-                       .referenceOperand(gotoLabel));
+                instructionSet.instruction(OpCode.GOTO, builder -> builder
+                        .referenceOperand(gotoLabel));
             }
-            end: {
+            end:
+            {
                 instructionSet.instruction(OpCode.LABEL, builder -> builder
                         .referenceOperand(endLabel));
             }
@@ -843,7 +848,7 @@ public class InstructionGenerator {
 
     private InstructionReference emitMatchExpression(MatchExpression statement) {
         boolean hasDefault = statement.hasDefaultCase();
-        InstructionReference proprietor = instructionSet.createDataReference(".match",statement.valuedType(), referenceId);
+        InstructionReference proprietor = instructionSet.createDataReference(".match", statement.valuedType(), referenceId);
 
         InstructionReference condition = this.generateStatement(statement.getCondition());
 
@@ -918,7 +923,7 @@ public class InstructionGenerator {
 
         InstructionReference conditionReference = generateStatement(statement.getCondition());
         instructionSet.instruction(OpCode.MOVE, builder -> builder
-                .referenceOperand(conditionLabel)
+                .referenceOperand(conditionLabel) // todo check this cant move element to label?
                 .referenceOperand(conditionReference));
 
         instructionSet.instruction(OpCode.GOTO_IF, builder -> builder
@@ -939,7 +944,32 @@ public class InstructionGenerator {
         return this.emitReturnStatement(statement); // todo change this only temporary
     }
 
+    @SuppressWarnings("all")
     private InstructionReference emitFunctionType(FunctionStatement statement) {
+        Optional<Reference> reference = this.referenceStorage.getReferenceToStatement(statement);
+
+        if (reference.isEmpty())
+            throw new IllegalStateException("Function without reference fn: '%s'!".formatted(statement.getName()));
+
+        InstructionReference functionReference = new InstructionReference(reference.get(), referenceId);
+        instructionSet.instruction(OpCode.LABEL, builder -> {
+            builder.referenceOperand(functionReference);
+
+            for (Parameter parameter : statement.getParameters()) {
+                InstructionReference instructionReference = instructionSet.createDataReference(".fun_par_%s".formatted(parameter.getName()),
+                        parameter.getParsedType(), referenceId);
+
+                InstructionReference valueReference = generateStatement(parameter.getDefaultValue());
+
+                if (parameter.getDefaultValue() != null) {
+                    instructionSet.instruction(OpCode.MOVE, builder2 -> builder2
+                            .referenceOperand(instructionReference)
+                            .referenceOperand(valueReference));
+                }
+
+                builder.referenceOperand(valueReference);
+            }
+        });
 
         this.loopBodyStatement(statement.getBodyStatement());
         return null;
