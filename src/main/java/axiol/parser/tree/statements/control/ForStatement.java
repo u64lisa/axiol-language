@@ -5,6 +5,7 @@ import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.tree.statements.BodyStatement;
 import axiol.parser.util.error.TokenPosition;
+import axiol.types.Reference;
 import axiol.types.SimpleType;
 
 import java.util.ArrayList;
@@ -61,22 +62,16 @@ public class ForStatement extends Statement {
     public interface ForCondition { }
 
     public static class IterateCondition implements ForCondition {
-        private final SimpleType type;
-        private final String name;
+        private final Reference reference;
         private final Expression expression;
 
-        public IterateCondition(SimpleType type, String name, Expression expression) {
-            this.type = type;
-            this.name = name;
+        public IterateCondition(Reference reference, Expression expression) {
+            this.reference = reference;
             this.expression = expression;
         }
 
-        public SimpleType getType() {
-            return type;
-        }
-
-        public String getName() {
-            return name;
+        public Reference getReference() {
+            return reference;
         }
 
         public Expression getExpression() {

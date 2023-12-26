@@ -11,6 +11,7 @@ import axiol.parser.tree.expressions.*;
 import axiol.parser.tree.expressions.control.MatchExpression;
 import axiol.parser.tree.expressions.extra.CastExpression;
 import axiol.parser.tree.expressions.extra.ElementReferenceExpression;
+import axiol.parser.tree.expressions.extra.StackAllocExpression;
 import axiol.parser.tree.expressions.sub.BooleanExpression;
 import axiol.parser.tree.expressions.sub.NumberExpression;
 import axiol.parser.tree.expressions.sub.StringExpression;
@@ -23,10 +24,9 @@ import axiol.types.PrimitiveTypes;
 import axiol.types.Reference;
 import axiol.types.ReferenceStorage;
 import axiol.types.SimpleType;
+import axiol.utils.Pair;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class InstructionGenerator {
     private final InstructionSetBuilder instructionSet;
@@ -37,7 +37,9 @@ public class InstructionGenerator {
     private InstructionReference unreachableLabel;
 
     private InstructionReference loopBrakeLabel;
+    private InstructionReference currentLoopBrakeLabel;
     private InstructionReference loopContinueLabel;
+    private InstructionReference currentLoopContinueLabel;
 
     private InstructionReference brakeLabel;
     private InstructionReference currentBrakeLabel;
@@ -71,7 +73,7 @@ public class InstructionGenerator {
         return instructionSet.build();
     }
 
-    public void loopBodyStatement(BodyStatement bodyStatement) {
+    public InstructionReference loopBodyStatement(BodyStatement bodyStatement) {
         for (Statement statement : bodyStatement.getStatements()) {
             if (statement.type().equals(NodeType.BODY_STATEMENT)) {
                 this.loopBodyStatement((BodyStatement) statement);
@@ -79,41 +81,45 @@ public class InstructionGenerator {
                 this.generateStatement(statement);
             }
         }
+        return null;
     }
 
     public InstructionReference generateStatement(Statement statement) {
         return switch (statement.type()) {
             // inner body statements
-            case NATIVE_STATEMENT ->        emitNativeStatement(             (NativeStatement)            statement);
+            case NATIVE_STATEMENT ->        emitNativeStatement(             (NativeStatement)            statement); //
             case YIELD_STATEMENT ->         emitYieldStatement(              (YieldStatement)             statement);
-            case WHILE_STATEMENT ->         emitWhileStatement(              (WhileStatement)             statement);
-            case LOOP_STATEMENT ->          emitLoopStatement(               (LoopStatement)              statement);
+            case WHILE_STATEMENT ->         emitWhileStatement(              (WhileStatement)             statement); //
+            case LOOP_STATEMENT ->          emitLoopStatement(               (LoopStatement)              statement); //
             case UNREACHABLE_STATEMENT ->   emitUnreachableStatement(        (UnreachableStatement)       statement); //
-            case RETURN_STATEMENT ->        emitReturnStatement(             (ReturnStatement)            statement);
-            case SWITCH_STATEMENT ->        emitSwitchStatement(             (SwitchStatement)            statement);
-            case IF_STATEMENT ->            emitIfStatement(                 (IfStatement)                statement);
-            case FOR_STATEMENT ->           emitForStatement(                (ForStatement)               statement);
-            case DO_WHILE_STATEMENT ->      emitDoWhileStatement(            (DoWhileStatement)           statement);
+            case RETURN_STATEMENT ->        emitReturnStatement(             (ReturnStatement)            statement); //
+            case SWITCH_STATEMENT ->        emitSwitchStatement(             (SwitchStatement)            statement); //
+            case IF_STATEMENT ->            emitIfStatement(                 (IfStatement)                statement); //
+            case FOR_STATEMENT ->           emitForStatement(                (ForStatement)               statement); //
+            case DO_WHILE_STATEMENT ->      emitDoWhileStatement(            (DoWhileStatement)           statement); //
             case CONTINUE_STATEMENT ->      emitContinueStatement(           (ContinueStatement)          statement); //
             case CONSTRUCT_STATEMENT ->     emitConstructStatement(          (ConstructStatement)         statement);
             case BREAK_STATEMENT ->         emitBreakStatement(              (BreakStatement)             statement); //
             case UDT_DECLARE_STATEMENT ->   emitUDTDeclareStatement(         (UDTDeclareStatement)        statement);
-            case VAR_STATEMENT ->           emitVarStatement(                (VariableStatement)          statement);
+            case VAR_STATEMENT ->           emitVarStatement(                (VariableStatement)          statement); //
             case STRUCT_TYPE_STATEMENT ->   emitStructureType(               (StructTypeStatement)        statement);
             case FUNCTION_STATEMENT ->      emitFunctionType(                (FunctionStatement)          statement);
             case CLASS_TYPE_STATEMENT ->    emitClassType(                   (ClassTypeStatement)         statement);
             // expressions
-            case ARRAY_EXPR ->              emitArrayExpression(             (ArrayInitExpression)        statement);
-            case CALL_EXPR ->               emitCallExpression(              (CallExpression)             statement);
-            case LITERAL_EXPR ->            emitLiteralExpression(           (LiteralExpression)          statement);
-            case UNARY_EXPR ->              emitUnaryExpression(             (UnaryExpression)            statement);
-            case BINARY_EXPR ->             emitBinaryExpression(            (BinaryExpression)           statement);
+            case ARRAY_EXPR ->              emitArrayExpression(             (ArrayInitExpression)        statement); //
+            case CALL_EXPR ->               emitCallExpression(              (CallExpression)             statement); //
+            case LITERAL_EXPR ->            emitLiteralExpression(           (LiteralExpression)          statement); //
+            case UNARY_EXPR ->              emitUnaryExpression(             (UnaryExpression)            statement); //
+            case BINARY_EXPR ->             emitBinaryExpression(            (BinaryExpression)           statement); //
             case STRING_EXPR ->             emitStringExpression(            (StringExpression)           statement); //
             case NUMBER_EXPR ->             emitNumberExpression(            (NumberExpression)           statement); //
             case BOOLEAN_EXPR ->            emitBooleanExpression(           (BooleanExpression)          statement); //
-            case ELEMENT_REFERENCE_EXPR ->  emitElementReferenceExpression(  (ElementReferenceExpression) statement);
-            case MATCH_EXPR ->              emitMatchExpression(             (MatchExpression)            statement);
-            case CAST_EXPR ->               emitCastExpression(              (CastExpression)             statement);
+            case ELEMENT_REFERENCE_EXPR ->  emitElementReferenceExpression(  (ElementReferenceExpression) statement); //
+            case MATCH_EXPR ->              emitMatchExpression(             (MatchExpression)            statement); //
+            case CAST_EXPR ->               emitCastExpression(              (CastExpression)             statement); //
+            case STACK_ALLOC ->             emitStackAllocExpression(        (StackAllocExpression)       statement); //
+
+            case BODY_STATEMENT ->          loopBodyStatement(               (BodyStatement)              statement); //
 
             // linking, root
             default -> throw new IllegalArgumentException("unexpected statement '%s' at body!"
@@ -157,6 +163,18 @@ public class InstructionGenerator {
                 .referenceOperand(reference)
                 .stringOperand(statement.getValue()));
         return reference;
+    }
+
+    private InstructionReference emitStackAllocExpression(StackAllocExpression statement) {
+        InstructionReference proprietor = this.instructionSet.createDataReference(".alloc", statement.valuedType(),referenceId);
+
+        InstructionReference size = this.instructionSet.createNumberReference(PrimitiveTypes.I32.toType(), statement.getDepth().getNumberValue().intValue());
+
+        instructionSet.instruction(OpCode.ALLOC, builder -> builder
+                .referenceOperand(proprietor)
+                .referenceOperand(size));
+
+        return proprietor;
     }
 
     private InstructionReference emitCastExpression(CastExpression statement) {
@@ -654,11 +672,11 @@ public class InstructionGenerator {
         InstructionReference gotoLabel = instructionSet.createLabel(".loop_goto", referenceId);
         InstructionReference endLabel = instructionSet.createLabel(".loop_end", referenceId);
 
-        this.currentContinueLabel = this.continueLabel;
-        this.currentBrakeLabel = this.brakeLabel;
+        this.currentLoopContinueLabel = this.loopContinueLabel;
+        this.currentLoopBrakeLabel = this.loopBrakeLabel;
 
-        continueLabel = gotoLabel;
-        brakeLabel = endLabel;
+        loopContinueLabel = gotoLabel;
+        loopBrakeLabel = endLabel;
 
         instructionSet.instruction(OpCode.LABEL, builder -> builder
                 .referenceOperand(gotoLabel));
@@ -671,8 +689,8 @@ public class InstructionGenerator {
         instructionSet.instruction(OpCode.LABEL, builder -> builder
                 .referenceOperand(endLabel));
 
-        brakeLabel = currentBrakeLabel;
-        continueLabel = currentContinueLabel;
+        loopBrakeLabel = currentLoopBrakeLabel;
+        loopContinueLabel = currentLoopContinueLabel;
 
         return null;
     }
@@ -728,13 +746,49 @@ public class InstructionGenerator {
             InstructionReference loopLabel = instructionSet.createLabel(".f_b", referenceId);
             InstructionReference endLabel = instructionSet.createLabel(".f_end", referenceId);
 
+            InstructionReference arrayReference = generateStatement(iterateCondition.getExpression());
+            InstructionReference elementReference = new InstructionReference(iterateCondition.getReference(), referenceId);
+
+            InstructionReference index = instructionSet.createNumberReference(PrimitiveTypes.I32.toType(), 0);
+
             this.currentContinueLabel = this.continueLabel;
             this.currentBrakeLabel = this.brakeLabel;
 
             continueLabel = gotoLabel;
             brakeLabel = endLabel;
 
-            // instructions
+            loadingElement: {
+                instructionSet.instruction(OpCode.LABEL, builder -> builder
+                        .referenceOperand(gotoLabel));
+
+                instructionSet.instruction(OpCode.GOTO_IF, builder -> builder
+                      //todo  .referenceOperand(ARRAY INDEX CHECK)
+                        .referenceOperand(endLabel));
+
+                instructionSet.instruction(OpCode.LOAD, builder -> builder
+                        .referenceOperand(arrayReference)
+                        .referenceOperand(index)
+                        .referenceOperand(elementReference));
+
+                instructionSet.instruction(OpCode.ADD, builder -> builder
+                        .referenceOperand(index)
+                        .numberOperand(PrimitiveTypes.I32, 1));
+
+                instructionSet.instruction(OpCode.GOTO, builder -> builder
+                        .referenceOperand(loopLabel));
+            }
+            loopingBody: {
+                instructionSet.instruction(OpCode.LABEL, builder -> builder
+                    .referenceOperand(loopLabel));
+                this.loopBodyStatement(statement.getBodyStatement());
+
+               instructionSet.instruction(OpCode.GOTO, builder -> builder
+                       .referenceOperand(gotoLabel));
+            }
+            end: {
+                instructionSet.instruction(OpCode.LABEL, builder -> builder
+                        .referenceOperand(endLabel));
+            }
 
             brakeLabel = currentBrakeLabel;
             continueLabel = currentContinueLabel;
@@ -743,11 +797,107 @@ public class InstructionGenerator {
     }
 
     private InstructionReference emitSwitchStatement(SwitchStatement statement) {
+        boolean hasDefault = statement.hasDefaultCase();
+
+        InstructionReference condition = this.generateStatement(statement.getCondition());
+        InstructionReference defaultCase = instructionSet.createLabel(".sw_df", referenceId);
+        InstructionReference endLabel = instructionSet.createLabel(".sw_end", referenceId);
+        InstructionReference[] gotoLabels = new InstructionReference[statement.getCases().length];
+
+        for (int i = 0; i < statement.getCases().length; i++) {
+            SwitchStatement.CaseElement caseElement = statement.getCases()[i];
+            InstructionReference instructionReference = instructionSet.createLabel(".case_%s".formatted(i), referenceId);
+
+            instructionSet.instruction(OpCode.LABEL, builder -> builder
+                    .referenceOperand(instructionReference));
+            this.generateStatement(caseElement.getBody());
+
+            gotoLabels[i] = instructionReference;
+        }
+        for (int i = 0; i < statement.getCases().length; i++) {
+            SwitchStatement.CaseElement caseElement = statement.getCases()[i];
+
+            for (Expression caseElementCondition : caseElement.getConditions()) {
+                InstructionReference comparison = this.generateStatement(caseElementCondition);
+
+                int index = i;
+                instructionSet.instruction(OpCode.GOTO_IF, builder -> builder
+                        .referenceOperand(comparison)
+                        .referenceOperand(condition)
+                        .referenceOperand(gotoLabels[index]));
+            }
+        }
+
+        if (hasDefault) {
+            instructionSet.instruction(OpCode.LABEL, builder -> builder
+                    .referenceOperand(defaultCase));
+            this.generateStatement(statement.getDefaultCase().getBody());
+        } else {
+            instructionSet.instruction(OpCode.LABEL, builder -> builder
+                    .referenceOperand(endLabel));
+        }
+        // TODO HANDLE DEFAULT CASE
+
         return null;
     }
 
     private InstructionReference emitMatchExpression(MatchExpression statement) {
-        return null;
+        boolean hasDefault = statement.hasDefaultCase();
+        InstructionReference proprietor = instructionSet.createDataReference(".match",statement.valuedType(), referenceId);
+
+        InstructionReference condition = this.generateStatement(statement.getCondition());
+
+        InstructionReference defaultCase = instructionSet.createLabel(".match_df", referenceId);
+        InstructionReference endLabel = instructionSet.createLabel(".match_end", referenceId);
+
+        InstructionReference[] gotoLabels = new InstructionReference[statement.getCases().length];
+
+        for (int i = 0; i < statement.getCases().length; i++) {
+            MatchExpression.CaseElement caseElement = statement.getCases()[i];
+
+            InstructionReference gotoLabel = instructionSet.createLabel(".match_case_%s".formatted(i), referenceId);
+            gotoLabels[i] = gotoLabel;
+
+            for (Expression caseElementCondition : caseElement.getConditions()) {
+                InstructionReference comparison = this.generateStatement(caseElementCondition);
+
+                instructionSet.instruction(OpCode.GOTO_IF, builder -> builder
+                        .referenceOperand(condition)
+                        .referenceOperand(comparison)
+                        .referenceOperand(gotoLabel));
+            }
+        }
+        for (int i = 0; i < gotoLabels.length; i++) {
+            MatchExpression.CaseElement caseElement = statement.getCases()[i];
+
+            InstructionReference gotoLabel = gotoLabels[i];
+            InstructionReference currentReference = this.generateStatement(caseElement.getBody());
+
+            instructionSet.instruction(OpCode.LABEL, builder -> builder
+                    .referenceOperand(gotoLabel));
+
+            instructionSet.instruction(OpCode.MOVE, builder -> builder
+                    .referenceOperand(proprietor)
+                    .referenceOperand(currentReference));
+        }
+
+        if (hasDefault) {
+            MatchExpression.CaseElement caseElement = statement.getDefaultCase();
+            InstructionReference currentReference = generateStatement(caseElement.getBody());
+
+            instructionSet.instruction(OpCode.LABEL, builder -> builder
+                    .referenceOperand(defaultCase));
+
+            instructionSet.instruction(OpCode.MOVE, builder -> builder
+                    .referenceOperand(proprietor)
+                    .referenceOperand(currentReference));
+        } else {
+            instructionSet.instruction(OpCode.LABEL, builder -> builder
+                    .referenceOperand(endLabel));
+        }
+        // TODO HANDLE DEFAULT CASE
+
+        return proprietor;
     }
 
     private InstructionReference emitDoWhileStatement(DoWhileStatement statement) {

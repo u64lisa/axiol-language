@@ -37,6 +37,7 @@ public enum NodeType {
 
     // SPECIAL
     NATIVE_STATEMENT,
+    STACK_ALLOC,
 
     // EXTRA
     BODY_STATEMENT,

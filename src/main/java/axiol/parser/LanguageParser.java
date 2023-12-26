@@ -555,7 +555,9 @@ public class LanguageParser extends Parser {
                 return null;
             this.tokenStream.advance();
 
-            forCondition = new ForStatement.IterateCondition(type, name, expression);
+            Reference reference = new Reference(scope.dumpPath(), ReferenceType.VAR, name, type, UUID.randomUUID());
+            this.references.add(reference);
+            forCondition = new ForStatement.IterateCondition(reference, expression);
         } else { // for (var; expr; expr)
             Statement start = this.parseVariableStatement(scope, Accessibility.PRIVATE);
 

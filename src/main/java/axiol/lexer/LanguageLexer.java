@@ -104,7 +104,8 @@ public class LanguageLexer {
         LEXER.addRule(TokenType.YIELD, lexerRule ->       lexerRule.addString("yield"));
         LEXER.addRule(TokenType.CONTINUE, lexerRule ->    lexerRule.addString("continue"));
         LEXER.addRule(TokenType.UNREACHABLE, lexerRule -> lexerRule.addString("unreachable"));
-        LEXER.addRule(TokenType.CAST, lexerRule -> lexerRule.addString("cast"));
+        LEXER.addRule(TokenType.CAST, lexerRule ->        lexerRule.addString("cast"));
+        LEXER.addRule(TokenType.STACK_ALLOC, lexerRule -> lexerRule.addString("stackAlloc"));
 
         // access modifier
         LEXER.addRule(TokenType.PUBLIC, lexerRule ->     lexerRule.addString("public"));

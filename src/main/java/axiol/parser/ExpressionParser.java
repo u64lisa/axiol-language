@@ -8,6 +8,7 @@ import axiol.parser.tree.expressions.*;
 import axiol.parser.tree.expressions.control.MatchExpression;
 import axiol.parser.tree.expressions.extra.CastExpression;
 import axiol.parser.tree.expressions.extra.ElementReferenceExpression;
+import axiol.parser.tree.expressions.extra.StackAllocExpression;
 import axiol.parser.tree.expressions.sub.BooleanExpression;
 import axiol.parser.tree.expressions.sub.NumberExpression;
 import axiol.parser.tree.expressions.sub.StringExpression;
@@ -62,6 +63,7 @@ public class ExpressionParser {
      *
      * x ref = &expression;
      * x ref = cast[type] expression;
+     * x ref = stackAlloc[type];
      *
      * x var = test.t;
      * - var = test.*t; TODO
@@ -120,6 +122,26 @@ public class ExpressionParser {
 
                 Expression expression = this.languageParser.parseExpression(type);
                 return new CastExpression(tokenPosition, type, expression);
+            }
+            if (tokenStream.matches(TokenType.STACK_ALLOC)) {
+                TokenPosition tokenPosition = tokenStream.currentPosition();
+                this.tokenStream.advance();
+
+                this.languageParser.expected(TokenType.L_SQUARE);
+                this.tokenStream.advance();
+
+                SimpleType type = languageParser.parseType();
+
+                Expression depth = null;
+                if (this.tokenStream.matches(TokenType.COMMA)) {
+                    this.tokenStream.advance();
+
+                    depth = parseMatchExpression(type);
+                }
+
+                this.languageParser.expected(TokenType.R_SQUARE);
+                this.tokenStream.advance();
+                return new StackAllocExpression(tokenPosition, type, depth);
             }
             // {expr, expr, expr, ...}
             if (tokenStream.matches(TokenType.L_CURLY)) {

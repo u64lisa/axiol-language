@@ -107,6 +107,7 @@ public enum TokenType {
     ISA,
     UNSAFE,
     CAST,
+    STACK_ALLOC,
 
     EOF,
 
