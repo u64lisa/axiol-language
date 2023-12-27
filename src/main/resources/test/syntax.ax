@@ -26,7 +26,7 @@ public class OWO parent UWU {
     private i32 owo = 0;
 
     public construct(test: i32) {
-        owo = test;
+        //owo = test;
     }
 
     function test() -> i32 {

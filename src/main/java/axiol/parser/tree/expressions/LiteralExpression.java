@@ -12,10 +12,11 @@ import java.util.List;
 
 public class LiteralExpression extends Expression {
 
-    private Reference reference;
+    private final Reference reference;
     private final String path;
 
-    public LiteralExpression(String path, TokenPosition position) {
+    public LiteralExpression(Reference reference, String path, TokenPosition position) {
+        this.reference = reference;
         this.path = path;
         this.position = position;
     }
@@ -25,10 +26,6 @@ public class LiteralExpression extends Expression {
     @Override
     public TokenPosition position() {
         return position;
-    }
-
-    public void setReference(Reference reference) {
-        this.reference = reference;
     }
 
     public Reference getReference() {

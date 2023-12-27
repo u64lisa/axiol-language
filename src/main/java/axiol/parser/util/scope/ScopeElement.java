@@ -25,4 +25,13 @@ public class ScopeElement implements ScopeAble {
     public String getName() {
         return name;
     }
+
+    @Override
+    public String toString() {
+        return "ScopeElement{" +
+                "name='" + name + '\'' +
+                ", type=" + type +
+                ", reference=" + reference +
+                '}';
+    }
 }

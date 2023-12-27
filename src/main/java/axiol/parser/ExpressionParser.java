@@ -14,8 +14,11 @@ import axiol.parser.tree.expressions.sub.NumberExpression;
 import axiol.parser.tree.expressions.sub.StringExpression;
 import axiol.parser.util.scope.Scope;
 import axiol.parser.util.error.TokenPosition;
+import axiol.parser.util.scope.ScopeAble;
+import axiol.parser.util.scope.ScopeElement;
 import axiol.parser.util.stream.TokenStream;
 import axiol.types.PrimitiveTypes;
+import axiol.types.Reference;
 import axiol.types.SimpleType;
 import axiol.types.custom.I128;
 import axiol.types.custom.U128;
@@ -23,6 +26,7 @@ import axiol.types.custom.U128;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class ExpressionParser {
 
@@ -49,10 +53,13 @@ public class ExpressionParser {
     private final LanguageParser languageParser;
     private final TokenStream tokenStream;
 
-    public ExpressionParser(LanguageParser languageParser) {
+    private final Scope rootScope;
+
+    public ExpressionParser(LanguageParser languageParser, Scope rootScope) {
         this.languageParser = languageParser;
 
         this.tokenStream = languageParser.getTokenStream();
+        this.rootScope = rootScope;
     }
 
     /*
@@ -381,7 +388,17 @@ public class ExpressionParser {
                 return new CallExpression(path.toString(), parameters, namePosition);
             }
 
-            return new LiteralExpression(path.toString(), namePosition);
+            Reference reference = null;
+            for (ScopeAble containingScope : scope.getContainingScopes()) {
+                if (containingScope instanceof ScopeElement element) {
+                    if (Objects.equals(path, element.getName())) {
+                        reference = element.getReference();
+                        break;
+                    }
+                }
+            }
+
+            return new LiteralExpression(reference, path.toString(), namePosition);
         }
 
         this.languageParser.createSyntaxError(

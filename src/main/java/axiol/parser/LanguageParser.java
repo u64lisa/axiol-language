@@ -75,7 +75,7 @@ public class LanguageParser extends Parser {
         this.source = content;
         this.path = path;
 
-        this.expressionParser = new ExpressionParser(this);
+        this.expressionParser = new ExpressionParser(this, rootScope);
 
         while (tokenStream.hasMoreTokens()) {
             Statement statement = this.parseStatement(rootScope);
