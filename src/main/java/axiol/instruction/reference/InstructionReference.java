@@ -12,16 +12,16 @@ public class InstructionReference extends Reference {
     private final int id;
 
     public InstructionReference(Reference reference, int id) {
-        super(reference.getProprietorPath(), reference.getType(), reference.getName(),
+        super(reference.getType(), reference.getName(),
                 reference.getValueType(), reference.getUuid(),
                 reference.getAccess());
 
         this.id = id;
     }
 
-    public InstructionReference(ReferenceType type, String proprietorPath, String name, SimpleType valueType,
+    public InstructionReference(ReferenceType type, String name, SimpleType valueType,
                                 UUID uuid, int id, Accessibility... access) {
-        super(proprietorPath, type, name, valueType, uuid, access);
+        super(type, name, valueType, uuid, access);
         this.id = id;
     }
 

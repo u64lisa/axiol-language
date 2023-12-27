@@ -6,24 +6,24 @@ import axiol.parser.statement.Accessibility;
 import java.util.Arrays;
 import java.util.UUID;
 
-public class Reference implements Proprietor {
-
-    private final String proprietorPath;
+public class Reference {
 
     private final ReferenceType type;
     private final String name;
-    private final SimpleType valueType;
+    private SimpleType valueType;
     private final UUID uuid;
     private final Accessibility[] access;
 
-    public Reference(String proprietorPath, ReferenceType type, String name, SimpleType valueType, UUID uuid, Accessibility... access) {
-        this.proprietorPath = proprietorPath;
-
+    public Reference(ReferenceType type, String name, SimpleType valueType, UUID uuid, Accessibility... access) {
         this.type = type;
         this.name = name;
         this.valueType = valueType;
         this.uuid = uuid;
         this.access = access;
+    }
+
+    public void setValueType(SimpleType valueType) {
+        this.valueType = valueType;
     }
 
     public String getName() {
@@ -46,16 +46,12 @@ public class Reference implements Proprietor {
         return valueType;
     }
 
-    @Override
-    public String getProprietorPath() {
-        return proprietorPath;
-    }
+
 
     @Override
     public String toString() {
         return "Reference{" +
-                "proprietorPath='" + proprietorPath + '\'' +
-                ", type=" + type +
+                "type=" + type +
                 ", name='" + name + '\'' +
                 ", valueType=" + valueType +
                 ", uuid=" + uuid +

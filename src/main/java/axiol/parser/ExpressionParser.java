@@ -1,6 +1,5 @@
 package axiol.parser;
 
-import axiol.instruction.Instruction;
 import axiol.lexer.Token;
 import axiol.lexer.TokenType;
 import axiol.parser.expression.Operator;
@@ -13,11 +12,10 @@ import axiol.parser.tree.expressions.extra.StackAllocExpression;
 import axiol.parser.tree.expressions.sub.BooleanExpression;
 import axiol.parser.tree.expressions.sub.NumberExpression;
 import axiol.parser.tree.expressions.sub.StringExpression;
-import axiol.parser.util.Scope;
+import axiol.parser.util.scope.Scope;
 import axiol.parser.util.error.TokenPosition;
 import axiol.parser.util.stream.TokenStream;
 import axiol.types.PrimitiveTypes;
-import axiol.types.Reference;
 import axiol.types.SimpleType;
 import axiol.types.custom.I128;
 import axiol.types.custom.U128;
@@ -383,7 +381,7 @@ public class ExpressionParser {
                 return new CallExpression(path.toString(), parameters, namePosition);
             }
 
-            return new LiteralExpression(null, path.toString(), namePosition);
+            return new LiteralExpression(path.toString(), namePosition);
         }
 
         this.languageParser.createSyntaxError(

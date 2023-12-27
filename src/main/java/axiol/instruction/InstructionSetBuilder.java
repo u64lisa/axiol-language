@@ -16,27 +16,27 @@ public class InstructionSetBuilder {
 
 
     public InstructionReference createDataReference(String name, SimpleType simpleType, int referenceId) {
-        return new InstructionReference(new Reference("I", ReferenceType.VAR, name, simpleType, UUID.randomUUID()), referenceId++);
+        return new InstructionReference(new Reference(ReferenceType.VAR, name, simpleType, UUID.randomUUID()), referenceId++);
     }
 
     public InstructionReference createStringReference(int referenceId) {
-        return new InstructionReference(new Reference("I",ReferenceType.VAR, ".str", TypeCollection.STRING.toSimpleType(), UUID.randomUUID()), referenceId++);
+        return new InstructionReference(new Reference(ReferenceType.VAR, ".str", TypeCollection.STRING.toSimpleType(), UUID.randomUUID()), referenceId++);
     }
 
     public InstructionReference createNumberReference(Type type, int referenceId) {
-        return new InstructionReference(new Reference("I",ReferenceType.VAR, ".num", type.toSimpleType(), UUID.randomUUID()), referenceId++);
+        return new InstructionReference(new Reference(ReferenceType.VAR, ".num", type.toSimpleType(), UUID.randomUUID()), referenceId++);
     }
 
     public InstructionReference createBooleanReference(int referenceId) {
-        return new InstructionReference(new Reference("I",ReferenceType.VAR, ".bool", TypeCollection.BOOLEAN.toSimpleType(), UUID.randomUUID()), referenceId++);
+        return new InstructionReference(new Reference(ReferenceType.VAR, ".bool", TypeCollection.BOOLEAN.toSimpleType(), UUID.randomUUID()), referenceId++);
     }
 
     public InstructionReference createNoneReference(int referenceId) {
-        return new InstructionReference(new Reference("I",ReferenceType.VAR, ".none", TypeCollection.NONE.toSimpleType(), UUID.randomUUID()), referenceId++);
+        return new InstructionReference(new Reference(ReferenceType.VAR, ".none", TypeCollection.NONE.toSimpleType(), UUID.randomUUID()), referenceId++);
     }
 
     public InstructionReference createLocalReference(String name, int referenceId) {
-        return new InstructionReference(new Reference("I",ReferenceType.VAR, name, TypeCollection.NONE.toSimpleType(), UUID.randomUUID()), referenceId++);
+        return new InstructionReference(new Reference(ReferenceType.VAR, name, TypeCollection.NONE.toSimpleType(), UUID.randomUUID()), referenceId++);
     }
 
     public InstructionReference createLabel(String name, int referenceId) {

@@ -17,15 +17,16 @@ import axiol.parser.tree.statements.control.*;
 import axiol.parser.tree.statements.oop.*;
 import axiol.parser.tree.statements.special.NativeStatement;
 import axiol.parser.util.Parser;
-import axiol.parser.util.Scope;
+import axiol.parser.util.scope.Scope;
 import axiol.parser.util.SourceFile;
 import axiol.parser.util.error.LanguageException;
 import axiol.parser.util.error.TokenPosition;
+import axiol.parser.util.scope.ScopeElement;
+import axiol.parser.util.scope.ScopeElementType;
 import axiol.parser.util.stream.TokenStream;
 import axiol.types.*;
 
 import java.io.File;
-import java.sql.Ref;
 import java.util.*;
 
 /**
@@ -60,8 +61,12 @@ public class LanguageParser extends Parser {
 
     @Override
     public RootNode parseSource(String path, String content) {
+        Reference reference = new Reference(ReferenceType.ROOT, "root", TypeCollection.NONE.toSimpleType(),
+            UUID.randomUUID(), Accessibility.EXTERN);
+        Scope rootScope = new Scope(new ArrayList<>(), "root", ScopeElementType.ROOT, reference);
+
         SourceFile sourceFile = new SourceFile(path, content);
-        RootNode rootNode = new RootNode(sourceFile);
+        RootNode rootNode = new RootNode(rootScope, sourceFile);
         LanguageLexer lexer = new LanguageLexer();
 
         references.clear();
@@ -73,7 +78,7 @@ public class LanguageParser extends Parser {
         this.expressionParser = new ExpressionParser(this);
 
         while (tokenStream.hasMoreTokens()) {
-            Statement statement = this.parseStatement();
+            Statement statement = this.parseStatement(rootScope);
 
             if (statement != null)
                 rootNode.getStatements().add(statement);
@@ -81,11 +86,6 @@ public class LanguageParser extends Parser {
 
         rootNode.getReferences().addAll(references);
         return rootNode;
-    }
-
-    @Override
-    public Statement parseStatement() {
-        return parseStatement(new Scope());
     }
 
     /**
@@ -101,41 +101,40 @@ public class LanguageParser extends Parser {
      * @return the statement parsed
      */
     public Statement parseStatement(Scope parent) {
-        Scope scopeClone = parent.clone();
         if ((isAccessModifier() && isType()) || isType()) {
             if (isAccessModifier()) {
-                return this.parseVariableStatement(scopeClone, this.parseAccess());
+                return this.parseVariableStatement(parent, this.parseAccess());
             }
-            return this.parseVariableStatement(scopeClone);
+            return this.parseVariableStatement(parent);
         }
         if ((isAccessModifier() && this.tokenStream.peak(1).getType().equals(TokenType.CLASS)) ||
                 this.tokenStream.matches(TokenType.CLASS)) {
             if (isAccessModifier()) {
-                return this.parseClassTypeStatement(scopeClone, this.parseAccess());
+                return this.parseClassTypeStatement(parent, this.parseAccess());
             }
-            return this.parseClassTypeStatement(scopeClone);
+            return this.parseClassTypeStatement(parent);
         }
         if ((isAccessModifier() && this.tokenStream.peak(1).getType().equals(TokenType.CONSTRUCT)) ||
                 this.tokenStream.matches(TokenType.CONSTRUCT)) {
             if (isAccessModifier()) {
-                return this.parseConstructStatement(scopeClone, this.parseAccess());
+                return this.parseConstructStatement(parent, this.parseAccess());
             }
-            return this.parseConstructStatement(scopeClone);
+            return this.parseConstructStatement(parent);
         }
         if ((isAccessModifier() && this.tokenStream.peak(1).getType().equals(TokenType.STRUCTURE)) ||
                 this.tokenStream.matches(TokenType.STRUCTURE)) {
             if (isAccessModifier()) {
-                return this.parseStructStatement(scopeClone, this.parseAccess());
+                return this.parseStructStatement(parent, this.parseAccess());
             }
-            return this.parseStructStatement(scopeClone);
+            return this.parseStructStatement(parent);
         }
 
         if ((isAccessModifier() && this.tokenStream.peak(1).getType().equals(TokenType.FUNCTION))
                 || this.tokenStream.matches(TokenType.FUNCTION)) {
             if (isAccessModifier()) {
-                return this.parseFunction(scopeClone, this.parseAccess());
+                return this.parseFunction(parent, this.parseAccess());
             }
-            return this.parseFunction(scopeClone);
+            return this.parseFunction(parent);
         }
         if (this.tokenStream.matches(TokenType.LINKED)) {
             this.tokenStream.advance();
@@ -151,11 +150,16 @@ public class LanguageParser extends Parser {
         TokenPosition position = this.tokenStream.currentPosition();
         this.tokenStream.advance();
 
-        List<Parameter> parameters = this.parseParameters(scope, TokenType.L_PAREN, TokenType.R_PAREN);
+        Reference reference = new Reference(ReferenceType.CONSTRUCTOR, "constructor",
+                TypeCollection.NONE.toSimpleType(), UUID.randomUUID(), accessibility);
+        references.add(reference);
 
-        scope.appendScope("CONSTRUCTOR");
-        BodyStatement bodyStatement = this.parseBodyStatement(scope);
+        Scope constructorScope = new Scope(new ArrayList<>(), "constructor", ScopeElementType.CONSTRUCTOR, reference);
+        List<Parameter> parameters = this.parseParameters(constructorScope, TokenType.L_PAREN, TokenType.R_PAREN);
 
+        BodyStatement bodyStatement = this.parseBodyStatement(constructorScope);
+
+        scope.getContainingScopes().add(constructorScope);
         return new ConstructStatement(accessibility, parameters, bodyStatement, position);
     }
 
@@ -164,10 +168,12 @@ public class LanguageParser extends Parser {
 
         this.expected(TokenType.LITERAL);
         String className = this.tokenStream.current().getValue();
-        scope.appendScope(className);
         TokenPosition position = this.tokenStream.currentPosition();
         this.tokenStream.advance();
 
+        UUID id = UUID.randomUUID();
+        Reference reference = new Reference(ReferenceType.CLASS, className, TypeCollection.NONE.toSimpleType(), id, accessibility);
+        Scope classScope = new Scope(new ArrayList<>(), className, ScopeElementType.CLASS, reference);
 
         String parentClass = null;
         if (this.tokenStream.matches(TokenType.PARENT)) {
@@ -178,11 +184,10 @@ public class LanguageParser extends Parser {
             this.tokenStream.advance();
         }
 
-        BodyStatement bodyStatement = this.parseClassBodyStatement(scope);
+        BodyStatement bodyStatement = this.parseClassBodyStatement(classScope);
 
-        UUID id = UUID.randomUUID();
+        scope.getContainingScopes().add(classScope);
 
-        Reference reference = new Reference(scope.dumpPath(), ReferenceType.CLASS, className, null, id, accessibility);
         this.references.add(reference);
         return new ClassTypeStatement(accessibility, className, parentClass, bodyStatement, id, reference, position);
     }
@@ -194,15 +199,17 @@ public class LanguageParser extends Parser {
             return null;
         }
         String structName = this.tokenStream.current().getValue();
-        scope.appendScope(structName);
         TokenPosition position = this.tokenStream.currentPosition();
         this.tokenStream.advance();
 
-        List<Parameter> parameters = this.parseParameters(scope, TokenType.L_CURLY, TokenType.R_CURLY);
-
         UUID uuid = UUID.randomUUID();
+        Reference reference = new Reference(ReferenceType.STRUCT, structName, null, uuid);
 
-        Reference reference = new Reference(scope.dumpPath(), ReferenceType.STRUCT, structName, null, uuid);
+        Scope structureScope = new Scope(new ArrayList<>(),structName, ScopeElementType.STRUCT, reference);
+
+        List<Parameter> parameters = this.parseParameters(structureScope, TokenType.L_CURLY, TokenType.R_CURLY);
+
+        scope.getContainingScopes().add(structureScope);
         references.add(reference);
         return new StructTypeStatement(parameters, structName, uuid, accessibility, reference, position);
     }
@@ -281,47 +288,45 @@ public class LanguageParser extends Parser {
      * @return the statement parsed
      */
     public Statement parseStatementForBody(Scope parent) {
-        Scope functionScope = parent.clone();
-        
         if (isType()) {
-            return this.parseVariableStatement(functionScope);
+            return this.parseVariableStatement(parent);
         }
         if (isUDTDefinition()) {
-            return this.parseUDTDeclare(functionScope);
+            return this.parseUDTDeclare(parent);
         }
         if (this.tokenStream.matches(TokenType.IF)) {
-            return this.parseIfStatement(functionScope);
+            return this.parseIfStatement(parent);
         }
         if (this.tokenStream.matches(TokenType.WHILE)) {
-            return this.parseWhileStatement(functionScope);
+            return this.parseWhileStatement(parent);
         }
         if (this.tokenStream.matches(TokenType.DO)) {
-            return this.parseDoWhileStatement(functionScope);
+            return this.parseDoWhileStatement(parent);
         }
         if (this.tokenStream.matches(TokenType.LOOP)) {
-            return this.parseLoopStatement(functionScope);
+            return this.parseLoopStatement(parent);
         }
         if (this.tokenStream.matches(TokenType.FOR)) {
-            return this.parseForStatement(functionScope);
+            return this.parseForStatement(parent);
         }
         if (this.tokenStream.matches(TokenType.SWITCH)) {
-            return this.parseSwitchStatement(functionScope);
+            return this.parseSwitchStatement(parent);
         }
 
         // ir or asm modifying statements
         if (this.tokenStream.matches(TokenType.NATIVE)) {
-            return this.parseNativeStatement(functionScope);
+            return this.parseNativeStatement(parent);
         }
 
         // one line statements
         if (this.tokenStream.matches(TokenType.UNREACHABLE)) {
-            return this.parseUnreachable(functionScope);
+            return this.parseUnreachable(parent);
         }
         if (this.tokenStream.matches(TokenType.RETURN)) {
             TokenPosition position = this.tokenStream.currentPosition();
             this.tokenStream.advance();
 
-            Expression value = this.parseExpression(functionScope, NONE);
+            Expression value = this.parseExpression(parent, NONE);
 
             expectLineEnd();
             return new ReturnStatement(value, position);
@@ -330,7 +335,7 @@ public class LanguageParser extends Parser {
             TokenPosition position = this.tokenStream.currentPosition();
             this.tokenStream.advance();
 
-            Expression value = this.parseExpression(functionScope, NONE);
+            Expression value = this.parseExpression(parent, NONE);
 
             expectLineEnd();
             return new YieldStatement(value, position);
@@ -349,7 +354,7 @@ public class LanguageParser extends Parser {
             expectLineEnd();
             return new BreakStatement(position);
         }
-        Expression expression = this.parseExpression(functionScope, NONE);
+        Expression expression = this.parseExpression(parent, NONE);
         if (expression != null) {
             if (this.tokenStream.matches(TokenType.SEMICOLON))
                 this.tokenStream.advance();
@@ -559,7 +564,7 @@ public class LanguageParser extends Parser {
                 return null;
             this.tokenStream.advance();
 
-            Reference reference = new Reference(scope.dumpPath(), ReferenceType.VAR, name, type, UUID.randomUUID());
+            Reference reference = new Reference(ReferenceType.VAR, name, type, UUID.randomUUID());
             this.references.add(reference);
             forCondition = new ForStatement.IterateCondition(reference, expression);
         } else { // for (var; expr; expr)
@@ -731,12 +736,16 @@ public class LanguageParser extends Parser {
             return null;
         }
         String functionName = this.tokenStream.current().getValue();
-        scope.appendScope(functionName);
         TokenPosition position = this.tokenStream.currentPosition();
 
         this.tokenStream.advance();
 
-        List<Parameter> parameters = this.parseParameters(scope, TokenType.L_PAREN, TokenType.R_PAREN);
+        UUID id = UUID.randomUUID();
+        Reference reference = new Reference(ReferenceType.FUNCTION, functionName, null, id, accessibility);
+        this.references.add(reference);
+        Scope functionScope = new Scope(new ArrayList<>(), functionName, ScopeElementType.FUNCTION, reference);
+
+        List<Parameter> parameters = this.parseParameters(functionScope, TokenType.L_PAREN, TokenType.R_PAREN);
 
         SimpleType returnType = new SimpleType(TypeCollection.VOID, 0, 0);
         if (this.tokenStream.matches(TokenType.LAMBDA)) {
@@ -744,13 +753,10 @@ public class LanguageParser extends Parser {
 
             returnType = this.parseType();
         }
+        reference.setValueType(returnType);
 
-        BodyStatement bodyStatement = this.parseBodyStatement(scope);
-
-        UUID id = UUID.randomUUID();
-
-        Reference reference = new Reference(scope.dumpPath(), ReferenceType.FUNCTION, functionName, returnType, id, accessibility);
-        this.references.add(reference);
+        BodyStatement bodyStatement = this.parseBodyStatement(functionScope);
+        scope.getContainingScopes().add(functionScope);
 
         return new FunctionStatement(functionName, accessibility,
                         parameters, bodyStatement, returnType, id, reference, position);
@@ -784,7 +790,9 @@ public class LanguageParser extends Parser {
             SimpleType type = this.parseType();
 
             // todo change this mby
-            Reference reference = new Reference(scope.dumpPath(), ReferenceType.PARAMETER, parameterName, type,UUID.randomUUID());
+            Reference reference = new Reference(ReferenceType.PARAMETER, parameterName, type, UUID.randomUUID());
+            ScopeElement scopeEntry = new ScopeElement(parameterName, ScopeElementType.PARAM, reference);
+            scope.getContainingScopes().add(scopeEntry);
 
             this.references.add(reference);
 
@@ -849,7 +857,7 @@ public class LanguageParser extends Parser {
             this.tokenStream.advance();
 
         UUID uuid = UUID.randomUUID();
-        Reference reference = new Reference(scope.dumpPath(), ReferenceType.UDT, udtName,
+        Reference reference = new Reference(ReferenceType.UDT, udtName,
                 PrimitiveTypes.U0.toType().toSimpleType(), uuid);
 
         return new UDTDeclareStatement(udtType, udtName, parameters, reference, position);
@@ -862,7 +870,7 @@ public class LanguageParser extends Parser {
             return null;
 
         String name = this.tokenStream.current().getValue();
-        scope.appendScope(name);
+
         TokenPosition position = this.tokenStream.currentPosition();
         this.tokenStream.advance();
 
@@ -879,8 +887,11 @@ public class LanguageParser extends Parser {
         UUID id = UUID.randomUUID();
 
 
-        Reference reference = new Reference(scope.dumpPath(), ReferenceType.VAR, name, type, id, accessibility);
+        Reference reference = new Reference(ReferenceType.VAR, name, type, id, accessibility);
         this.references.add(reference);
+
+        scope.getContainingScopes().add(new ScopeElement(name, ScopeElementType.VAR, reference));
+
         return new VariableStatement(name, type, initExpression, id, reference, position, accessibility);
     }
 
