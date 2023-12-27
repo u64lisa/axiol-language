@@ -164,9 +164,10 @@ public class LanguageParser extends Parser {
 
         this.expected(TokenType.LITERAL);
         String className = this.tokenStream.current().getValue();
+        scope.appendScope(className);
         TokenPosition position = this.tokenStream.currentPosition();
         this.tokenStream.advance();
-        scope.appendScope(className);
+
 
         String parentClass = null;
         if (this.tokenStream.matches(TokenType.PARENT)) {
@@ -193,14 +194,13 @@ public class LanguageParser extends Parser {
             return null;
         }
         String structName = this.tokenStream.current().getValue();
+        scope.appendScope(structName);
         TokenPosition position = this.tokenStream.currentPosition();
         this.tokenStream.advance();
 
         List<Parameter> parameters = this.parseParameters(scope, TokenType.L_CURLY, TokenType.R_CURLY);
 
         UUID uuid = UUID.randomUUID();
-
-        scope.appendScope(structName);
 
         Reference reference = new Reference(scope.dumpPath(), ReferenceType.STRUCT, structName, null, uuid);
         references.add(reference);
@@ -731,7 +731,9 @@ public class LanguageParser extends Parser {
             return null;
         }
         String functionName = this.tokenStream.current().getValue();
+        scope.appendScope(functionName);
         TokenPosition position = this.tokenStream.currentPosition();
+
         this.tokenStream.advance();
 
         List<Parameter> parameters = this.parseParameters(scope, TokenType.L_PAREN, TokenType.R_PAREN);
@@ -742,7 +744,7 @@ public class LanguageParser extends Parser {
 
             returnType = this.parseType();
         }
-        scope.appendScope(functionName);
+
         BodyStatement bodyStatement = this.parseBodyStatement(scope);
 
         UUID id = UUID.randomUUID();
@@ -763,14 +765,14 @@ public class LanguageParser extends Parser {
         this.tokenStream.advance();
 
         while (!this.tokenStream.matches(close)) {
-            boolean pointer = false, reference = false;
+            boolean pointer = false, referenced = false;
             if (this.tokenStream.matches(TokenType.MULTIPLY)) {
                 this.tokenStream.advance();
                 pointer = true;
             }
             if (this.tokenStream.matches(TokenType.AND)) {
                 this.tokenStream.advance();
-                reference = true;
+                referenced = true;
             }
             this.expected(TokenType.LITERAL);
             String parameterName = this.tokenStream.current().getValue();
@@ -781,21 +783,27 @@ public class LanguageParser extends Parser {
 
             SimpleType type = this.parseType();
 
+            // todo change this mby
+            Reference reference = new Reference(scope.dumpPath(), ReferenceType.PARAMETER, parameterName, type,UUID.randomUUID());
+
+            this.references.add(reference);
+
             if (this.tokenStream.matches(TokenType.COMMA)) {
                 this.tokenStream.advance();
 
-                parameters.add(new Parameter(parameterName, type, null, pointer, reference));
+                parameters.add(new Parameter(parameterName, type, null, pointer, referenced, reference));
                 continue;
             }
             if (this.tokenStream.matches(TokenType.EQUAL)) {
                 this.tokenStream.advance();
 
                 Expression defaultValue = this.expressionParser.parseExpression(scope, type,0);
-                parameters.add(new Parameter(parameterName, type, defaultValue, pointer, reference));
+                parameters.add(new Parameter(parameterName, type, defaultValue, pointer, referenced, reference));
                 continue;
             }
 
-            parameters.add(new Parameter(parameterName, type, null, pointer, reference));
+
+            parameters.add(new Parameter(parameterName, type, null, pointer, referenced, reference));
         }
         if (!this.tokenStream.matches(close)) {
             return null;
@@ -854,6 +862,7 @@ public class LanguageParser extends Parser {
             return null;
 
         String name = this.tokenStream.current().getValue();
+        scope.appendScope(name);
         TokenPosition position = this.tokenStream.currentPosition();
         this.tokenStream.advance();
 
@@ -869,7 +878,7 @@ public class LanguageParser extends Parser {
 
         UUID id = UUID.randomUUID();
 
-        scope.appendScope(name);
+
         Reference reference = new Reference(scope.dumpPath(), ReferenceType.VAR, name, type, id, accessibility);
         this.references.add(reference);
         return new VariableStatement(name, type, initExpression, id, reference, position, accessibility);

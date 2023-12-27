@@ -1,6 +1,7 @@
 package axiol.parser.statement;
 
 import axiol.parser.tree.Expression;
+import axiol.types.Reference;
 import axiol.types.SimpleType;
 
 public final class Parameter {
@@ -9,13 +10,15 @@ public final class Parameter {
     private final Expression defaultValue;
     private final boolean pointer;
     private final boolean referenced;
+    private final Reference reference;
 
-    public Parameter(String name, SimpleType simpleType, Expression defaultValue, boolean pointer, boolean referenced) {
+    public Parameter(String name, SimpleType simpleType, Expression defaultValue, boolean pointer, boolean referenced, Reference reference) {
         this.name = name;
         this.simpleType = simpleType;
         this.defaultValue = defaultValue;
         this.pointer = pointer;
         this.referenced = referenced;
+        this.reference = reference;
     }
 
     public String getName() {
@@ -36,6 +39,10 @@ public final class Parameter {
 
     public boolean isReferenced() {
         return referenced;
+    }
+
+    public Reference getReference() {
+        return reference;
     }
 
     @Override

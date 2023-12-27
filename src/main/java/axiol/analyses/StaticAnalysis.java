@@ -390,6 +390,7 @@ public class StaticAnalysis implements RootNodeProcessor<Void> {
     }
 
     private void analyseLiteral(SourceFile sourceFile, String scope, String scopeMangled, List<ScopeVariable> scopeVars, LiteralExpression statement) {
+
     }
 
     private void analyseCall(SourceFile sourceFile, String scope, String scopeMangled, List<ScopeVariable> scopeVars, CallExpression statement) {

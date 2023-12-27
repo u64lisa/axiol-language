@@ -383,11 +383,6 @@ public class ExpressionParser {
                 return new CallExpression(path.toString(), parameters, namePosition);
             }
 
-            System.out.println("-".repeat(200));
-            System.out.println("+ " + scope.dumpPath() + "-" + path);
-            for (Reference reference : this.languageParser.getReferences()) {
-                System.out.println(reference.getProprietorPath());
-            }
             return new LiteralExpression(null, path.toString(), namePosition);
         }
 

@@ -12,8 +12,9 @@ public class Scope {
         this.scopePath = new StringBuilder(value);
     }
 
-    public void appendScope(String next) {
+    public Scope appendScope(String next) {
         this.scopePath.append("::").append(next);
+        return this;
     }
 
     public String dumpPath() {
