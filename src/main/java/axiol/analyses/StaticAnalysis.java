@@ -441,6 +441,9 @@ public class StaticAnalysis implements RootNodeProcessor<Void> {
         } else {
             statement.setReference(this.analyseContext.getFunctions().get(statement.getPath()));
         }
+
+        if (statement.getReference() == null)
+            throw new IllegalArgumentException("no reference for function call on '%s'".formatted(statement.getPath()));
     }
 
 }

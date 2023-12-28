@@ -122,6 +122,7 @@ public class InstructionGenerator {
             case STACK_ALLOC ->             emitStackAllocExpression(        (StackAllocExpression)       statement); //
 
             case BODY_STATEMENT ->          loopBodyStatement(               (BodyStatement)              statement); //
+            case EMPTY ->                   null;
 
             // linking, root
             default -> throw new IllegalArgumentException("unexpected statement '%s' at body!"

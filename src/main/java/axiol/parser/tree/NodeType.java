@@ -46,5 +46,8 @@ public enum NodeType {
 
     // ROOT
     ROOT,
+
+    // place holder
+    EMPTY
     ;
 }

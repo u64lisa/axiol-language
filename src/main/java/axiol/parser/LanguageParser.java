@@ -11,6 +11,7 @@ import axiol.parser.tree.Expression;
 import axiol.parser.tree.Statement;
 import axiol.parser.tree.RootNode;
 import axiol.parser.tree.statements.BodyStatement;
+import axiol.parser.tree.statements.EmptyStatement;
 import axiol.parser.tree.statements.LinkedNoticeStatement;
 import axiol.parser.tree.statements.VariableStatement;
 import axiol.parser.tree.statements.control.*;
@@ -34,6 +35,7 @@ import java.util.*;
  */
 public class LanguageParser extends Parser {
 
+    private static final EmptyStatement EMPTY_STATEMENT = new EmptyStatement();
     private static final SimpleType NONE = TypeCollection.NONE.toSimpleType();
 
     private final TokenType[] accessModifier = {
@@ -502,7 +504,7 @@ public class LanguageParser extends Parser {
                 }
 
                 caseElements.add(new SwitchStatement.CaseElement(defaultState,
-                        conditions.toArray(new Expression[0]), body));
+                        conditions.toArray(new Expression[0]), body == null ? EMPTY_STATEMENT : body));
 
                 continue;
             }
@@ -685,10 +687,10 @@ public class LanguageParser extends Parser {
                 elseStatement = this.parseIfStatement(scope); // loop
             }
 
-            return new IfStatement(condition, bodyStatement, elseStatement, position);
+            return new IfStatement(condition, bodyStatement, elseStatement == null ? EMPTY_STATEMENT : elseStatement, position);
         }
         // no else statement :C
-        return new IfStatement(condition, bodyStatement, null, position);
+        return new IfStatement(condition, bodyStatement, EMPTY_STATEMENT, position);
     }
 
     public Statement parseLinkingNotice() {

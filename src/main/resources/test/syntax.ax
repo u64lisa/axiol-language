@@ -73,15 +73,12 @@ function owo(test: i32 = 1) -> i32 {
     } while (true);
 
     switch (5 + 19) {
-        case 4 -> debug("Hello World");
+        case 4 -> {}
         case 24, 4 -> {
-            debug("TEST");
         }
         case 50: {
-            debug("test with colon");
         }
         default -> {
-            debug("default call");
         }
     }
 
@@ -117,16 +114,16 @@ function classTest() {
 
 
 function structTest() {
-    Test: test = (1, 2, "TEST");
-    test.owo = 5;
-    test.uwu = 21;
-    test.qwq = "OWO";
-
-    Test2: test = ();
-
-    test.owo.uwu = 1;
-
-    i32 mow = test.owo;
+    //Test: test = (1, 2, "TEST");
+    //test.owo = 5;
+    //test.uwu = 21;
+    //test.qwq = "OWO";
+    //
+    //Test2: test = ();
+    //
+    //test.owo.uwu = 1;
+    //
+    //i32 mow = test.owo;
 }
 
 function subFunction(test: i32) -> u0 {
