@@ -12,8 +12,8 @@ import axiol.parser.tree.expressions.extra.StackAllocExpression;
 import axiol.parser.tree.expressions.sub.BooleanExpression;
 import axiol.parser.tree.expressions.sub.NumberExpression;
 import axiol.parser.tree.expressions.sub.StringExpression;
-import axiol.parser.util.scope.Scope;
 import axiol.parser.util.error.TokenPosition;
+import axiol.parser.util.scope.Scope;
 import axiol.parser.util.scope.ScopeAble;
 import axiol.parser.util.scope.ScopeElement;
 import axiol.parser.util.stream.TokenStream;
@@ -26,7 +26,6 @@ import axiol.types.custom.U128;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 public class ExpressionParser {
 
@@ -109,7 +108,7 @@ public class ExpressionParser {
                     return new ArrayInitExpression(new ArrayList<>(), simpleType, new NumberExpression(
                             current.getTokenPosition(), 0, PrimitiveTypes.I32.toType(), true), this.tokenStream.currentPosition());
                 }
-                Expression expression = this.parseExpression(scope, simpleType,0);
+                Expression expression = this.parseExpression(scope, simpleType, 0);
 
                 this.languageParser.expected(TokenType.R_SQUARE);
                 this.tokenStream.advance();
@@ -152,7 +151,7 @@ public class ExpressionParser {
 
                         return new StackAllocExpression(tokenPosition, type, expression);
                     }
-                    languageParser.createSyntaxError(depth.position(),"expected number but got %s", depth.type().name());
+                    languageParser.createSyntaxError(depth.position(), "expected number but got %s", depth.type().name());
                 }
                 this.languageParser.expected(TokenType.R_SQUARE);
                 this.tokenStream.advance();
@@ -222,7 +221,7 @@ public class ExpressionParser {
                     this.tokenStream.currentPosition());
         }
         if (leftAssociated == null) {
-            leftAssociated = this.parseExpression(scope, simpleType,priority - 1);
+            leftAssociated = this.parseExpression(scope, simpleType, priority - 1);
         }
 
         // append last lef-associated Expression
@@ -388,16 +387,9 @@ public class ExpressionParser {
                 return new CallExpression(path.toString(), parameters, namePosition);
             }
 
-            Reference reference = null;
-            for (ScopeAble containingScope : scope.getContainingScopes()) {
-                if (containingScope instanceof ScopeElement element) {
-                    if (Objects.equals(path, element.getName())) {
-                        reference = element.getReference();
-                        break;
-                    }
-                }
-            }
-
+            Reference reference = scope.findReference(scope,path.toString());
+            if (reference == null)
+                languageParser.createSyntaxError(namePosition, "reference is null for literal");
             return new LiteralExpression(reference, path.toString(), namePosition);
         }
 

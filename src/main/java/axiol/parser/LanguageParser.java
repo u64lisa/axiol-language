@@ -63,7 +63,7 @@ public class LanguageParser extends Parser {
     public RootNode parseSource(String path, String content) {
         Reference reference = new Reference(ReferenceType.ROOT, "root", TypeCollection.NONE.toSimpleType(),
             UUID.randomUUID(), Accessibility.EXTERN);
-        Scope rootScope = new Scope(new ArrayList<>(), "root", ScopeElementType.ROOT, reference);
+        Scope rootScope = new Scope(new ArrayList<>(), null,"root", ScopeElementType.ROOT, reference);
 
         SourceFile sourceFile = new SourceFile(path, content);
         RootNode rootNode = new RootNode(rootScope, sourceFile);
@@ -154,7 +154,7 @@ public class LanguageParser extends Parser {
                 TypeCollection.NONE.toSimpleType(), UUID.randomUUID(), accessibility);
         references.add(reference);
 
-        Scope constructorScope = new Scope(new ArrayList<>(), "constructor", ScopeElementType.CONSTRUCTOR, reference);
+        Scope constructorScope = new Scope(new ArrayList<>(), scope,"constructor", ScopeElementType.CONSTRUCTOR, reference);
         List<Parameter> parameters = this.parseParameters(constructorScope, TokenType.L_PAREN, TokenType.R_PAREN);
 
         BodyStatement bodyStatement = this.parseBodyStatement(constructorScope);
@@ -173,7 +173,7 @@ public class LanguageParser extends Parser {
 
         UUID id = UUID.randomUUID();
         Reference reference = new Reference(ReferenceType.CLASS, className, TypeCollection.NONE.toSimpleType(), id, accessibility);
-        Scope classScope = new Scope(new ArrayList<>(), className, ScopeElementType.CLASS, reference);
+        Scope classScope = new Scope(new ArrayList<>(), scope, className, ScopeElementType.CLASS, reference);
 
         String parentClass = null;
         if (this.tokenStream.matches(TokenType.PARENT)) {
@@ -205,7 +205,7 @@ public class LanguageParser extends Parser {
         UUID uuid = UUID.randomUUID();
         Reference reference = new Reference(ReferenceType.STRUCT, structName, null, uuid);
 
-        Scope structureScope = new Scope(new ArrayList<>(),structName, ScopeElementType.STRUCT, reference);
+        Scope structureScope = new Scope(new ArrayList<>(), scope, structName, ScopeElementType.STRUCT, reference);
 
         List<Parameter> parameters = this.parseParameters(structureScope, TokenType.L_CURLY, TokenType.R_CURLY);
 
@@ -743,7 +743,7 @@ public class LanguageParser extends Parser {
         UUID id = UUID.randomUUID();
         Reference reference = new Reference(ReferenceType.FUNCTION, functionName, null, id, accessibility);
         this.references.add(reference);
-        Scope functionScope = new Scope(new ArrayList<>(), functionName, ScopeElementType.FUNCTION, reference);
+        Scope functionScope = new Scope(new ArrayList<>(), scope, functionName, ScopeElementType.FUNCTION, reference);
 
         List<Parameter> parameters = this.parseParameters(functionScope, TokenType.L_PAREN, TokenType.R_PAREN);
 

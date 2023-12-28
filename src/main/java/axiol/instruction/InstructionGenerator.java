@@ -670,6 +670,40 @@ public class InstructionGenerator {
         return null;
     }
 
+    private InstructionReference emitDoWhileStatement(DoWhileStatement statement) {
+        InstructionReference gotoLabel = instructionSet.createLabel(".dw_goto", referenceId);
+        InstructionReference endLabel = instructionSet.createLabel(".dw_end", referenceId);
+        InstructionReference conditionLabel = instructionSet.createLabel(".dw_check", referenceId);
+
+        this.currentContinueLabel = this.continueLabel;
+        this.currentBrakeLabel = this.brakeLabel;
+
+        continueLabel = gotoLabel;
+        brakeLabel = endLabel;
+
+        instructionSet.instruction(OpCode.LABEL, builder -> builder
+                .referenceOperand(gotoLabel));
+
+        loopBodyStatement(statement.getBodyStatement());
+
+        InstructionReference conditionReference = generateStatement(statement.getCondition());
+        instructionSet.instruction(OpCode.MOVE, builder -> builder
+                .referenceOperand(conditionLabel) // todo check this cant move element to label?
+                .referenceOperand(conditionReference));
+
+        instructionSet.instruction(OpCode.GOTO_IF, builder -> builder
+                .referenceOperand(conditionLabel)
+                .referenceOperand(gotoLabel));
+
+        instructionSet.instruction(OpCode.LABEL, builder -> builder
+                .referenceOperand(endLabel));
+
+        brakeLabel = currentBrakeLabel;
+        continueLabel = currentContinueLabel;
+
+        return null;
+    }
+
     private InstructionReference emitLoopStatement(LoopStatement statement) {
         InstructionReference gotoLabel = instructionSet.createLabel(".loop_goto", referenceId);
         InstructionReference endLabel = instructionSet.createLabel(".loop_end", referenceId);
@@ -903,40 +937,6 @@ public class InstructionGenerator {
         // TODO HANDLE DEFAULT CASE
 
         return proprietor;
-    }
-
-    private InstructionReference emitDoWhileStatement(DoWhileStatement statement) {
-        InstructionReference gotoLabel = instructionSet.createLabel(".dw_goto", referenceId);
-        InstructionReference endLabel = instructionSet.createLabel(".dw_end", referenceId);
-        InstructionReference conditionLabel = instructionSet.createLabel(".dw_check", referenceId);
-
-        this.currentContinueLabel = this.continueLabel;
-        this.currentBrakeLabel = this.brakeLabel;
-
-        continueLabel = gotoLabel;
-        brakeLabel = endLabel;
-
-        instructionSet.instruction(OpCode.LABEL, builder -> builder
-                .referenceOperand(gotoLabel));
-
-        loopBodyStatement(statement.getBodyStatement());
-
-        InstructionReference conditionReference = generateStatement(statement.getCondition());
-        instructionSet.instruction(OpCode.MOVE, builder -> builder
-                .referenceOperand(conditionLabel) // todo check this cant move element to label?
-                .referenceOperand(conditionReference));
-
-        instructionSet.instruction(OpCode.GOTO_IF, builder -> builder
-                .referenceOperand(conditionLabel)
-                .referenceOperand(gotoLabel));
-
-        instructionSet.instruction(OpCode.LABEL, builder -> builder
-                .referenceOperand(endLabel));
-
-        brakeLabel = currentBrakeLabel;
-        continueLabel = currentContinueLabel;
-
-        return null;
     }
 
 
