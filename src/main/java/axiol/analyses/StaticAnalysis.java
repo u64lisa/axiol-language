@@ -424,26 +424,6 @@ public class StaticAnalysis implements RootNodeProcessor<Void> {
             ValidationException.UNDECLARED_FUNCTION.throwException(sourceFile,
                     statement.position(), statement.getPath());
         }
-
-        if (foundMatchingUdt) {
-            for (Map.Entry<String, Reference> stringReferenceEntry : this.analyseContext.getUdt().entrySet()) {
-                String[] parts = stringReferenceEntry.getKey().split("/");
-                String functionScopeName = parts[0];
-
-                if (functionScopeName.equals(scope)) {
-                    Reference reference = stringReferenceEntry.getValue();
-
-                    statement.setReference(reference);
-                    break;
-                }
-
-            }
-        } else {
-            statement.setReference(this.analyseContext.getFunctions().get(statement.getPath()));
-        }
-
-        if (statement.getReference() == null)
-            throw new IllegalArgumentException("no reference for function call on '%s'".formatted(statement.getPath()));
     }
 
 }

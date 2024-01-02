@@ -35,6 +35,17 @@ public class OWO parent UWU {
 
 }
 
+function subFunction(test: i32) -> u0 {
+    native [asm, arm] {
+        "mov rsi, $" <- test, 1
+        "owo"
+    }
+
+    native [isa] {
+        "mov 1"
+    }
+}
+
 function main(argc: i32, args: *str[]) -> i32 {
     i32 test = 4 / 2 * 4;
     test = 32;
@@ -124,16 +135,4 @@ function structTest() {
     //test.owo.uwu = 1;
     //
     //i32 mow = test.owo;
-}
-
-function subFunction(test: i32) -> u0 {
-    native [asm, arm] {
-        "mov rsi, $" <- test, 1
-        "owo"
-    }
-
-    native [isa] {
-        "mov 1"
-    }
-
 }

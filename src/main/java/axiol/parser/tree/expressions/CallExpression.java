@@ -15,7 +15,6 @@ public class CallExpression extends Expression {
 
     private final String path;
     private final List<Expression> parameters;
-    private Reference reference;
 
     public CallExpression(String path, List<Expression> parameters, TokenPosition position) {
         this.path = path;
@@ -48,16 +47,8 @@ public class CallExpression extends Expression {
         return path;
     }
 
-    public void setReference(Reference reference) {
-        this.reference = reference;
-    }
-
-    public Reference getReference() {
-        return reference;
-    }
-
     @Override
     public SimpleType valuedType() {
-        return reference.getValueType();
+        return null;
     }
 }

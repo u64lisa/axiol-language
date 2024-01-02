@@ -384,10 +384,11 @@ public class ExpressionParser {
                 if (this.tokenStream.matches(TokenType.SEMICOLON))
                     this.tokenStream.advance();
 
+                // todo resolve reference
                 return new CallExpression(path.toString(), parameters, namePosition);
             }
 
-            Reference reference = scope.findReference(scope,path.toString());
+            Reference reference = Scope.findReference(scope,path.toString());
             if (reference == null)
                 languageParser.createSyntaxError(namePosition, "reference is null for literal");
             return new LiteralExpression(reference, path.toString(), namePosition);
