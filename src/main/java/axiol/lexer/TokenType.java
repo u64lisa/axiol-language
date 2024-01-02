@@ -104,6 +104,7 @@ public enum TokenType {
     USING,
     OVERRIDE,
     LINKED,
+    ENUM,
     ISA,
     UNSAFE,
     CAST,

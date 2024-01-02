@@ -144,7 +144,8 @@ public class LanguageParser extends Parser {
             return this.parseLinkingNotice();
         }
 
-        this.createSyntaxError("statement not suited for parsing with token '%s'", this.tokenStream.current());
+        Token unidentified = this.isAccessModifier() ? this.tokenStream.peak(1) : this.tokenStream.current();
+        this.createSyntaxError(unidentified, "statement not suited for parsing with token '%s'", unidentified);
         return null;
     }
 

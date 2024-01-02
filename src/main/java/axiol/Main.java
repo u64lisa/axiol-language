@@ -13,17 +13,30 @@ import java.util.*;
 
 public class Main {
 
+    public static final String[] testingCases = {
+            "enum_syntax",
+            "lambda_syntax",
+            "override_syntax",
+            "attribute_syntax",
+            "main_syntax",
+
+            "syntax"
+    };
+
     public static void main(String[] args) {
         LanguageParser languageParser = new LanguageParser();
 
-        //languageParser.parseSource("/test/expressions.ax", readFile("/test/expressions.ax"));
-        RootNode rootNode = languageParser.parseSource("/test/syntax.ax", readFile("/test/syntax.ax"));
+        for (String testingCase : testingCases) {
+            RootNode rootNode = languageParser.parseSource("/test/%s.ax".formatted(testingCase),
+                    readFile("/test/%s.ax".formatted(testingCase)));
 
-        StaticAnalysis staticAnalysis = new StaticAnalysis();
-        rootNode = staticAnalysis.process(rootNode);
+            StaticAnalysis staticAnalysis = new StaticAnalysis();
+            rootNode = staticAnalysis.process(rootNode);
 
-        InstructionGenerator instructionGenerator = new InstructionGenerator();
-        InstructionSet instructionSet = instructionGenerator.emit(rootNode);
+            //InstructionGenerator instructionGenerator = new InstructionGenerator();
+            //InstructionSet instructionSet = instructionGenerator.emit(rootNode);
+        }
+
     }
 
     public static String readFile(String file) {

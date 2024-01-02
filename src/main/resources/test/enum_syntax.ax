@@ -1,0 +1,21 @@
+
+public enum MyEnum {
+    FIRST,
+    SECOND,
+    THIRD,
+}
+
+function test(enumElement: MyEnum) {
+    if (enumElement == MyEnum.FIRST) {
+    }
+    switch (enumElement) {
+        case FIRST -> {}
+        case SECOND -> {}
+        case THIRD -> {}
+    }
+
+}
+
+function main(argc: i32, args: *str[]) -> i32 {
+    test(MyEnum.SECOND)
+}

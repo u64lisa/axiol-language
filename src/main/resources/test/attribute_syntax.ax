@@ -1,0 +1,10 @@
+function attribute(test: i32) {}
+
+
+|attribute(1)
+function testFunction() {
+}
+
+function main(argc: i32, args: *str[]) -> i32 {
+
+}

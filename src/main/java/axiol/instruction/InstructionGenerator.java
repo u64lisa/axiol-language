@@ -65,7 +65,7 @@ public class InstructionGenerator {
                 case FUNCTION_STATEMENT ->    emitFunctionType((FunctionStatement) statement);
                 case VAR_STATEMENT ->         emitVarStatement((VariableStatement) statement);
                 // todo attribute
-                // todo enum
+                case ENUM_TYPE_STATEMENT ->   emitEnumType((EnumTypeStatement) statement);
                 default -> throw new IllegalArgumentException("unexpected statement '%s' at root of ast"
                         .formatted(statement.type().name()));
             }
@@ -516,12 +516,12 @@ public class InstructionGenerator {
             parameters.put(parameter, reference);
         }
 
-        instructionSet.instruction(OpCode.CALL, builder -> {
-            builder.referenceOperand(proprietor)
-                    .referenceOperand(new InstructionReference(statement.getReference(), referenceId));
-
-            parameters.forEach((expression, instructionReference) -> builder.referenceOperand(instructionReference));
-        });
+        //instructionSet.instruction(OpCode.CALL, builder -> {
+        //    builder.referenceOperand(proprietor) todo fix this reference filtering
+        //            .referenceOperand(new InstructionReference(statement.getReference(), referenceId));
+        //
+        //    parameters.forEach((expression, instructionReference) -> builder.referenceOperand(instructionReference));
+        //});
 
         return proprietor;
     }
@@ -988,7 +988,9 @@ public class InstructionGenerator {
 
         return null;
     }
-
+    private InstructionReference emitEnumType(EnumTypeStatement enumType) {
+        return null;
+    }
 
     private InstructionReference emitClassType(ClassTypeStatement statement) {
 

@@ -384,7 +384,6 @@ public class ExpressionParser {
                 if (this.tokenStream.matches(TokenType.SEMICOLON))
                     this.tokenStream.advance();
 
-                // todo resolve reference
                 return new CallExpression(path.toString(), parameters, namePosition);
             }
 

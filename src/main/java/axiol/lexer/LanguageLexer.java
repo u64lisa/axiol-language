@@ -130,6 +130,7 @@ public class LanguageLexer {
         LEXER.addRule(TokenType.STRUCTURE, lexerRule ->  lexerRule.addString("structure"));
         LEXER.addRule(TokenType.USING, lexerRule ->      lexerRule.addString("using"));
         LEXER.addRule(TokenType.OVERRIDE, lexerRule ->   lexerRule.addString("override"));
+        LEXER.addRule(TokenType.ENUM, lexerRule ->   lexerRule.addString("enum"));
 
         // literals ! last element or else many things are broken
         LEXER.addRule(TokenType.LITERAL, lexerRule -> lexerRule.addRegexes("[a-zA-Z_][a-zA-Z0-9_]*"));

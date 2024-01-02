@@ -50,7 +50,7 @@ public class MatchExpression extends Expression {
 
     @Override
     public SimpleType valuedType() {
-        return condition.valuedType(); // todo the value it the yielded element not the condition value
+        return this.getCases()[0].getBody().valuedType();
     }
 
     @Override

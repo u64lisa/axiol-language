@@ -1,0 +1,8 @@
+
+!override(owo)
+public function test() {}
+
+public function owo() {}
+
+function main(argc: i32, args: *str[]) -> i32 {
+}
