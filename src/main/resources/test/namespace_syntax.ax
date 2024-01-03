@@ -1,0 +1,11 @@
+namespace test {
+
+    function test(param: i32) -> i32 {
+        return 1;
+    }
+
+}
+
+function main(argc: i32, args: *str[]) -> i32 {
+    i32 value = test::test(1);
+}

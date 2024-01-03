@@ -17,6 +17,7 @@ public class Main {
             "enum_syntax",
             "lambda_syntax",
             "override_syntax",
+            "namespace_syntax",
             "attribute_syntax",
             "main_syntax",
 

@@ -109,6 +109,7 @@ public enum TokenType {
     UNSAFE,
     CAST,
     STACK_ALLOC,
+    NAMESPACE,
 
     EOF,
 

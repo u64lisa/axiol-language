@@ -126,6 +126,7 @@ public class LanguageLexer {
         LEXER.addRule(TokenType.FUNCTION, lexerRule ->   lexerRule.addString("function"));
         LEXER.addRule(TokenType.CLASS, lexerRule ->      lexerRule.addString("class"));
         LEXER.addRule(TokenType.PARENT, lexerRule ->     lexerRule.addString("parent"));
+        LEXER.addRule(TokenType.NAMESPACE, lexerRule ->     lexerRule.addString("namespace"));
         LEXER.addRule(TokenType.CONSTRUCT, lexerRule ->  lexerRule.addString("construct"));
         LEXER.addRule(TokenType.STRUCTURE, lexerRule ->  lexerRule.addString("structure"));
         LEXER.addRule(TokenType.USING, lexerRule ->      lexerRule.addString("using"));
