@@ -1,6 +1,6 @@
 package axiol.analyses;
 
-import axiol.types.Reference;
+import axiol.parser.util.reference.Reference;
 
 import java.util.ArrayList;
 import java.util.HashMap;

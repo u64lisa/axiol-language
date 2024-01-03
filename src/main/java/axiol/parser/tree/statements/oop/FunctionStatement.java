@@ -6,7 +6,7 @@ import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.tree.statements.BodyStatement;
 import axiol.parser.util.error.TokenPosition;
-import axiol.types.Reference;
+import axiol.parser.util.reference.Reference;
 import axiol.types.SimpleType;
 
 import java.util.List;
@@ -19,17 +19,16 @@ public class FunctionStatement extends Statement {
     private final List<Parameter> parameters;
     private final BodyStatement bodyStatement;
     private final SimpleType returnType;
-    private final UUID uuid;
 
     private final Reference reference;
 
-    public FunctionStatement(String name, Accessibility[] accessibility, List<Parameter> parameters, BodyStatement bodyStatement, SimpleType returnType, UUID uuid, Reference reference, TokenPosition position) {
+    public FunctionStatement(String name, Accessibility[] accessibility, List<Parameter> parameters, BodyStatement bodyStatement,
+                             SimpleType returnType, Reference reference, TokenPosition position) {
         this.name = name;
         this.accessibility = accessibility;
         this.parameters = parameters;
         this.bodyStatement = bodyStatement;
         this.returnType = returnType;
-        this.uuid = uuid;
         this.reference = reference;
         this.position = position;
     }
@@ -66,10 +65,6 @@ public class FunctionStatement extends Statement {
 
     public SimpleType getReturnType() {
         return returnType;
-    }
-
-    public UUID getUuid() {
-        return uuid;
     }
 
     public Reference getReference() {

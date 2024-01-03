@@ -1,7 +1,8 @@
-package axiol.types;
+package axiol.parser.util.reference;
 
-import axiol.holder.Proprietor;
 import axiol.parser.statement.Accessibility;
+import axiol.parser.util.scope.Namespace;
+import axiol.types.SimpleType;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -10,13 +11,16 @@ public class Reference {
 
     private final ReferenceType type;
     private final String name;
+    private final Namespace location;
     private SimpleType valueType;
     private final UUID uuid;
     private final Accessibility[] access;
 
-    public Reference(ReferenceType type, String name, SimpleType valueType, UUID uuid, Accessibility... access) {
+
+    public Reference(ReferenceType type, String name, Namespace location, SimpleType valueType, UUID uuid, Accessibility... access) {
         this.type = type;
         this.name = name;
+        this.location = location;
         this.valueType = valueType;
         this.uuid = uuid;
         this.access = access;
@@ -24,6 +28,10 @@ public class Reference {
 
     public void setValueType(SimpleType valueType) {
         this.valueType = valueType;
+    }
+
+    public Namespace getLocation() {
+        return location;
     }
 
     public String getName() {

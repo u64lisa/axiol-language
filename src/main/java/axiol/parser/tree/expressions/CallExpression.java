@@ -4,10 +4,8 @@ import axiol.parser.tree.Expression;
 import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.util.error.TokenPosition;
-import axiol.types.Reference;
 import axiol.types.SimpleType;
 
-import java.sql.Ref;
 import java.util.ArrayList;
 import java.util.List;
 

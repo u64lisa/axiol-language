@@ -5,8 +5,7 @@ import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.tree.statements.BodyStatement;
 import axiol.parser.util.error.TokenPosition;
-import axiol.types.Reference;
-import axiol.types.SimpleType;
+import axiol.parser.util.reference.Reference;
 
 import java.util.ArrayList;
 import java.util.List;

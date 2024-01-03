@@ -5,7 +5,7 @@ import axiol.parser.tree.Expression;
 import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.util.error.TokenPosition;
-import axiol.types.Reference;
+import axiol.parser.util.reference.Reference;
 import axiol.types.SimpleType;
 
 import java.util.List;
@@ -17,12 +17,10 @@ public class VariableStatement extends Statement {
     private final String name;
     private final SimpleType type;
     private final Expression value;
-    private final UUID uuid;
 
     private final Reference reference;
 
-    public VariableStatement(String name, SimpleType type, Expression value, UUID uuid, Reference reference, TokenPosition position, Accessibility... access) {
-        this.uuid = uuid;
+    public VariableStatement(String name, SimpleType type, Expression value, Reference reference, TokenPosition position, Accessibility... access) {
         this.reference = reference;
         this.position = position;
         this.access = access;
@@ -46,10 +44,6 @@ public class VariableStatement extends Statement {
     @Override
     public NodeType type() {
         return NodeType.VAR_STATEMENT;
-    }
-
-    public UUID getUuid() {
-        return uuid;
     }
 
     public Accessibility[] getAccess() {

@@ -1,5 +1,5 @@
 
-!override(owo)
+!overload(owo)
 public function test() {}
 
 public function owo() {}

@@ -1,13 +1,8 @@
 package axiol;
 
 import axiol.analyses.StaticAnalysis;
-import axiol.instruction.InstructionGenerator;
-import axiol.instruction.InstructionSet;
 import axiol.parser.LanguageParser;
 import axiol.parser.tree.RootNode;
-import axiol.parser.util.scope.Scope;
-import axiol.parser.util.scope.ScopeAble;
-import axiol.parser.util.scope.ScopeElement;
 
 import java.util.*;
 

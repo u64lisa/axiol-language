@@ -22,8 +22,7 @@ import axiol.parser.tree.statements.control.*;
 import axiol.parser.tree.statements.oop.*;
 import axiol.parser.tree.statements.special.NativeStatement;
 import axiol.types.PrimitiveTypes;
-import axiol.types.Reference;
-import axiol.types.ReferenceStorage;
+import axiol.parser.util.reference.Reference;
 import axiol.types.SimpleType;
 
 import java.util.HashMap;
@@ -32,7 +31,6 @@ import java.util.Optional;
 
 public class InstructionGenerator {
     private final InstructionSetBuilder instructionSet;
-    private ReferenceStorage referenceStorage;
 
     private int referenceId = 0;
 
@@ -54,7 +52,6 @@ public class InstructionGenerator {
 
     //@formatter:off
     public InstructionSet emit(RootNode rootNode) {
-        this.referenceStorage = rootNode.getReferences();
 
         rootNode.getStatements().removeIf(statement -> statement.type() == NodeType.LINKED_STATEMENT);
 
@@ -548,7 +545,7 @@ public class InstructionGenerator {
 
 
     private InstructionReference emitVarStatement(VariableStatement statement) {
-        Optional<Reference> reference = this.referenceStorage.getReferenceToStatement(statement);
+        Optional<Reference> reference = null; //todo this.referenceStorage.getReferenceToStatement(statement);
         if (reference.isEmpty())
             throw new IllegalStateException("Var without reference fn: '%s'!".formatted(statement.getName()));
 
@@ -947,7 +944,7 @@ public class InstructionGenerator {
 
     @SuppressWarnings("all")
     private InstructionReference emitFunctionType(FunctionStatement statement) {
-        Optional<Reference> reference = this.referenceStorage.getReferenceToStatement(statement);
+        Optional<Reference> reference = null;// todo this.referenceStorage.getReferenceToStatement(statement);
 
         if (reference.isEmpty())
             throw new IllegalStateException("Function without reference fn: '%s'!".formatted(statement.getName()));

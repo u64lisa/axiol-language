@@ -5,7 +5,7 @@ import axiol.parser.statement.Parameter;
 import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.util.error.TokenPosition;
-import axiol.types.Reference;
+import axiol.parser.util.reference.Reference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,15 +15,13 @@ public class StructTypeStatement extends Statement {
 
     private final List<Parameter> entries;
     private final String name;
-    private final UUID uuid;
     private final Accessibility[] accessibility;
 
     private final Reference reference;
 
-    public StructTypeStatement(List<Parameter> entries, String name, UUID uuid, Accessibility[] accessibility, Reference reference, TokenPosition position) {
+    public StructTypeStatement(List<Parameter> entries, String name, Accessibility[] accessibility, Reference reference, TokenPosition position) {
         this.entries = entries;
         this.name = name;
-        this.uuid = uuid;
         this.accessibility = accessibility;
         this.reference = reference;
         this.position = position;
@@ -48,10 +46,6 @@ public class StructTypeStatement extends Statement {
 
     public Accessibility[] getAccessibility() {
         return accessibility;
-    }
-
-    public UUID getUuid() {
-        return uuid;
     }
 
     public List<Parameter> getEntries() {

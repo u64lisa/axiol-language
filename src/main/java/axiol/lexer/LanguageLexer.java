@@ -130,7 +130,7 @@ public class LanguageLexer {
         LEXER.addRule(TokenType.CONSTRUCT, lexerRule ->  lexerRule.addString("construct"));
         LEXER.addRule(TokenType.STRUCTURE, lexerRule ->  lexerRule.addString("structure"));
         LEXER.addRule(TokenType.USING, lexerRule ->      lexerRule.addString("using"));
-        LEXER.addRule(TokenType.OVERRIDE, lexerRule ->   lexerRule.addString("override"));
+        LEXER.addRule(TokenType.OVERLOAD, lexerRule ->   lexerRule.addString("overload"));
         LEXER.addRule(TokenType.ENUM, lexerRule ->   lexerRule.addString("enum"));
 
         // literals ! last element or else many things are broken

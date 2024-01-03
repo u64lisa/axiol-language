@@ -1,7 +1,7 @@
 package axiol.parser.statement;
 
 import axiol.parser.tree.Expression;
-import axiol.types.Reference;
+import axiol.parser.util.reference.Reference;
 import axiol.types.SimpleType;
 
 public final class Parameter {

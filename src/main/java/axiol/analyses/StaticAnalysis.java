@@ -19,7 +19,7 @@ import axiol.parser.tree.statements.control.*;
 import axiol.parser.tree.statements.oop.*;
 import axiol.parser.tree.statements.special.NativeStatement;
 import axiol.parser.util.SourceFile;
-import axiol.types.Reference;
+import axiol.parser.util.reference.Reference;
 import axiol.types.ScopeVariable;
 import axiol.types.SimpleType;
 

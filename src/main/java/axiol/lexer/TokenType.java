@@ -102,7 +102,7 @@ public enum TokenType {
     CONSTRUCT,
     PARENT,
     USING,
-    OVERRIDE,
+    OVERLOAD,
     LINKED,
     ENUM,
     ISA,
