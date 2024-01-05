@@ -2,8 +2,7 @@ package axiol.parser.util.reference;
 
 import axiol.parser.statement.Accessibility;
 import axiol.parser.scope.Namespace;
-import axiol.types.SimpleType;
-import axiol.types.TypeCollection;
+import axiol.types.Type;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -13,14 +12,14 @@ public class Reference {
     private final ReferenceType type;
     private final String name;
     private final Namespace location;
-    private SimpleType valueType;
+    private Type valueType;
     private final UUID uuid;
     private final Accessibility[] access;
 
     private boolean imported;
     private boolean exported;
 
-    public Reference(ReferenceType type, String name, Namespace location, SimpleType valueType, UUID uuid, Accessibility... access) {
+    public Reference(ReferenceType type, String name, Namespace location, Type valueType, UUID uuid, Accessibility... access) {
         this.type = type;
         this.name = name;
         this.location = location;
@@ -28,7 +27,7 @@ public class Reference {
         this.uuid = uuid;
         this.access = access;
     }
-    public Reference(ReferenceType type, String name, Namespace location, SimpleType valueType, Accessibility... access) {
+    public Reference(ReferenceType type, String name, Namespace location, Type valueType, Accessibility... access) {
         this.type = type;
         this.name = name;
         this.location = location;
@@ -40,7 +39,7 @@ public class Reference {
         this.type = type;
         this.name = name;
         this.location = location;
-        this.valueType = TypeCollection.NONE;
+        this.valueType = Type.NONE;
         this.uuid = UUID.randomUUID();
         this.access = access;
     }
@@ -53,7 +52,7 @@ public class Reference {
         this.imported = imported;
     }
 
-    public void setValueType(SimpleType valueType) {
+    public void setValueType(Type valueType) {
         this.valueType = valueType;
     }
 
@@ -77,7 +76,7 @@ public class Reference {
         return uuid;
     }
 
-    public SimpleType getValueType() {
+    public Type getValueType() {
         return valueType;
     }
 
