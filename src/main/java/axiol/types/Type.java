@@ -1,5 +1,7 @@
 package axiol.types;
 
+import java.util.Objects;
+
 public class Type {
 
     public static final Type STRING =  new Type("str", 1, 0,8,false,false,true);
@@ -62,6 +64,20 @@ public class Type {
         this.unsigned = unsigned;
     }
 
+    public boolean assetEqualityFor(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Type type = (Type) o;
+
+        return arrayDepth == type.arrayDepth && pointerDepth == type.pointerDepth && bitSize == type.bitSize &&
+                big == type.big && floating == type.floating && unsigned == type.unsigned && Objects.equals(name, type.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, arrayDepth, pointerDepth, bitSize, big, floating, unsigned);
+    }
+
     public Type increasePointerDepth(int size) {
         return new Type(name, arrayDepth,
                 pointerDepth + size, bitSize, big, floating, unsigned);
@@ -94,4 +110,13 @@ public class Type {
     public boolean isUnsigned() {
         return unsigned;
     }
+
+    public boolean isSigned() {
+        return !unsigned;
+    }
+
+    public int getBits() {
+        return this.bitSize;
+    }
+
 }

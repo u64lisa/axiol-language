@@ -1,13 +1,11 @@
 package axiol.types;
 
-import axiol.types.SimpleType;
-
 public class ScopeVariable {
 
     private final String name;
-    private final SimpleType type;
+    private final Type type;
 
-    public ScopeVariable(String name, SimpleType type) {
+    public ScopeVariable(String name, Type type) {
         this.name = name;
         this.type = type;
     }
@@ -16,7 +14,7 @@ public class ScopeVariable {
         return name;
     }
 
-    public SimpleType getType() {
+    public Type getType() {
         return type;
     }
 

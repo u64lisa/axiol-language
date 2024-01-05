@@ -2,7 +2,6 @@ package axiol.instruction.value;
 
 import axiol.instruction.InstructionOperand;
 import axiol.types.Type;
-import axiol.types.TypeCollection;
 
 public class BooleanInstructionOperand extends InstructionOperand {
 
@@ -14,7 +13,7 @@ public class BooleanInstructionOperand extends InstructionOperand {
 
     @Override
     public Type size() {
-        return TypeCollection.BOOLEAN;
+        return Type.BOOLEAN;
     }
 
     public boolean isValue() {

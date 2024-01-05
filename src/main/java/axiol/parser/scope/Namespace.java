@@ -1,4 +1,4 @@
-package axiol.parser.util.scope;
+package axiol.parser.scope;
 
 public record Namespace(Namespace parent, String... path) {
     public String getName() {

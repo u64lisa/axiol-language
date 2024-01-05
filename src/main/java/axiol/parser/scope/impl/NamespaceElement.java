@@ -1,10 +1,10 @@
-package axiol.parser.util.scope.impl;
+package axiol.parser.scope.impl;
 
 import axiol.parser.util.reference.Reference;
 import axiol.parser.util.reference.ReferenceType;
-import axiol.parser.util.scope.Namespace;
-import axiol.parser.util.scope.ScopeElement;
-import axiol.types.TypeCollection;
+import axiol.parser.scope.Namespace;
+import axiol.parser.scope.ScopeElement;
+import axiol.types.Type;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -50,7 +50,7 @@ public class NamespaceElement implements ScopeElement {
     }
 
     public Reference createNamespaceReference(Namespace name) {
-        return new Reference(ReferenceType.NAMESPACE, name.getName(), name, TypeCollection.NONE.toSimpleType(), UUID.randomUUID());
+        return new Reference(ReferenceType.NAMESPACE, name.getName(), name);
     }
 
     public Namespace getRelative(Namespace start, Namespace path) {

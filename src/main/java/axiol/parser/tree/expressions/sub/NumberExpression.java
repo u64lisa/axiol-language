@@ -3,9 +3,7 @@ package axiol.parser.tree.expressions.sub;
 import axiol.parser.tree.Expression;
 import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
-import axiol.parser.util.error.Position;
 import axiol.parser.util.error.TokenPosition;
-import axiol.types.SimpleType;
 import axiol.types.Type;
 
 import java.util.ArrayList;
@@ -40,8 +38,8 @@ public class NumberExpression extends Expression {
     }
 
     @Override
-    public SimpleType valuedType() {
-        return type.toSimpleType();
+    public Type valuedType() {
+        return type;
     }
 
     @Override

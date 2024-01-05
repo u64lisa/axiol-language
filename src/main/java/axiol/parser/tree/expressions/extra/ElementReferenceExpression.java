@@ -4,7 +4,7 @@ import axiol.parser.tree.Expression;
 import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.util.error.TokenPosition;
-import axiol.types.SimpleType;
+import axiol.types.Type;
 
 import java.util.List;
 
@@ -35,7 +35,7 @@ public class ElementReferenceExpression extends Expression {
     }
 
     @Override
-    public SimpleType valuedType() {
+    public Type valuedType() {
         return toReference.valuedType();
     }
 

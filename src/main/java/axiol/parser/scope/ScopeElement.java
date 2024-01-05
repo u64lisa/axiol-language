@@ -1,4 +1,4 @@
-package axiol.parser.util.scope;
+package axiol.parser.scope;
 
 public interface ScopeElement {
 

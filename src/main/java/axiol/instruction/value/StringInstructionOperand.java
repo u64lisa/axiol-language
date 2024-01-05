@@ -2,7 +2,6 @@ package axiol.instruction.value;
 
 import axiol.instruction.InstructionOperand;
 import axiol.types.Type;
-import axiol.types.TypeCollection;
 
 public class StringInstructionOperand extends InstructionOperand {
     private final String value;
@@ -13,7 +12,7 @@ public class StringInstructionOperand extends InstructionOperand {
 
     @Override
     public Type size() {
-        return TypeCollection.STRING;
+        return Type.STRING;
     }
 
     public String getValue() {

@@ -32,8 +32,8 @@ public class InstructionBuilder {
         return this;
     }
 
-    public InstructionBuilder numberOperand(PrimitiveTypes type, Number value) {
-        elements.add(new NumberInstructionOperand(type.toType(), value));
+    public InstructionBuilder numberOperand(Type type, Number value) {
+        elements.add(new NumberInstructionOperand(type, value));
         return this;
     }
     public InstructionBuilder numberOperand(NumberInstructionOperand value) {

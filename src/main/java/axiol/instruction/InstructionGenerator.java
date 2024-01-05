@@ -21,9 +21,8 @@ import axiol.parser.tree.statements.VariableStatement;
 import axiol.parser.tree.statements.control.*;
 import axiol.parser.tree.statements.oop.*;
 import axiol.parser.tree.statements.special.NativeStatement;
-import axiol.types.PrimitiveTypes;
 import axiol.parser.util.reference.Reference;
-import axiol.types.SimpleType;
+import axiol.types.Type;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -152,7 +151,7 @@ public class InstructionGenerator {
         InstructionReference reference = instructionSet.createNumberReference(statement.getType(), referenceId);
         instructionSet.instruction(OpCode.MOVE, builder -> builder
                 .referenceOperand(reference)
-                .numberOperand(statement.getType().getPrimitiveTypes(), statement.getNumberValue()));
+                .numberOperand(statement.valuedType(), statement.getNumberValue()));
 
         return reference;
     }
@@ -168,7 +167,7 @@ public class InstructionGenerator {
     private InstructionReference emitStackAllocExpression(StackAllocExpression statement) {
         InstructionReference proprietor = this.instructionSet.createDataReference(".alloc", statement.valuedType(), referenceId);
 
-        InstructionReference size = this.instructionSet.createNumberReference(PrimitiveTypes.I32.toType(), statement.getDepth().getNumberValue().intValue());
+        InstructionReference size = this.instructionSet.createNumberReference(Type.I32, statement.getDepth().getNumberValue().intValue());
 
         instructionSet.instruction(OpCode.ALLOC, builder -> builder
                 .referenceOperand(proprietor)
@@ -181,28 +180,28 @@ public class InstructionGenerator {
         InstructionReference proprietor = this.instructionSet.createDataReference(".cast", statement.valuedType(), referenceId);
         InstructionReference reference = generateStatement(statement.getValue());
 
-        SimpleType from = statement.valuedType();
-        int sizeFrom = from.getType().getPrimitiveTypes().getBits() / 8;
-        SimpleType to = statement.valuedType();
-        int sizeTo = from.getType().getPrimitiveTypes().getBits() / 8;
+        Type from = statement.valuedType();
+        int sizeFrom = from.getBits() / 8;
+        Type to = statement.valuedType();
+        int sizeTo = from.getBits() / 8;
 
         OpCode opCode = OpCode.ZERO_EXTEND;
         if (sizeTo <= sizeFrom &&
-                !(from.getType().getPrimitiveTypes().isBig() ||
-                        to.getType().getPrimitiveTypes().isBig()))
+                !(from.isBig() ||
+                        to.isBig()))
             opCode = OpCode.TRUNCATE;
         if (sizeTo <= sizeFrom &&
-                (from.getType().getPrimitiveTypes().isBig() ||
-                        to.getType().getPrimitiveTypes().isBig()))
+                (from.isBig() ||
+                        to.isBig()))
             opCode = OpCode.BIG_TRUNCATE;
-        if (from.getType().getPrimitiveTypes().isSigned() &&
-                to.getType().getPrimitiveTypes().isSigned())
+        if (from.isSigned() &&
+                to.isSigned())
             opCode = OpCode.SIGN_EXTEND;
-        if (from.getType().getPrimitiveTypes().isFloating() ||
-                to.getType().getPrimitiveTypes().isFloating())
+        if (from.isFloating() ||
+                to.isFloating())
             opCode = OpCode.FLOATING_EXTEND;
-        if (from.getType().getPrimitiveTypes().isBig() &&
-                to.getType().getPrimitiveTypes().isBig())
+        if (from.isBig() &&
+                to.isBig())
             opCode = OpCode.BIG_ZERO_EXTEND;
         else
             opCode = OpCode.ZERO_EXTEND;
@@ -293,7 +292,7 @@ public class InstructionGenerator {
 
         instructionSet.instruction(OpCode.MOVE, builder -> builder
                 .referenceOperand(proprietor)
-                .numberOperand(binaryExpression.valuedType().getType().getPrimitiveTypes(), 1));
+                .numberOperand(binaryExpression.valuedType(), 1));
 
         InstructionReference leftReference = generateStatement(binaryExpression.getLeftAssociate());
         InstructionReference rightReference = generateStatement(binaryExpression.getLeftAssociate());
@@ -308,7 +307,7 @@ public class InstructionGenerator {
 
         instructionSet.instruction(OpCode.MOVE, builder -> builder
                 .referenceOperand(proprietor)
-                .numberOperand(binaryExpression.valuedType().getType().getPrimitiveTypes(), 1));
+                .numberOperand(binaryExpression.valuedType(), 1));
 
         instructionSet.instruction(OpCode.LABEL, builder -> builder
                 .referenceOperand(endingReference));
@@ -323,7 +322,7 @@ public class InstructionGenerator {
 
         instructionSet.instruction(OpCode.MOVE, builder -> builder
                 .referenceOperand(proprietor)
-                .numberOperand(binaryExpression.valuedType().getType().getPrimitiveTypes(), 1));
+                .numberOperand(binaryExpression.valuedType(), 1));
 
         InstructionReference leftReference = generateStatement(binaryExpression.getLeftAssociate());
         InstructionReference rightReference = generateStatement(binaryExpression.getLeftAssociate());
@@ -345,7 +344,7 @@ public class InstructionGenerator {
 
         instructionSet.instruction(OpCode.MOVE, builder -> builder
                 .referenceOperand(proprietor)
-                .numberOperand(binaryExpression.valuedType().getType().getPrimitiveTypes(), 1));
+                .numberOperand(binaryExpression.valuedType(), 1));
 
         instructionSet.instruction(OpCode.LABEL, builder -> builder
                 .referenceOperand(endingReference));
@@ -366,7 +365,7 @@ public class InstructionGenerator {
 
     private InstructionReference emitBinaryExpression(BinaryExpression statement) {
         InstructionReference proprietor = this.instructionSet.createDataReference(".bin", statement.valuedType(), referenceId);
-        SimpleType type = statement.valuedType();
+        Type type = statement.valuedType();
         Operator operator = statement.getOperator();
 
         if (operator == Operator.OR)
@@ -399,15 +398,15 @@ public class InstructionGenerator {
 
 
         OpCode opCode = chooseBinaryOpCode(operator,
-                !type.getType().getPrimitiveTypes().isSigned(),
-                type.getType().getPrimitiveTypes().isFloating(),
-                type.getType().getPrimitiveTypes().isBig());
+                !type.isSigned(),
+                type.isFloating(),
+                type.isBig());
 
         InstructionReference left = this.generateStatement(statement.getLeftAssociate());
         InstructionReference right = this.generateStatement(statement.getRightAssociate());
 
-        SimpleType leftType = statement.getLeftAssociate().valuedType();
-        SimpleType rightType = statement.getRightAssociate().valuedType();
+        Type leftType = statement.getLeftAssociate().valuedType();
+        Type rightType = statement.getRightAssociate().valuedType();
 
         assert leftType.assetEqualityFor(rightType);
 
@@ -463,10 +462,10 @@ public class InstructionGenerator {
         InstructionReference value = this.generateStatement(statement.getValue());
 
         if (statement.getOperator() == Operator.INCREASE || statement.getOperator() == Operator.DECREASE) {
-            InstructionReference oneReference = this.instructionSet.createNumberReference(PrimitiveTypes.I32.toType(), referenceId);
+            InstructionReference oneReference = this.instructionSet.createNumberReference(Type.I32, referenceId);
             this.instructionSet.instruction(OpCode.MOVE, builder -> builder
                     .referenceOperand(oneReference)
-                    .numberOperand(PrimitiveTypes.I32, 1));
+                    .numberOperand(Type.I32, 1));
 
             boolean increase = statement.getOperator() == Operator.INCREASE;
 
@@ -527,13 +526,13 @@ public class InstructionGenerator {
         InstructionReference proprietor = instructionSet.createDataReference(".arc", statement.valuedType(), referenceId);
         instructionSet.instruction(OpCode.ALLOC, builder -> builder
                 .referenceOperand(proprietor)
-                .numberOperand(PrimitiveTypes.I32, statement.getValues().size()));
+                .numberOperand(Type.I32, statement.getValues().size()));
 
         for (int i = 0; i < statement.getValues().size(); i++) {
             Expression element = statement.getValues().get(i);
 
             InstructionReference valueReference = generateStatement(element);
-            NumberInstructionOperand index = new NumberInstructionOperand(PrimitiveTypes.I32.toType(), i);
+            NumberInstructionOperand index = new NumberInstructionOperand(Type.I32, i);
 
             instructionSet.instruction(OpCode.STORE, builder -> builder
                     .referenceOperand(proprietor)
@@ -783,7 +782,7 @@ public class InstructionGenerator {
             InstructionReference arrayReference = generateStatement(iterateCondition.getExpression());
             InstructionReference elementReference = new InstructionReference(iterateCondition.getReference(), referenceId);
 
-            InstructionReference index = instructionSet.createNumberReference(PrimitiveTypes.I32.toType(), 0);
+            InstructionReference index = instructionSet.createNumberReference(Type.I32, 0);
 
             this.currentContinueLabel = this.continueLabel;
             this.currentBrakeLabel = this.brakeLabel;
@@ -807,7 +806,7 @@ public class InstructionGenerator {
 
                 instructionSet.instruction(OpCode.ADD, builder -> builder
                         .referenceOperand(index)
-                        .numberOperand(PrimitiveTypes.I32, 1));
+                        .numberOperand(Type.I32, 1));
 
                 instructionSet.instruction(OpCode.GOTO, builder -> builder
                         .referenceOperand(loopLabel));

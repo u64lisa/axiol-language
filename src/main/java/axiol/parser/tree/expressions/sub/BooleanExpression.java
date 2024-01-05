@@ -3,10 +3,8 @@ package axiol.parser.tree.expressions.sub;
 import axiol.parser.tree.Expression;
 import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
-import axiol.parser.util.error.Position;
 import axiol.parser.util.error.TokenPosition;
-import axiol.types.SimpleType;
-import axiol.types.TypeCollection;
+import axiol.types.Type;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +39,7 @@ public class BooleanExpression extends Expression {
     }
 
     @Override
-    public SimpleType valuedType() {
-        return TypeCollection.BOOLEAN.toSimpleType();
+    public Type valuedType() {
+        return Type.BOOLEAN;
     }
 }

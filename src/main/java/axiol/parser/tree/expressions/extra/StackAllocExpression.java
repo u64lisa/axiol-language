@@ -5,19 +5,19 @@ import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
 import axiol.parser.tree.expressions.sub.NumberExpression;
 import axiol.parser.util.error.TokenPosition;
-import axiol.types.SimpleType;
+import axiol.types.Type;
 
 import java.util.List;
 
 public class StackAllocExpression extends Expression {
 
     private final TokenPosition tokenPosition;
-    private final SimpleType simpleType;
+    private final Type type;
     private final NumberExpression depth;
 
-    public StackAllocExpression(TokenPosition tokenPosition, SimpleType simpleType, NumberExpression depth) {
+    public StackAllocExpression(TokenPosition tokenPosition, Type type, NumberExpression depth) {
         this.tokenPosition = tokenPosition;
-        this.simpleType = simpleType;
+        this.type = type;
         this.depth = depth;
     }
 
@@ -29,13 +29,13 @@ public class StackAllocExpression extends Expression {
         return depth;
     }
 
-    public SimpleType getSimpleType() {
-        return simpleType;
+    public Type getSimpleType() {
+        return type;
     }
 
     @Override
-    public SimpleType valuedType() {
-        return simpleType;
+    public Type valuedType() {
+        return type;
     }
 
     @Override

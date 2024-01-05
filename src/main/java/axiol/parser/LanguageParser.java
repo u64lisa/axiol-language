@@ -21,12 +21,8 @@ import axiol.parser.util.Parser;
 import axiol.parser.util.SourceFile;
 import axiol.parser.util.error.LanguageException;
 import axiol.parser.util.error.TokenPosition;
-import axiol.parser.util.reference.Reference;
-import axiol.parser.util.reference.ReferenceType;
-import axiol.parser.util.scope.ScopeElement;
 import axiol.parser.util.stream.TokenStream;
 import axiol.types.*;
-import com.sun.source.tree.Scope;
 
 import java.io.File;
 import java.util.*;
@@ -37,7 +33,7 @@ import java.util.*;
 public class LanguageParser extends Parser {
 
     private static final EmptyStatement EMPTY_STATEMENT = new EmptyStatement();
-    private static final SimpleType NONE = TypeCollection.NONE.toSimpleType();
+    private static final Type NONE = TypeCollection.NONE.toSimpleType();
 
     private final TokenType[] accessModifier = {
             TokenType.PUBLIC, TokenType.PRIVATE, TokenType.INLINE, TokenType.CONST,
@@ -528,7 +524,7 @@ public class LanguageParser extends Parser {
                 createSyntaxError("expected type but got '%s'", this.tokenStream.current());
                 return null;
             }
-            SimpleType type = this.parseType();
+            Type type = this.parseType();
 
             if (!this.expected(TokenType.LAMBDA))
                 return null;
@@ -716,7 +712,7 @@ public class LanguageParser extends Parser {
 
         List<Parameter> parameters = this.parseParameters(TokenType.L_PAREN, TokenType.R_PAREN);
 
-        SimpleType returnType = new SimpleType(TypeCollection.VOID, 0, 0);
+        Type returnType = new Type(TypeCollection.VOID, 0, 0);
         if (this.tokenStream.matches(TokenType.LAMBDA)) {
             this.tokenStream.advance();
 
@@ -754,7 +750,7 @@ public class LanguageParser extends Parser {
             this.expected(TokenType.COLON);
             this.tokenStream.advance();
 
-            SimpleType type = this.parseType();
+            Type type = this.parseType();
 
             if (this.tokenStream.matches(TokenType.COMMA)) {
                 this.tokenStream.advance();
@@ -820,7 +816,7 @@ public class LanguageParser extends Parser {
     }
 
     public Statement parseVariableStatement(Accessibility... accessibility) {
-        SimpleType type = this.parseType();
+        Type type = this.parseType();
 
         if (!expected(TokenType.LITERAL))
             return null;
@@ -886,7 +882,7 @@ public class LanguageParser extends Parser {
         return Arrays.stream(this.accessModifier).anyMatch(type -> type == this.tokenStream.current().getType());
     }
 
-    public SimpleType parseType() {
+    public Type parseType() {
         int pointerDepth = 0;
         if (this.tokenStream.matches(TokenType.MULTIPLY)) {
             while (this.tokenStream.matches(TokenType.MULTIPLY)) {
@@ -908,7 +904,7 @@ public class LanguageParser extends Parser {
             arrayDepth++;
         }
 
-        return new SimpleType(type, arrayDepth, pointerDepth);
+        return new Type(type, arrayDepth, pointerDepth);
     }
 
     public void expectLineEnd() {
@@ -917,8 +913,8 @@ public class LanguageParser extends Parser {
     }
 
     @Override
-    public Expression parseExpression(SimpleType simpleType) {
-        return this.expressionParser.parseExpression(simpleType, Operator.MAX_PRIORITY);
+    public Expression parseExpression(Type type) {
+        return this.expressionParser.parseExpression(type, Operator.MAX_PRIORITY);
     }
 
     public boolean expected(TokenType type) {

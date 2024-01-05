@@ -3,8 +3,8 @@ package axiol.instruction.reference;
 import axiol.parser.statement.Accessibility;
 import axiol.parser.util.reference.Reference;
 import axiol.parser.util.reference.ReferenceType;
-import axiol.parser.util.scope.Namespace;
-import axiol.types.SimpleType;
+import axiol.parser.scope.Namespace;
+import axiol.types.Type;
 
 import java.util.UUID;
 
@@ -20,7 +20,7 @@ public class InstructionReference extends Reference {
         this.id = id;
     }
 
-    public InstructionReference(ReferenceType type, Namespace namespace, String name, SimpleType valueType,
+    public InstructionReference(ReferenceType type, Namespace namespace, String name, Type valueType,
                                 UUID uuid, int id, Accessibility... access) {
         super(type, name, namespace, valueType, uuid, access);
         this.id = id;

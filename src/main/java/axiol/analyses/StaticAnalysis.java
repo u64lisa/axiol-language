@@ -21,7 +21,7 @@ import axiol.parser.tree.statements.special.NativeStatement;
 import axiol.parser.util.SourceFile;
 import axiol.parser.util.reference.Reference;
 import axiol.types.ScopeVariable;
-import axiol.types.SimpleType;
+import axiol.types.Type;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -303,7 +303,7 @@ public class StaticAnalysis implements RootNodeProcessor<Void> {
         String mangel = this.mangler.mangelVariable(scope, statement);
 
         if (this.analyseContext.checkMangel(mangel)) {
-            SimpleType type = statement.getType();
+            Type type = statement.getType();
             String name = statement.getName();
 
             if (scopeVars.stream().anyMatch(current -> current.getName().equals(name))) {

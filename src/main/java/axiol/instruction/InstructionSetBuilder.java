@@ -3,7 +3,7 @@ package axiol.instruction;
 import axiol.instruction.reference.InstructionReference;
 import axiol.parser.util.reference.Reference;
 import axiol.parser.util.reference.ReferenceType;
-import axiol.parser.util.scope.Namespace;
+import axiol.parser.scope.Namespace;
 import axiol.types.*;
 
 import java.util.UUID;
@@ -20,8 +20,8 @@ public class InstructionSetBuilder {
     }
 
 
-    public InstructionReference createDataReference(String name, SimpleType simpleType, int referenceId) {
-        return new InstructionReference(new Reference(ReferenceType.VAR, name, NONE, simpleType, UUID.randomUUID()), referenceId++);
+    public InstructionReference createDataReference(String name, Type type, int referenceId) {
+        return new InstructionReference(new Reference(ReferenceType.VAR, name, NONE, type, UUID.randomUUID()), referenceId++);
     }
 
     public InstructionReference createStringReference(int referenceId) {

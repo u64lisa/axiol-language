@@ -3,9 +3,8 @@ package axiol.parser.tree.expressions.control;
 import axiol.parser.tree.Expression;
 import axiol.parser.tree.NodeType;
 import axiol.parser.tree.Statement;
-import axiol.parser.tree.statements.control.SwitchStatement;
 import axiol.parser.util.error.TokenPosition;
-import axiol.types.SimpleType;
+import axiol.types.Type;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,9 +12,9 @@ import java.util.List;
 
 public class MatchExpression extends Expression {
     private final Expression condition;
-    private final MatchExpression.CaseElement[] cases;
+    private final CaseElement[] cases;
 
-    public MatchExpression(Expression condition, MatchExpression.CaseElement[] cases, TokenPosition position) {
+    public MatchExpression(Expression condition, CaseElement[] cases, TokenPosition position) {
         this.condition = condition;
         this.cases = cases;
         this.position = position;
@@ -29,14 +28,14 @@ public class MatchExpression extends Expression {
     }
 
     public boolean hasDefaultCase() {
-        for (MatchExpression.CaseElement aCase : cases) {
+        for (CaseElement aCase : cases) {
             if (aCase.defaultState)
                 return true;
         }
         return false;
     }
-    public MatchExpression.CaseElement getDefaultCase() {
-        for (MatchExpression.CaseElement aCase : cases) {
+    public CaseElement getDefaultCase() {
+        for (CaseElement aCase : cases) {
             if (aCase.defaultState)
                 return aCase;
         }
@@ -49,7 +48,7 @@ public class MatchExpression extends Expression {
     }
 
     @Override
-    public SimpleType valuedType() {
+    public Type valuedType() {
         return this.getCases()[0].getBody().valuedType();
     }
 
@@ -57,7 +56,7 @@ public class MatchExpression extends Expression {
     public List<Statement> childStatements() {
         List<Statement> statements = new ArrayList<>();
         statements.add(condition);
-        for (MatchExpression.CaseElement aCase : cases) {
+        for (CaseElement aCase : cases) {
             statements.addAll(Arrays.stream(aCase.conditions).toList());
             statements.add(aCase.body);
         }
@@ -65,7 +64,7 @@ public class MatchExpression extends Expression {
         return statements;
     }
 
-    public MatchExpression.CaseElement[] getCases() {
+    public CaseElement[] getCases() {
         return cases;
     }
 

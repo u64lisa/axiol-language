@@ -14,7 +14,7 @@ public class ReferenceInstructionOperand extends InstructionOperand {
 
     @Override
     public Type size() {
-        return reference.getValueType().getType();
+        return reference.getValueType();
     }
 
     public InstructionReference getReference() {
