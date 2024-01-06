@@ -13,26 +13,20 @@ public class Reference {
     private final String name;
     private final Namespace location;
     private Type valueType;
-    private final UUID uuid;
     private final Accessibility[] access;
+
+    private String ident;
+    private int identId;
 
     private boolean imported;
     private boolean exported;
+    private boolean constant;
 
-    public Reference(ReferenceType type, String name, Namespace location, Type valueType, UUID uuid, Accessibility... access) {
-        this.type = type;
-        this.name = name;
-        this.location = location;
-        this.valueType = valueType;
-        this.uuid = uuid;
-        this.access = access;
-    }
     public Reference(ReferenceType type, String name, Namespace location, Type valueType, Accessibility... access) {
         this.type = type;
         this.name = name;
         this.location = location;
         this.valueType = valueType;
-        this.uuid = UUID.randomUUID();
         this.access = access;
     }
     public Reference(ReferenceType type, String name, Namespace location, Accessibility... access) {
@@ -40,8 +34,15 @@ public class Reference {
         this.name = name;
         this.location = location;
         this.valueType = Type.NONE;
-        this.uuid = UUID.randomUUID();
         this.access = access;
+    }
+
+    public int getIdentId() {
+        return identId;
+    }
+
+    public void setIdentId(int identId) {
+        this.identId = identId;
     }
 
     public void setExported(boolean exported) {
@@ -50,6 +51,10 @@ public class Reference {
 
     public void setImported(boolean imported) {
         this.imported = imported;
+    }
+
+    public void setConstant(boolean constant) {
+        this.constant = constant;
     }
 
     public void setValueType(Type valueType) {
@@ -72,10 +77,6 @@ public class Reference {
         return type;
     }
 
-    public UUID getUuid() {
-        return uuid;
-    }
-
     public Type getValueType() {
         return valueType;
     }
@@ -88,6 +89,18 @@ public class Reference {
         return imported;
     }
 
+    public boolean isConstant() {
+        return constant;
+    }
+
+    public void setIdent(String ident) {
+        this.ident = ident;
+    }
+
+    public String getIdent() {
+        return ident;
+    }
+
     @Override
     public String toString() {
         return "Reference{" +
@@ -95,10 +108,13 @@ public class Reference {
                 ", name='" + name + '\'' +
                 ", location=" + location +
                 ", valueType=" + valueType +
-                ", uuid=" + uuid +
                 ", access=" + Arrays.toString(access) +
                 ", imported=" + imported +
                 ", exported=" + exported +
                 '}';
+    }
+
+    public String getPath() {
+        return getLocation().isRoot() ? name : getLocation().getPath() + "::" + name;
     }
 }
