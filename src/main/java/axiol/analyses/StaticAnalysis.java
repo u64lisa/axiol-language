@@ -1,6 +1,6 @@
 package axiol.analyses;
 
-import axiol.mangler.Mangler;
+import axiol.parser.scope.Mangler;
 import axiol.parser.RootNodeProcessor;
 import axiol.parser.statement.Parameter;
 import axiol.parser.tree.NodeType;
@@ -240,82 +240,19 @@ public class StaticAnalysis implements RootNodeProcessor<Void> {
     }
 
     private void analyseClassType(SourceFile sourceFile, String scope, String scopeMangled, List<ScopeVariable> scopeVars, ClassTypeStatement statement) {
-        String mangel = this.mangler.mangelClass(scope, statement);
-
-        String splitElement = scope.isEmpty() ? "" : "/";
-        scope = scope + splitElement + statement.getName();
-
-        if (this.analyseContext.checkMangel(mangel)) {
-            statement.getBodyStatement().getStatements().stream()
-                    .filter(current -> current.type() == NodeType.VAR_STATEMENT)
-                    .map(current -> (VariableStatement) current)
-                    .forEachOrdered(varStatement -> this.analyseVariable(sourceFile, mangel, scopeMangled, scopeVars, varStatement));
-
-            for (Statement statements : statement.getBodyStatement().getStatements()) {
-                if (statements.type() == NodeType.VAR_STATEMENT)
-                    continue;
-
-                this.processStatement(sourceFile, scope, mangel, scopeVars, statements);
-            }
-            return;
-        }
-        ValidationException.DUPLICATE.throwException(sourceFile, statement.position(), "class", statement.getName());
     }
 
     private void analyseFunction(SourceFile sourceFile, String scope, String scopeMangled, List<ScopeVariable> scopeVars, FunctionStatement statement) {
-        String mangel = this.mangler.mangelFunction(scope, statement);
-
-        String splitElement = scope.isEmpty() ? "" : "/";
-        scope = scope + splitElement + statement.getName();
-
-        if (this.analyseContext.checkMangel(mangel)) {
-            for (Parameter parameter : statement.getParameters()) {
-                scopeVars.add(new ScopeVariable(parameter.getName(), parameter.getParsedType()));
-            }
-
-            for (Statement statements : statement.getBodyStatement().getStatements()) {
-                this.processStatement(sourceFile, scope, mangel, scopeVars, statements);
-            }
-            return;
-        }
-        ValidationException.DUPLICATE.throwException(sourceFile, statement.position(), "function", statement.getName());
     }
 
     private void analyseStructureType(SourceFile sourceFile, String scope, String scopeMangled, List<ScopeVariable> scopeVars, StructTypeStatement statement) {
-        String mangel = this.mangler.mangelStruct(scope, statement);
-        if (this.analyseContext.checkMangel(mangel)) {
-
-            return;
-        }
-        ValidationException.DUPLICATE.throwException(sourceFile, statement.position(), "struct", statement.getName());
     }
 
     private void analyseConstruct(SourceFile sourceFile, String scope, String scopeMangled, List<ScopeVariable> scopeVars, ConstructStatement statement) {
-        String mangel = this.mangler.mangelConstruct(scope, statement);
-        if (this.analyseContext.checkMangel(mangel)) {
-
-            return;
-        }
-        ValidationException.DUPLICATE.throwException(sourceFile, statement.position(), "construct", scope);
     }
 
     private void analyseVariable(SourceFile sourceFile, String scope, String scopeMangled, List<ScopeVariable> scopeVars, VariableStatement statement) {
-        String mangel = this.mangler.mangelVariable(scope, statement);
 
-        if (this.analyseContext.checkMangel(mangel)) {
-            Type type = statement.getType();
-            String name = statement.getName();
-
-            if (scopeVars.stream().anyMatch(current -> current.getName().equals(name))) {
-
-                ValidationException.DUPLICATED_VAR.throwException(sourceFile, statement.position(), name);
-                return;
-            }
-
-            scopeVars.add(new ScopeVariable(name, type));
-            return;
-        }
-        ValidationException.DUPLICATE.throwException(sourceFile, statement.position(), "variable", statement.getName());
     }
 
     private void analyseLinkedNotice(SourceFile sourceFile, String scope, String scopeMangled, List<ScopeVariable> scopeVars, LinkedNoticeStatement statement) {
@@ -394,36 +331,7 @@ public class StaticAnalysis implements RootNodeProcessor<Void> {
     }
 
     private void analyseCall(SourceFile sourceFile, String scope, String scopeMangled, List<ScopeVariable> scopeVars, CallExpression statement) {
-        String[] rawPath = statement.getPath().split("/");
-        String[] pathParts = null;
 
-        if (rawPath.length > 1) {
-            pathParts = new String[rawPath.length - 1];
-            System.arraycopy(rawPath, 0, pathParts, 0, pathParts.length);
-        } else {
-            pathParts = new String[0];
-        }
-        StringBuilder path = new StringBuilder();
-        for (String pathPart : pathParts) {
-            path.append(".").append(pathPart);
-        }
-
-        boolean foundMatchingUdt = false;
-        for (Map.Entry<String, Reference> stringReferenceEntry : this.analyseContext.getUdt().entrySet()) {
-            String[] parts = stringReferenceEntry.getKey().split("/");
-            String functionScopeName = parts[0];
-
-            if (functionScopeName.equals(scope)) {
-                foundMatchingUdt = true;
-                break;
-            }
-
-        }
-
-        if (!this.analyseContext.getFunctions().containsKey(statement.getPath()) && !foundMatchingUdt) {
-            ValidationException.UNDECLARED_FUNCTION.throwException(sourceFile,
-                    statement.position(), statement.getPath());
-        }
     }
 
 }

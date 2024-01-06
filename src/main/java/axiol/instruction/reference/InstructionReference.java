@@ -14,15 +14,15 @@ public class InstructionReference extends Reference {
 
     public InstructionReference(Reference reference, int id) {
         super(reference.getType(), reference.getName(), reference.getLocation(),
-                reference.getValueType(), reference.getUuid(),
+                reference.getValueType(),
                 reference.getAccess());
 
         this.id = id;
     }
 
-    public InstructionReference(ReferenceType type, Namespace namespace, String name, Type valueType,
-                                UUID uuid, int id, Accessibility... access) {
-        super(type, name, namespace, valueType, uuid, access);
+    public InstructionReference(ReferenceType type, Namespace namespace, String name,
+                                Type valueType, int id, Accessibility... access) {
+        super(type, name, namespace, valueType, access);
         this.id = id;
     }
 

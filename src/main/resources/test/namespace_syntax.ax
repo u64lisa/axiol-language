@@ -5,9 +5,18 @@ namespace test {
     }
 
 }
+// appending the name space dynamic from everywhere
+namespace test {
+
+    function owo(param: i32) -> i32 {
+        return 1;
+    }
+
+}
 
 function main(argc: i32, args: *str[]) -> i32 {
     i32 value = test::test(1);
+    i32 value2 = test::owo(2);
     test::test(4);
 
     value = argc;

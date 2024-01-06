@@ -1,5 +1,6 @@
 package axiol.parser.tree;
 
+import axiol.parser.scope.ScopeStash;
 import axiol.parser.util.SourceFile;
 import axiol.parser.util.error.TokenPosition;
 
@@ -9,11 +10,13 @@ import java.util.List;
 public class RootNode extends Statement {
 
     private final SourceFile sourceFile;
+    private final ScopeStash scopeStash;
 
     private final List<Statement> statements = new ArrayList<>();
 
-    public RootNode(SourceFile sourceFile) {
+    public RootNode(SourceFile sourceFile, ScopeStash scopeStash) {
         this.sourceFile = sourceFile;
+        this.scopeStash = scopeStash;
     }
 
     public List<Statement> getStatements() {
@@ -37,5 +40,9 @@ public class RootNode extends Statement {
 
     public SourceFile getSourceFile() {
         return sourceFile;
+    }
+
+    public ScopeStash getScopeStash() {
+        return scopeStash;
     }
 }

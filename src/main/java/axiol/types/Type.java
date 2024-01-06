@@ -1,5 +1,7 @@
 package axiol.types;
 
+import axiol.lexer.Token;
+
 import java.util.Objects;
 
 public class Type {
@@ -28,6 +30,9 @@ public class Type {
     public static final Type F64 =     new Type("f64",    0, 0, 64,false, true, false);
 
     public static final Type U0 =      new Type("u0",     0, 0, 0,false, false, true);
+
+    public static final Type MERGED =  new Type("|",     0, 0, 0,false, false, true);
+    public static final Type VARARGS = new Type("...",     0, 0, 0,false, false, true);
 
     public static final Type[] ALL = new Type[] {
             I8, I16, I32, I64,
@@ -62,6 +67,25 @@ public class Type {
         this.big = big;
         this.floating = floating;
         this.unsigned = unsigned;
+    }
+
+    public Type(Type type, int arrayDepth, int pointerDepth) {
+        this.name = type.name;
+        this.arrayDepth = arrayDepth;
+        this.pointerDepth = pointerDepth;
+        this.bitSize = type.bitSize;
+        this.big = type.big;
+        this.floating = type.floating;
+        this.unsigned = type.unsigned;
+    }
+
+    public static Type typeByToken(Token peak) {
+        for (Type type : ALL) {
+            if (type.getName().equals(peak.getValue())) {
+                return type;
+            }
+        }
+        return NONE;
     }
 
     public boolean assetEqualityFor(Object o) {
@@ -118,5 +142,4 @@ public class Type {
     public int getBits() {
         return this.bitSize;
     }
-
 }

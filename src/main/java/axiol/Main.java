@@ -1,6 +1,8 @@
 package axiol;
 
 import axiol.analyses.StaticAnalysis;
+import axiol.instruction.InstructionGenerator;
+import axiol.instruction.InstructionSet;
 import axiol.parser.LanguageParser;
 import axiol.parser.tree.RootNode;
 
@@ -9,14 +11,14 @@ import java.util.*;
 public class Main {
 
     public static final String[] testingCases = {
-            "enum_syntax",
-            "lambda_syntax",
-            "override_syntax",
+            //"enum_syntax",
+            //"lambda_syntax",
+            //"override_syntax",
             "namespace_syntax",
-            "attribute_syntax",
-            "main_syntax",
+            //"attribute_syntax",
+            //"main_syntax",
 
-            "syntax"
+            //"syntax"
     };
 
     public static void main(String[] args) {
@@ -26,11 +28,11 @@ public class Main {
             RootNode rootNode = languageParser.parseSource("/test/%s.ax".formatted(testingCase),
                     readFile("/test/%s.ax".formatted(testingCase)));
 
-            StaticAnalysis staticAnalysis = new StaticAnalysis();
-            rootNode = staticAnalysis.process(rootNode);
+            //StaticAnalysis staticAnalysis = new StaticAnalysis();
+            //rootNode = staticAnalysis.process(rootNode);
 
-            //InstructionGenerator instructionGenerator = new InstructionGenerator();
-            //InstructionSet instructionSet = instructionGenerator.emit(rootNode);
+            InstructionGenerator instructionGenerator = new InstructionGenerator();
+            InstructionSet instructionSet = instructionGenerator.emit(rootNode);
         }
 
     }

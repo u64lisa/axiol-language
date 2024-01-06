@@ -60,6 +60,7 @@ public class InstructionGenerator {
                 case STRUCT_TYPE_STATEMENT -> emitStructureType((StructTypeStatement) statement);
                 case FUNCTION_STATEMENT ->    emitFunctionType((FunctionStatement) statement);
                 case VAR_STATEMENT ->         emitVarStatement((VariableStatement) statement);
+                case NAMESPACE_STATEMENT ->   emitNamespaceStatement((NamespaceStatement) statement);
                 // todo attribute
                 case ENUM_TYPE_STATEMENT ->   emitEnumType((EnumTypeStatement) statement);
                 default -> throw new IllegalArgumentException("unexpected statement '%s' at root of ast"
@@ -986,6 +987,10 @@ public class InstructionGenerator {
     }
     private InstructionReference emitEnumType(EnumTypeStatement enumType) {
         return null;
+    }
+
+    private void emitNamespaceStatement(NamespaceStatement statement) {
+
     }
 
     private InstructionReference emitClassType(ClassTypeStatement statement) {
