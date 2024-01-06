@@ -14,7 +14,7 @@ public class Mangler {
     private static final char SEPARATION_CHAR = '|';
 
     public static String mangleFunction(Type returnType, Namespace namespace, String name, List<Reference> parameters) {
-        StringBuilder stringBuilder = new StringBuilder("%s%s%s%s%s".formatted(namespace.getPath(), SEPARATION_CHAR, name, SEPARATION_CHAR, mangleType(returnType)));
+        StringBuilder stringBuilder = new StringBuilder("%s|%s|%s".formatted(namespace.getPath(), name, mangleType(returnType)));
         for (Reference param : parameters) {
             stringBuilder.append(SEPARATION_CHAR).append(mangleType(param.getValueType()));
         }
@@ -22,18 +22,13 @@ public class Mangler {
     }
 
     public static String mangleVariable(Namespace namespace, String name) {
-        return "%s%s%s".formatted(namespace.getPath(), SEPARATION_CHAR, name);
+        return "%s|%s".formatted(namespace.getPath(), name);
     }
 
     public static String mangleType(Type type) {
         if (type == Type.MERGED) {
             return "?";
         }
-
-        if (type == Type.VARARGS) {
-            return ".";
-        }
-
         StringBuilder sb = new StringBuilder();
         if (type.isBig())
             sb.append('b');
