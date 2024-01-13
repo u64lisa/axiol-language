@@ -2,6 +2,7 @@ package axiol.instruction;
 
 import axiol.instruction.reference.InstructionReference;
 import axiol.instruction.value.NumberInstructionOperand;
+import axiol.linker.LinkedSources;
 import axiol.parser.expression.Operator;
 import axiol.parser.statement.Parameter;
 import axiol.parser.tree.Expression;
@@ -50,11 +51,11 @@ public class InstructionGenerator {
     }
 
     //@formatter:off
-    public InstructionSet emit(RootNode rootNode) {
+    public InstructionSet emit(LinkedSources linkedSources) {
 
-        rootNode.getStatements().removeIf(statement -> statement.type() == NodeType.LINKED_STATEMENT);
+        linkedSources.getStatements().removeIf(statement -> statement.type() == NodeType.LINKED_STATEMENT);
 
-        for (Statement statement : rootNode.getStatements()) {
+        for (Statement statement : linkedSources.getStatements()) {
             switch (statement.type()) {
                 case CLASS_TYPE_STATEMENT ->  emitClassType((ClassTypeStatement) statement);
                 case STRUCT_TYPE_STATEMENT -> emitStructureType((StructTypeStatement) statement);
@@ -545,11 +546,9 @@ public class InstructionGenerator {
 
 
     private InstructionReference emitVarStatement(VariableStatement statement) {
-        Optional<Reference> reference = null; //todo this.referenceStorage.getReferenceToStatement(statement);
-        if (reference.isEmpty())
-            throw new IllegalStateException("Var without reference fn: '%s'!".formatted(statement.getName()));
+        Reference reference = statement.getReference(); //todo this.referenceStorage.getReferenceToStatement(statement);
 
-        InstructionReference proprietor = new InstructionReference(reference.get(), referenceId);
+        InstructionReference proprietor = new InstructionReference(reference, referenceId);
         InstructionReference value = generateStatement(statement.getValue());
 
         assert statement.getValue().valuedType().assetEqualityFor(proprietor.getValueType());
@@ -944,12 +943,9 @@ public class InstructionGenerator {
 
     @SuppressWarnings("all")
     private InstructionReference emitFunctionType(FunctionStatement statement) {
-        Optional<Reference> reference = null;// todo this.referenceStorage.getReferenceToStatement(statement);
+        Reference reference = statement.getReference();// todo this.referenceStorage.getReferenceToStatement(statement);
 
-        if (reference.isEmpty())
-            throw new IllegalStateException("Function without reference fn: '%s'!".formatted(statement.getName()));
-
-        InstructionReference functionReference = new InstructionReference(reference.get(), referenceId);
+        InstructionReference functionReference = new InstructionReference(reference, referenceId);
         instructionSet.instruction(OpCode.LABEL, builder -> {
             builder.referenceOperand(functionReference);
 

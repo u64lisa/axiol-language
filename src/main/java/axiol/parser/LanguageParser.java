@@ -844,7 +844,7 @@ public class LanguageParser extends Parser {
         scopeStash.setReferencePosition(reference, position);
 
         FunctionStatement functionNameSyntax = new FunctionStatement(functionName, accessibility,
-                        parameters, bodyStatement, returnType, null, position);
+                        parameters, bodyStatement, returnType, reference, position);
 
         scopeStash.getLocalScope().popLocals();
 
