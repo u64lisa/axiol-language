@@ -48,6 +48,10 @@ public class LocalScope extends ScopeReferenceStorage {
         return reference;
     }
 
+    public Reference importVariable(Reference reference) {
+        return localScope.getLast().getLast().addImportedLocal(reference);
+    }
+
     public Reference addLocalVariable(Namespace namespace, Type valueType, boolean constant, String name) {
         return localScope.getLast().getLast().addLocal(valueType, namespace, constant, name);
     }
@@ -93,6 +97,17 @@ public class LocalScope extends ScopeReferenceStorage {
             reference.setIdentId(scopeStash.count++);
             reference.setIdent(mangledName);
             insertNew(mangledName, reference);
+            scopeStash.getAllReferences().add(reference);
+            return reference;
+        }
+
+        public Reference addImportedLocal(Reference reference) {
+            if (this.hasMangledName(reference.getIdent())) {
+                return null;
+            }
+
+            reference.setIdentId(scopeStash.count++);
+            insertNew(reference.getIdent(), reference);
             scopeStash.getAllReferences().add(reference);
             return reference;
         }

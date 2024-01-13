@@ -1,5 +1,6 @@
 package axiol;
 
+import axiol.linker.LinkedSources;
 import axiol.linker.Linker;
 import axiol.parser.LanguageParser;
 import axiol.parser.tree.RootNode;
@@ -9,6 +10,8 @@ import java.io.FileNotFoundException;
 import java.util.*;
 
 public class Main {
+
+    public static final File TESTING_FOLDER = new File("test/");
 
     public static final String[] testingCases = {
             //"enum_syntax",
@@ -25,7 +28,7 @@ public class Main {
         LanguageParser languageParser = new LanguageParser();
 
         for (String testingCase : testingCases) {
-            RootNode rootNode = languageParser.parseSource("/test/%s.ax".formatted(testingCase),
+            RootNode rootNode = languageParser.parseSource(TESTING_FOLDER, "%s.ax".formatted(testingCase),
                     readFile("/test/%s.ax".formatted(testingCase)));
 
             //StaticAnalysis staticAnalysis = new StaticAnalysis();
@@ -34,8 +37,8 @@ public class Main {
             //InstructionGenerator instructionGenerator = new InstructionGenerator();
             //InstructionSet instructionSet = instructionGenerator.emit(rootNode);
 
-            Linker linker = new Linker(languageParser, new File("test/"));
-            linker.linkFiles(rootNode);
+            Linker linker = new Linker(languageParser, TESTING_FOLDER);
+            LinkedSources linkedSources = linker.linkFiles(rootNode);
         }
 
     }

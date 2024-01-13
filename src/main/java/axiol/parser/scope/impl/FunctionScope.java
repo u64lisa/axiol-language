@@ -7,6 +7,7 @@ import axiol.parser.util.reference.ReferenceType;
 import axiol.types.Type;
 import axiol.utils.SuppliedStack;
 
+import java.sql.Ref;
 import java.util.List;
 
 public class FunctionScope extends ScopeReferenceStorage {
@@ -36,6 +37,10 @@ public class FunctionScope extends ScopeReferenceStorage {
 
     public Reference addFunction(Type type, Namespace namespace, String name, List<Parameter> parameters) {
         return functionScope.getLast().addFunction(type, namespace, name, parameters.stream().map(Parameter::getReference).toList());
+    }
+
+    public Reference importFunction(Reference reference) {
+        return functionScope.getLast().addImportedFunction(reference);
     }
 
     public Reference addFunctionReferenceParams(Type type, Namespace namespace, String name, List<Reference> parameters) {
@@ -100,6 +105,23 @@ public class FunctionScope extends ScopeReferenceStorage {
             }
 
             this.insertNew(mangledName, reference);
+            scopeStash.getAllReferences().add(reference);
+            return reference;
+        }
+
+        public Reference addImportedFunction(Reference reference) {
+            if (this.hasMangledName(reference.getIdent())) {
+                return null;
+            }
+
+            reference.setIdentId(scopeStash.count++);
+
+            FunctionScopeLayer global = functionScope.getElements().getFirst();
+            if (global != this && global.hasMangledName(reference.getIdent())) {
+                throw new RuntimeException("Function override");
+            }
+
+            this.insertNew(reference.getIdent(), reference);
             scopeStash.getAllReferences().add(reference);
             return reference;
         }

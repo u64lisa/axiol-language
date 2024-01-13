@@ -159,6 +159,13 @@ public class ScopeStash {
 		return namespace;
 	}
 
+	public Namespace importNamespace(Namespace parts) {
+		Namespace namespace = new Namespace(this.namespaceRoot, String.join("::", parts.getParts()));
+		Reference reference = createNamespaceReference(namespace);
+		referenceMap.insertNew(namespace.getPath(), reference);
+		return namespace;
+	}
+
 	public Namespace resolveNamespace(List<String> parts) {
 		if (parts.isEmpty()) {
 			return getNamespaceRoot();

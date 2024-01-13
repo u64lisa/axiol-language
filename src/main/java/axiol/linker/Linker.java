@@ -1,9 +1,9 @@
 package axiol.linker;
 
-import axiol.lexer.Lexer;
 import axiol.parser.LanguageParser;
 import axiol.parser.scope.ScopeStash;
 import axiol.parser.tree.RootNode;
+import axiol.parser.tree.Statement;
 import axiol.parser.tree.statements.LinkedNoticeStatement;
 import axiol.parser.util.SourceFile;
 import axiol.parser.util.error.LanguageException;
@@ -11,11 +11,10 @@ import axiol.parser.util.reference.Reference;
 import axiol.parser.util.reference.ReferenceType;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 
 public class Linker {
 
@@ -34,13 +33,18 @@ public class Linker {
         this.sourceFolder = sourceFolder;
     }
 
-    public void linkFiles(final RootNode rootNode) {
+    public LinkedSources linkFiles(final RootNode rootNode) {
         this.importedFiles.clear();
         this.scopeStash = rootNode.getScopeStash();
         this.mainFile = rootNode.getSourceFile();
 
         this.resolveImports(rootNode);
         this.checkFileCompatability();
+
+        List<Statement> statements = rootNode.getStatements();
+        this.importedFiles.forEach((s, current) -> statements.addAll(current.getStatements()));
+
+        return new LinkedSources(mainFile, statements, scopeStash);
     }
 
     public void resolveImports(RootNode rootNode) {
@@ -52,10 +56,22 @@ public class Linker {
                 .toList();
 
         for (String path : paths) {
-            path = path.replace('.', '/') + SUFFIX;
-            if (!importedFiles.containsKey(path)) {
-                RootNode current = importFile(sourceFolder, path);
+            path = sourceFolder.getAbsolutePath() + "\\" + path.replace('.', '\\') + SUFFIX;
+
+            if (!importedFiles.containsKey(path) && !path.equals(mainFile.asFile().getAbsolutePath())) {
+                RootNode current = importFile(path);
                 importedFiles.put(path, current);
+
+                current.getScopeStash().getAllReferences().forEach(reference -> {
+                    switch (reference.getType()) {
+                        case NAMESPACE -> this.scopeStash
+                                .importNamespace(reference.getLocation());
+                        case VAR -> this.scopeStash.getLocalScope()
+                                .addLocalVariable(reference.getLocation(), reference.getValueType(), reference.isConstant(), reference.getName());
+                        case FUNCTION -> this.scopeStash.getFunctionScope()
+                                .importFunction(reference);
+                    }
+                });
 
                 this.resolveImports(current);
             }
@@ -63,24 +79,38 @@ public class Linker {
     }
 
     public void checkFileCompatability() {
-        this.importedFiles.forEach((s, rootNode) -> rootNode.getScopeStash().getAllReferences().forEach(reference -> {
-            Reference blocking = this.scopeStash.containsReference(reference);
-            if (blocking != null) {
+        this.importedFiles.forEach((importedFilePath, importedRootNode) -> {
+            importedRootNode.getScopeStash().getAllReferences().forEach(importedReference -> {
+                Reference blockingReference = this.scopeStash.containsReference(importedReference);
 
-                // todo implement global access modifier for global defined constants!
-                if (blocking.getType() == ReferenceType.VAR)
-                    return;
+                if (blockingReference != null) {
+                    // todo implement global access modifier for global defined constants!
+                    if (blockingReference.getType() == ReferenceType.VAR) {
+                        return;
+                    }
 
-                System.out.println(blocking);
-                new LanguageException("file '%s' contains duplicated methode in namespace '%s' with name '%s'!", s,
-                        blocking.getLocation().getPath(), blocking.getName()).throwError();
-            }
-        }));
+                    new LanguageException("File '%s' contains duplicated %s in namespace '%s' with name '%s'!",
+                            importedFilePath, importedReference.getType(), importedReference.getLocation().getPath(),
+                            importedReference.getName()).throwError();
+                }
 
+                this.importedFiles.forEach((otherFilePath, otherRootNode) -> {
+                    if (!otherFilePath.equals(importedFilePath)) {
+                        Reference conflictingReference = otherRootNode.getScopeStash().containsReference(importedReference);
+
+                        if (conflictingReference != null) {
+                            new LanguageException("File '%s' conflicts with file '%s'. Both contain %s in namespace '%s' with name '%s'!",
+                                    importedFilePath, otherFilePath, importedReference.getType(),
+                                    importedReference.getLocation().getPath(), importedReference.getName()).throwError();
+                        }
+                    }
+                });
+            });
+        });
     }
 
-    public RootNode importFile(File folder, String file) {
-        final File sourceFile = new File(folder, file);
+    public RootNode importFile(String file) {
+        final File sourceFile = new File(file);
 
         if (!sourceFile.exists() || !sourceFile.isFile()) {
             new LanguageException("file for import: '%s' not found!", sourceFile.toPath()).throwError();

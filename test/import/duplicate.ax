@@ -1,6 +1,3 @@
-//linked import.duplicate;
-linked namespace_syntax;
-
 namespace owo {
 
    function test(param: i32) -> i32 {

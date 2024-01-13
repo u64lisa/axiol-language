@@ -10,7 +10,7 @@ import java.io.File;
 public abstract class Parser {
 
     public abstract RootNode parseFile(final File file) throws Throwable;
-    public abstract RootNode parseSource(final String path, final String content);
+    public abstract RootNode parseSource(final File folder, String path, final String content);
 
     public abstract Statement parseStatement();
     public abstract Expression parseExpression(Type type);

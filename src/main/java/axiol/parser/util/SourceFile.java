@@ -1,12 +1,16 @@
 package axiol.parser.util;
 
+import java.io.File;
+
 public class SourceFile {
 
-    private final String filePath;
+    private final File folder;
+    private final String fileName;
     private final String content;
 
-    public SourceFile(String filePath, String content) {
-        this.filePath = filePath;
+    public SourceFile(File folder, String fileName, String content) {
+        this.folder = folder;
+        this.fileName = fileName;
         this.content = content;
     }
 
@@ -14,7 +18,15 @@ public class SourceFile {
         return content;
     }
 
-    public String getFilePath() {
-        return filePath;
+    public File getFolder() {
+        return folder;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public File asFile() {
+        return new File(folder, fileName);
     }
 }

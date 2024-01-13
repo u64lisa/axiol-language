@@ -42,6 +42,10 @@ public class Namespace {
         return Arrays.equals(parts, namespace.parts);
     }
 
+    public String[] getParts() {
+        return parts;
+    }
+
     @Override
     public int hashCode() {
         return Arrays.hashCode(parts);

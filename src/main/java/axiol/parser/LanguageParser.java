@@ -85,16 +85,18 @@ public class LanguageParser extends Parser {
         StringBuilder builder = new StringBuilder();
         Scanner scanner = new Scanner(file);
 
+        File folder = file.getParentFile();
+
         while (scanner.hasNextLine())
             builder.append(scanner.nextLine()).append("\n");
 
         scanner.close();
-        return parseSource(file.toPath().toString(), builder.toString());
+        return parseSource(folder, file.toPath().toString(), builder.toString());
     }
 
     @Override
-    public RootNode parseSource(String path, String content) {
-        SourceFile sourceFile = new SourceFile(path, content);
+    public RootNode parseSource(File folder, String path, String content) {
+        SourceFile sourceFile = new SourceFile(folder, path, content);
         LanguageLexer lexer = new LanguageLexer();
 
         this.scopeStash = new ScopeStash();

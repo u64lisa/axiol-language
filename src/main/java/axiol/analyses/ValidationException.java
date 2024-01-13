@@ -30,7 +30,7 @@ public enum ValidationException {
 
     public void throwException(SourceFile sourceFile, TokenPosition position, Object... arguments) {
         LanguageException languageException = new LanguageException(sourceFile.getContent(), position,
-                sourceFile.getFilePath(), this.format, arguments);
+                sourceFile.asFile().getPath(), this.format, arguments);
 
         languageException.throwError();
     }
