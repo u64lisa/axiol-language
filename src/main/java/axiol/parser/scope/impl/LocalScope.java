@@ -42,7 +42,7 @@ public class LocalScope extends ScopeReferenceStorage {
     }
 
     public Reference importVariable(Namespace namespace, String name) {
-        Reference reference = addLocalVariable(namespace, Type.NONE, false, name); // todo might change
+        Reference reference = addLocalVariable(namespace, Type.NONE, false, name);
         reference.setImported(true);
         reference.setIdent(Mangler.mangleVariable(namespace, name));
         return reference;
@@ -91,6 +91,7 @@ public class LocalScope extends ScopeReferenceStorage {
             Reference reference = new Reference(ReferenceType.VAR, name, namespace, valueType);
             reference.setConstant(constant);
             reference.setIdentId(scopeStash.count++);
+            reference.setIdent(mangledName);
             insertNew(mangledName, reference);
             scopeStash.getAllReferences().add(reference);
             return reference;

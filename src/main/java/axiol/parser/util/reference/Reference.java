@@ -5,6 +5,7 @@ import axiol.parser.scope.Namespace;
 import axiol.types.Type;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Reference {
@@ -35,6 +36,24 @@ public class Reference {
         this.location = location;
         this.valueType = Type.NONE;
         this.access = access;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Reference reference = (Reference) o;
+        return imported == reference.imported && exported == reference.exported && constant ==
+                reference.constant && type == reference.type && Objects.equals(name, reference.name)
+                && Objects.equals(location, reference.location) && Objects.equals(valueType, reference.valueType)
+                && Arrays.equals(access, reference.access) && Objects.equals(ident, reference.ident);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(type, name, location, valueType, ident, imported, exported, constant);
+        result = 31 * result + Arrays.hashCode(access);
+        return result;
     }
 
     public int getIdentId() {
@@ -109,8 +128,11 @@ public class Reference {
                 ", location=" + location +
                 ", valueType=" + valueType +
                 ", access=" + Arrays.toString(access) +
+                ", ident='" + ident + '\'' +
+                ", identId=" + identId +
                 ", imported=" + imported +
                 ", exported=" + exported +
+                ", constant=" + constant +
                 '}';
     }
 

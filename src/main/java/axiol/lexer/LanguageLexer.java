@@ -138,6 +138,8 @@ public class LanguageLexer {
     }
 
     public List<Token> tokenizeString(final String content) {
+        LEXER.reset();
+
         List<Token> tokens = LEXER.tokenize(content, true);
 
         tokens.add(new Token(TokenType.EOF, "EOF", new Position(-1, -1)));

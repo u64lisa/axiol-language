@@ -100,7 +100,9 @@ public class LanguageParser extends Parser {
         this.scopeStash = new ScopeStash();
         RootNode rootNode = new RootNode(sourceFile, scopeStash);
 
-        this.tokenStream = new TokenStream(sourceFile, lexer.tokenizeString(content));
+        List<Token> tokens = lexer.tokenizeString(content);
+
+        this.tokenStream = new TokenStream(sourceFile, tokens);
         this.source = content;
         this.path = path;
 
@@ -966,7 +968,10 @@ public class LanguageParser extends Parser {
         Namespace namespace = local ? scopeStash.getNamespace()
                 : scopeStash.getNamespaceRoot();
 
+
+
         if (scopeStash.getLocalScope().getVariable(namespace, name) != null) {
+
             createSyntaxError(position, "A %s variable '%s' has already been defined", "local", name);
         }
 

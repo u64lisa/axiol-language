@@ -1,11 +1,11 @@
 package axiol;
 
-import axiol.analyses.StaticAnalysis;
-import axiol.instruction.InstructionGenerator;
-import axiol.instruction.InstructionSet;
+import axiol.linker.Linker;
 import axiol.parser.LanguageParser;
 import axiol.parser.tree.RootNode;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.*;
 
 public class Main {
@@ -31,13 +31,37 @@ public class Main {
             //StaticAnalysis staticAnalysis = new StaticAnalysis();
             //rootNode = staticAnalysis.process(rootNode);
 
-            InstructionGenerator instructionGenerator = new InstructionGenerator();
-            InstructionSet instructionSet = instructionGenerator.emit(rootNode);
+            //InstructionGenerator instructionGenerator = new InstructionGenerator();
+            //InstructionSet instructionSet = instructionGenerator.emit(rootNode);
+
+            Linker linker = new Linker(languageParser, new File("test/"));
+            linker.linkFiles(rootNode);
         }
 
     }
 
-    public static String readFile(String file) {
+    public static String readFile(String name) {
+        File file = new File("./" + name);
+
+        if (file.exists()) {
+            Scanner scanner = null;
+            try {
+                scanner = new Scanner(file);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+            StringBuilder fileContents = new StringBuilder();
+
+            while (scanner.hasNextLine()) {
+                fileContents.append(scanner.nextLine()).append("\n");
+            }
+            scanner.close();
+            return fileContents.toString();
+        }
+        throw new RuntimeException("file not found in source!");
+    }
+
+    public static String readFileFromJar(String file) {
         Scanner scanner = new Scanner(Objects.requireNonNull(Main.class.getResourceAsStream(file)));
         StringBuilder fileContents = new StringBuilder();
 

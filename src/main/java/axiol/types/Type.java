@@ -31,8 +31,7 @@ public class Type {
 
     public static final Type U0 =      new Type("u0",     0, 0, 0,false, false, true);
 
-    public static final Type MERGED =  new Type("|",     0, 0, 0,false, false, true);
-    public static final Type VARARGS = new Type("...",     0, 0, 0,false, false, true);
+    public static final Type MERGED =  new Type("MERGED_NO_TYPE",     0, 0, 0,false, false, true);
 
     public static final Type[] ALL = new Type[] {
             I8, I16, I32, I64,

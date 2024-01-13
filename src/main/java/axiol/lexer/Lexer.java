@@ -75,4 +75,7 @@ public class Lexer {
         return tokens;
     }
 
+    public void reset() {
+        this.tokens.clear();
+    }
 }

@@ -1,3 +1,8 @@
+linked import;
+linked import.test;
+
+public i32 meow = 2;
+
 namespace test {
 
     function test(param: i32) -> i32 {
@@ -12,12 +17,18 @@ namespace test {
         return 1;
     }
 
+    function uwu(param: i32) -> i32 {
+        return 1;
+    }
+
 }
 
 function main(argc: i32, args: *str[]) -> i32 {
     i32 value = test::test(1);
     i32 value2 = test::owo(2);
     test::test(4);
+
+    test::uwu(1);
 
     value = argc;
 }

@@ -44,11 +44,35 @@ public class ScopeStash {
 		this.localScope.pushBlock();
 	}
 	
-	public void clear() {
-		functionScope.clear();
-		localScope.clear();
-		scopes.clear();
-		referenceMap.clear();
+	// skips ident id check bcs it contains unique ids!
+	public Reference containsReference(Reference reference) {
+		for (Reference current : this.allReferences) {
+			if (reference.getType() == ReferenceType.NAMESPACE)
+				break;
+			if(current.getType() == ReferenceType.NAMESPACE)
+				continue;
+
+			if (current.getType() != reference.getType())
+				continue;
+
+			if (!Objects.equals(current.getName(), reference.getName()))
+				continue;
+
+			if (!current.getLocation().equals(reference.getLocation()))
+				continue;
+
+			if (current.getValueType().equals(reference.getValueType()))
+				continue;
+
+			if (!Objects.equals(current.getIdent(), reference.getIdent()))
+				continue;
+
+			if (current.isExported() == reference.isExported() &&
+					current.isConstant() == reference.isConstant() &&
+					current.isImported() == reference.isImported())
+				return current;
+		}
+		return null;
 	}
 	
 	public FunctionScope getFunctionScope() {
@@ -148,31 +172,28 @@ public class ScopeStash {
 
 		return null;
 	}
-
-	public Reference createImportedReference(String name) {
-		Reference reference = importedReference.get(name);
-		if (reference != null) {
-			return reference;
-		}
-		
-		reference = new Reference(ReferenceType.EMPTY, name, getNamespace(), Type.NONE);
-		reference.setImported(true);
-		reference.setIdentId(count++);
-		importedReference.put(name, reference);
-		allReferences.add(reference);
-		return reference;
-	}
-	
-	public Reference createEmptyReference(String name) {
-		Reference reference = new Reference(ReferenceType.EMPTY, name, getNamespace(), Type.NONE);
-		allReferences.add(reference);
-		return reference;
-	}
 	
 	protected Reference createNamespaceReference(Namespace namespace) {
 		Reference reference = new Reference(ReferenceType.NAMESPACE, namespace.getPath(), namespace, Type.NONE);
 		reference.setIdentId(-1 - (tempCount++));
+		reference.setIdent(namespace.getPath());
 		allReferences.add(reference);
 		return reference;
+	}
+
+	@Override
+	public String toString() {
+		return "ScopeStash{" +
+				"functionScope=" + functionScope +
+				", localScope=" + localScope +
+				", firstReferencePosition=" + firstReferencePosition +
+				", importedReference=" + importedReference +
+				", allReferences=" + allReferences +
+				", namespaceRoot=" + namespaceRoot +
+				", scopes=" + scopes +
+				", referenceMap=" + referenceMap +
+				", count=" + count +
+				", tempCount=" + tempCount +
+				'}';
 	}
 }

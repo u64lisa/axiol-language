@@ -1,5 +1,7 @@
 package axiol.parser.scope;
 
+import java.util.Arrays;
+
 public class Namespace {
 
     private final String[] parts;
@@ -30,6 +32,19 @@ public class Namespace {
 
     public String getPath() {
         return String.join("::", parts);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Namespace namespace = (Namespace) o;
+        return Arrays.equals(parts, namespace.parts);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(parts);
     }
 
     @Override
