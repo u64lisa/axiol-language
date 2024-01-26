@@ -3,10 +3,9 @@ package axiol.instruction;
 import axiol.instruction.reference.InstructionReference;
 import axiol.parser.util.reference.Reference;
 import axiol.parser.util.reference.ReferenceType;
-import axiol.parser.scope.Namespace;
+import axiol.parser.scope.objects.Namespace;
 import axiol.types.*;
 
-import java.util.UUID;
 import java.util.function.Consumer;
 
 public class InstructionSetBuilder {

@@ -11,7 +11,6 @@ import axiol.parser.util.reference.Reference;
 import axiol.parser.util.reference.ReferenceType;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

@@ -1,9 +1,12 @@
-package axiol.parser.scope;
+package axiol.mangler;
 
+import axiol.parser.scope.objects.Namespace;
+import axiol.parser.statement.Accessibility;
 import axiol.parser.util.reference.Reference;
-import axiol.parser.util.reference.ReferenceType;
 import axiol.types.Type;
 
+import javax.print.DocFlavor;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -19,6 +22,18 @@ public class Mangler {
             stringBuilder.append(SEPARATION_CHAR).append(mangleType(param.getValueType()));
         }
         return stringBuilder.toString();
+    }
+
+    public static String mangleClass(String path, Accessibility... access) {
+        return new StringBuilder().append(path).append(SEPARATION_CHAR).append(mangleAccess(access)).toString();
+    }
+
+    public static String mangleAccess(Accessibility... access) {
+        StringBuilder builder = new StringBuilder();
+        for (Accessibility accessibility : access) {
+            builder.append(BASE64.charAt(accessibility.ordinal())).append(SEPARATION_CHAR);
+        }
+        return builder.toString();
     }
 
     public static String mangleVariable(Namespace namespace, String name) {

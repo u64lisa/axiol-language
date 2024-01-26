@@ -17,13 +17,10 @@ public class StructTypeStatement extends Statement {
     private final String name;
     private final Accessibility[] accessibility;
 
-    private final Reference reference;
-
-    public StructTypeStatement(List<Parameter> entries, String name, Accessibility[] accessibility, Reference reference, TokenPosition position) {
+    public StructTypeStatement(List<Parameter> entries, String name, Accessibility[] accessibility, TokenPosition position) {
         this.entries = entries;
         this.name = name;
         this.accessibility = accessibility;
-        this.reference = reference;
         this.position = position;
     }
 
@@ -50,10 +47,6 @@ public class StructTypeStatement extends Statement {
 
     public List<Parameter> getEntries() {
         return entries;
-    }
-
-    public Reference getReference() {
-        return reference;
     }
 
     public String getName() {

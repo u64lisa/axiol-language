@@ -1,0 +1,11 @@
+function main(argc: i32, args: *str[]) -> i32 {
+
+}
+
+function test1(variable: i32) {
+    i32 test = 1;
+}
+
+function test2(test: i32) {
+    i32 variable = 1;
+}

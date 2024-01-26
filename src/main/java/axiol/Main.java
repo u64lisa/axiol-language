@@ -1,5 +1,6 @@
 package axiol;
 
+import axiol.instruction.Instruction;
 import axiol.instruction.InstructionGenerator;
 import axiol.instruction.InstructionSet;
 import axiol.linker.LinkedSources;
@@ -25,7 +26,7 @@ public class Main {
             "namespace_syntax",
             //"attribute_syntax",
             "main_syntax",
-
+            "bug",
             "syntax"
     };
 
@@ -61,6 +62,7 @@ public class Main {
             System.out.printf("generated instruction-set with '%s' internal instructions%n", instructionSet.getInstructions().size());
 
             PROFILER.endProfilingSection("instruction", "instruction gen. '" + testingCase + "' took %sms");
+
         }
 
     }

@@ -5,7 +5,7 @@ import axiol.lexer.LanguageLexer;
 import axiol.lexer.Token;
 import axiol.lexer.TokenType;
 import axiol.parser.expression.Operator;
-import axiol.parser.scope.Namespace;
+import axiol.parser.scope.objects.Namespace;
 import axiol.parser.scope.ScopeStash;
 import axiol.parser.statement.Accessibility;
 import axiol.parser.statement.Parameter;
@@ -127,15 +127,16 @@ public class LanguageParser extends Parser {
      * x global var
      * x import
      * - attributes
+     * - enum
      *
      * @return the statement parsed
      */
     public Statement parseStatement() {
         if ((isAccessModifier() && isType()) || isType()) {
             if (isAccessModifier()) {
-                return this.parseVariableStatement(false, this.parseAccess());
+                return this.parseVariableStatement(this.parseAccess());
             }
-            return this.parseVariableStatement(false);
+            return this.parseVariableStatement();
         }
         if ((isAccessModifier() && this.tokenStream.peak(1).getType().equals(TokenType.CLASS)) ||
                 this.tokenStream.matches(TokenType.CLASS)) {
@@ -144,11 +145,7 @@ public class LanguageParser extends Parser {
             }
             return this.parseClassTypeStatement();
         }
-        if ((isAccessModifier() && this.tokenStream.peak(1).getType().equals(TokenType.NAMESPACE)) ||
-                this.tokenStream.matches(TokenType.NAMESPACE)) {
-            if (isAccessModifier()) {
-                return this.parseNamespaceStatement(this.parseAccess());
-            }
+        if (this.tokenStream.matches(TokenType.NAMESPACE)) {
             return this.parseNamespaceStatement();
         }
         if ((isAccessModifier() && this.tokenStream.peak(1).getType().equals(TokenType.CONSTRUCT)) ||
@@ -205,7 +202,7 @@ public class LanguageParser extends Parser {
         TokenPosition position = this.tokenStream.currentPosition();
         this.tokenStream.advance();
 
-        List<Parameter> parameters = this.parseParameters(TokenType.L_PAREN, TokenType.R_PAREN);
+        List<Parameter> parameters = this.parseParameters(true, TokenType.L_PAREN, TokenType.R_PAREN);
 
         BodyStatement bodyStatement = this.parseBodyStatement();
 
@@ -220,21 +217,24 @@ public class LanguageParser extends Parser {
         TokenPosition position = this.tokenStream.currentPosition();
         this.tokenStream.advance();
 
-        String Class = null;
+        scopeStash.pushNamespace("class_%s".formatted(className));
+
+        String parentClass = null;
         if (this.tokenStream.matches(TokenType.PARENT)) {
             this.tokenStream.advance();
 
             this.expected(TokenType.LITERAL);
-            Class = this.tokenStream.current().getValue();
+            parentClass = this.tokenStream.current().getValue();
             this.tokenStream.advance();
         }
 
         BodyStatement bodyStatement = this.parseClassBodyStatement();
 
-        return new ClassTypeStatement(accessibility, className, Class, bodyStatement, null, position);
+        scopeStash.popNamespace();
+        return new ClassTypeStatement(accessibility, className, parentClass, bodyStatement, position);
     }
 
-    private Statement parseNamespaceStatement(Accessibility... accessibility) {
+    private Statement parseNamespaceStatement() {
         this.tokenStream.advance();
 
         TokenPosition tokenPosition = this.tokenStream.currentPosition();
@@ -279,9 +279,11 @@ public class LanguageParser extends Parser {
         TokenPosition position = this.tokenStream.currentPosition();
         this.tokenStream.advance();
 
-        List<Parameter> parameters = this.parseParameters(TokenType.L_CURLY, TokenType.R_CURLY);
+        List<Parameter> parameters = this.parseParameters(false, TokenType.L_CURLY, TokenType.R_CURLY);
 
-        return new StructTypeStatement(parameters, structName, accessibility, null, position);
+
+
+        return new StructTypeStatement(parameters, structName, accessibility, position);
     }
 
     public BodyStatement parseClassBodyStatement() {
@@ -360,7 +362,7 @@ public class LanguageParser extends Parser {
      */
     public Statement parseStatementForBody() {
         if (isType()) {
-            return this.parseVariableStatement(true);
+            return this.parseVariableStatement();
         }
         if (isUDTDefinition()) {
             return this.parseUDTDeclare();
@@ -629,15 +631,21 @@ public class LanguageParser extends Parser {
                 return null;
             this.tokenStream.advance();
 
+            if (this.scopeStash.getLocalScope().getLocal(this.scopeStash.getNamespace(), name) != null) {
+                createSyntaxError(position, "A local variable '%s' has already been defined", name);
+            }
+            Reference reference = this.scopeStash.getLocalScope()
+                    .addLocalVariable(this.scopeStash.getNamespace(), type, false, name);
+
             Expression expression = this.parseExpression(type);
 
             if (!this.expected(TokenType.R_PAREN))
                 return null;
             this.tokenStream.advance();
 
-            forCondition = new ForStatement.IterateCondition(null, expression);
+            forCondition = new ForStatement.IterateCondition(reference, expression);
         } else { // for (var; expr; expr)
-            Statement start = this.parseVariableStatement(true, Accessibility.PRIVATE);
+            Statement start = this.parseVariableStatement(Accessibility.PRIVATE);
 
             Expression condition = this.parseExpression(Type.NONE);
 
@@ -809,7 +817,7 @@ public class LanguageParser extends Parser {
 
         this.tokenStream.advance();
 
-        List<Parameter> parameters = this.parseParameters(TokenType.L_PAREN, TokenType.R_PAREN);
+        List<Parameter> parameters = this.parseParameters(true, TokenType.L_PAREN, TokenType.R_PAREN);
 
         Type returnType = Type.VOID;
         if (this.tokenStream.matches(TokenType.LAMBDA)) {
@@ -851,7 +859,7 @@ public class LanguageParser extends Parser {
         return functionNameSyntax;
     }
 
-    public List<Parameter> parseParameters(TokenType open, TokenType close) {
+    public List<Parameter> parseParameters(boolean createReference, TokenType open, TokenType close) {
         List<Parameter> parameters = new ArrayList<>();
 
         if (!this.tokenStream.matches(open)) {
@@ -881,8 +889,10 @@ public class LanguageParser extends Parser {
 
             Type type = this.parseType();
 
-            Reference reference = scopeStash.getLocalScope()
-                    .addLocalVariable(scopeStash.getNamespaceRoot(), type, false, parameterName);
+            Reference reference = null;
+            if (createReference)
+                reference = scopeStash.getLocalScope()
+                         .addLocalVariable(scopeStash.getNamespace(), type, false, parameterName);
 
             if (this.tokenStream.matches(TokenType.COMMA)) {
                 this.tokenStream.advance();
@@ -943,10 +953,11 @@ public class LanguageParser extends Parser {
         if (this.tokenStream.matches(TokenType.SEMICOLON))
             this.tokenStream.advance();
 
+        // todo create reference
         return new UDTDeclareStatement(udtType, udtName, parameters, null, position);
     }
 
-    public Statement parseVariableStatement(boolean local, Accessibility... accessibility) {
+    public Statement parseVariableStatement(Accessibility... accessibility) {
         Type type = this.parseType();
 
         if (!expected(TokenType.LITERAL))
@@ -967,17 +978,13 @@ public class LanguageParser extends Parser {
         if (this.tokenStream.matches(TokenType.SEMICOLON))
             this.tokenStream.advance();
 
-        Namespace namespace = local ? scopeStash.getNamespace()
-                : scopeStash.getNamespaceRoot();
-
-
+        Namespace namespace = scopeStash.getNamespace();
 
         if (scopeStash.getLocalScope().getVariable(namespace, name) != null) {
-
             createSyntaxError(position, "A %s variable '%s' has already been defined", "local", name);
         }
 
-        Reference reference = scopeStash.getLocalScope().addLocalVariable(namespace, type, local, name);
+        Reference reference = scopeStash.getLocalScope().addLocalVariable(namespace, type, true, name);
         return new VariableStatement(name, type, initExpression, reference, position, accessibility);
     }
 

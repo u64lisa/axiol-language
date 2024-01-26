@@ -3,10 +3,8 @@ package axiol.instruction.reference;
 import axiol.parser.statement.Accessibility;
 import axiol.parser.util.reference.Reference;
 import axiol.parser.util.reference.ReferenceType;
-import axiol.parser.scope.Namespace;
+import axiol.parser.scope.objects.Namespace;
 import axiol.types.Type;
-
-import java.util.UUID;
 
 public class InstructionReference extends Reference {
 

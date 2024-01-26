@@ -17,14 +17,11 @@ public class ClassTypeStatement extends Statement {
     private final String parent;
     private final BodyStatement bodyStatement;
 
-    private final Reference reference;
-
-    public ClassTypeStatement(Accessibility[] accessibility, String name, String parent, BodyStatement bodyStatement, Reference reference, TokenPosition position) {
+    public ClassTypeStatement(Accessibility[] accessibility, String name, String parent, BodyStatement bodyStatement, TokenPosition position) {
         this.accessibility = accessibility;
         this.name = name;
         this.parent = parent;
         this.bodyStatement = bodyStatement;
-        this.reference = reference;
         this.position = position;
     }
 
@@ -55,10 +52,6 @@ public class ClassTypeStatement extends Statement {
 
     public String getParent() {
         return parent;
-    }
-
-    public Reference getReference() {
-        return reference;
     }
 
     public BodyStatement getBodyStatement() {

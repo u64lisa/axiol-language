@@ -30,6 +30,18 @@ import java.util.Map;
 import java.util.Optional;
 
 public class InstructionGenerator {
+
+    private static Operator[] ASSIGN_OPERATORS = {
+            Operator.ASSIGN,
+            Operator.MIN_ASSIGN,
+            Operator.MUL_ASSIGN,
+            Operator.DIVIDE_ASSIGN,
+            Operator.XOR_ASSIGN,
+            Operator.NOR_ASSIGN,
+            Operator.QUESTION_ASSIGN,
+            Operator.OR_ASSIGN,
+    };
+
     private final InstructionSetBuilder instructionSet;
 
     private int referenceId = 0;
@@ -187,30 +199,13 @@ public class InstructionGenerator {
         Type to = statement.valuedType();
         int sizeTo = from.getBits() / 8;
 
-        OpCode opCode = OpCode.ZERO_EXTEND;
-        if (sizeTo <= sizeFrom &&
-                !(from.isBig() ||
-                        to.isBig()))
-            opCode = OpCode.TRUNCATE;
-        if (sizeTo <= sizeFrom &&
-                (from.isBig() ||
-                        to.isBig()))
-            opCode = OpCode.BIG_TRUNCATE;
-        if (from.isSigned() &&
-                to.isSigned())
-            opCode = OpCode.SIGN_EXTEND;
-        if (from.isFloating() ||
-                to.isFloating())
-            opCode = OpCode.FLOATING_EXTEND;
-        if (from.isBig() &&
-                to.isBig())
-            opCode = OpCode.BIG_ZERO_EXTEND;
-        else
-            opCode = OpCode.ZERO_EXTEND;
-
-        instructionSet.instruction(opCode, builder -> builder
-                .referenceOperand(proprietor)
-                .referenceOperand(reference));
+        instructionSet.instruction(
+                sizeTo <= sizeFrom && !(from.isBig() || to.isBig()) ? ((from.isBig() || to.isBig()) ? OpCode.BIG_TRUNCATE : OpCode.TRUNCATE) :
+                        from.isSigned() && to.isSigned() ? OpCode.SIGN_EXTEND :
+                                from.isFloating() || to.isFloating() ? OpCode.FLOATING_EXTEND :
+                                        from.isBig() && to.isBig() ? OpCode.BIG_ZERO_EXTEND : OpCode.ZERO_EXTEND, builder -> builder
+                        .referenceOperand(proprietor)
+                        .referenceOperand(reference));
 
         return proprietor;
     }
@@ -354,17 +349,6 @@ public class InstructionGenerator {
         return proprietor;
     }
 
-    private final Operator[] assignOperators = {
-            Operator.ASSIGN,
-            Operator.MIN_ASSIGN,
-            Operator.MUL_ASSIGN,
-            Operator.DIVIDE_ASSIGN,
-            Operator.XOR_ASSIGN,
-            Operator.NOR_ASSIGN,
-            Operator.QUESTION_ASSIGN,
-            Operator.OR_ASSIGN,
-    };
-
     private InstructionReference emitBinaryExpression(BinaryExpression statement) {
         InstructionReference proprietor = this.instructionSet.createDataReference(".bin", statement.valuedType(), referenceId);
         Type type = statement.valuedType();
@@ -375,7 +359,7 @@ public class InstructionGenerator {
         if (operator == Operator.AND)
             return emitAndLogic(statement);
 
-        for (Operator assignOperator : assignOperators) {
+        for (Operator assignOperator : ASSIGN_OPERATORS) {
             if (assignOperator == operator)
                 return emitAssign(statement);
         }
@@ -427,33 +411,28 @@ public class InstructionGenerator {
         if (unsigned && floating)
             throw new IllegalArgumentException("floating number can't be unsigned!");
 
-        // unsigned - floating - signed
-        return switch (operator) {
-            case PLUS -> unsigned ? OpCode.ADD : floating ? OpCode.FLOATING_ADD : OpCode.ADD;
-            case MINUS -> unsigned ? OpCode.SUB : floating ? OpCode.FLOATING_SUB : OpCode.SUB;
+        return switch (operator) { // unsigned - floating - signed
+            case PLUS  -> unsigned || !floating ? OpCode.ADD : OpCode.FLOATING_ADD;
+            case MINUS -> unsigned || !floating ? OpCode.SUB : OpCode.FLOATING_SUB;
 
-            case MULTIPLE -> unsigned ? OpCode.MULTIPLY : floating ? OpCode.FLOATING_MULTIPLY : OpCode.MULTIPLY;
-            case DIVIDE -> unsigned ? OpCode.DIVIDE : floating ? OpCode.FLOATING_DIVIDE : OpCode.DIVIDE;
-            case MOD -> unsigned ? OpCode.MODULO : floating ? OpCode.FLOATING_MODULO : OpCode.MODULO;
+            case MULTIPLE -> unsigned || !floating ? OpCode.MULTIPLY : OpCode.FLOATING_MULTIPLY;
+            case DIVIDE   -> unsigned || !floating ? OpCode.DIVIDE   : OpCode.FLOATING_DIVIDE;
+            case MOD      -> unsigned || !floating ? OpCode.MODULO   : OpCode.FLOATING_MODULO;
 
-            case AND -> OpCode.AND;
-            case OR -> OpCode.OR;
-            case XOR -> OpCode.XOR;
+            case AND       -> OpCode.AND;
+            case OR        -> OpCode.OR;
+            case XOR       -> OpCode.XOR;
             case NOT_EQUAL -> OpCode.NEGATED_EQUALS;
-            case BIT_OR -> OpCode.BIT_OR;
+            case BIT_OR    -> OpCode.BIT_OR;
 
-            case SHIFT_LEFT -> OpCode.SHIFT_LEFT;
+            case SHIFT_LEFT  -> OpCode.SHIFT_LEFT;
             case SHIFT_RIGHT -> OpCode.SHIFT_RIGHT;
 
-            case MORE_THAN ->
-                    unsigned ? OpCode.GREATER_THAN : floating ? OpCode.FLOATING_GREATER_THAN : OpCode.GREATER_THAN;
-            case MORE_EQUAL ->
-                    unsigned ? OpCode.GREATER_THAN_EQUAL : floating ? OpCode.FLOATING_GREATER_THAN_EQUAL : OpCode.GREATER_THAN_EQUAL;
-            case LESS_THAN -> unsigned ? OpCode.LESS_THAN : floating ? OpCode.FLOATING_LESS_THAN : OpCode.LESS_THAN;
-            case LESS_EQUAL ->
-                    unsigned ? OpCode.LESS_THAN_EQUAL : floating ? OpCode.FLOATING_LESS_THAN_EQUAL : OpCode.LESS_THAN_EQUAL;
-
-            case EQUAL_EQUAL -> floating ? OpCode.FLOATING_EQUALS : OpCode.EQUALS;
+            case MORE_THAN   -> unsigned || !floating ? OpCode.GREATER_THAN       : OpCode.FLOATING_GREATER_THAN;
+            case MORE_EQUAL  -> unsigned || !floating ? OpCode.GREATER_THAN_EQUAL : OpCode.FLOATING_LESS_THAN;
+            case LESS_THAN   -> unsigned || !floating ? OpCode.LESS_THAN          : OpCode.FLOATING_GREATER_THAN_EQUAL;
+            case LESS_EQUAL  -> unsigned || !floating ? OpCode.LESS_THAN_EQUAL    : OpCode.FLOATING_LESS_THAN_EQUAL;
+            case EQUAL_EQUAL ->              floating ? OpCode.FLOATING_EQUALS    : OpCode.EQUALS;
 
             default -> null;
         };

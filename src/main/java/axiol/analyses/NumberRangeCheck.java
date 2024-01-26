@@ -12,6 +12,7 @@ public class NumberRangeCheck {
     }
 
     public boolean isValid(Number value) {
+        // todo currenty only < > but need >= <=
         if (value instanceof I128 i128) {
             return i128.biggerThan(I128.MIN_VALUE) && i128.smallerThan(I128.MAX_VALUE);
         }

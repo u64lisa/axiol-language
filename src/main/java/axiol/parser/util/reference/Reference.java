@@ -1,12 +1,11 @@
 package axiol.parser.util.reference;
 
 import axiol.parser.statement.Accessibility;
-import axiol.parser.scope.Namespace;
+import axiol.parser.scope.objects.Namespace;
 import axiol.types.Type;
 
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.UUID;
 
 public class Reference {
 

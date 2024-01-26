@@ -1,0 +1,50 @@
+
+structure Test {
+    owo: i32,
+    uwu: i32,
+    test: str = "test"
+}
+public structure Test2 {
+    test: 21,
+    ori: Test
+}
+
+// parent class
+protected class UWU {}
+
+// implementation class for UWU
+public class OWO parent UWU {
+
+    private i32 owo = 0;
+
+    public construct(test2: i32) {
+        owo = test2;
+    }
+
+    function test() -> i32 {
+        return 69;
+    }
+
+}
+
+
+function classTest() {
+    UWU: owoClass = (4);
+    i32 awa = owoClass.test();
+
+    owoClass.test();
+}
+
+
+function structTest() {
+    //Test: test = (1, 2, "TEST");
+    //test.owo = 5;
+    //test.uwu = 21;
+    //test.qwq = "OWO";
+    //
+    //Test2: test = ();
+    //
+    //test.owo.uwu = 1;
+    //
+    //i32 mow = test.owo;
+}

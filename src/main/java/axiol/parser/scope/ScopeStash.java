@@ -2,6 +2,7 @@ package axiol.parser.scope;
 
 import axiol.parser.scope.impl.FunctionScope;
 import axiol.parser.scope.impl.LocalScope;
+import axiol.parser.scope.objects.Namespace;
 import axiol.parser.util.error.TokenPosition;
 import axiol.parser.util.reference.Reference;
 import axiol.parser.util.reference.ReferenceType;

@@ -1,6 +1,6 @@
 package axiol.analyses;
 
-import axiol.parser.scope.Mangler;
+import axiol.mangler.Mangler;
 import axiol.parser.RootNodeProcessor;
 import axiol.parser.statement.Parameter;
 import axiol.parser.tree.NodeType;
@@ -19,14 +19,13 @@ import axiol.parser.tree.statements.control.*;
 import axiol.parser.tree.statements.oop.*;
 import axiol.parser.tree.statements.special.NativeStatement;
 import axiol.parser.util.SourceFile;
-import axiol.parser.util.reference.Reference;
 import axiol.types.ScopeVariable;
-import axiol.types.Type;
+import axiol.types.custom.I128;
+import axiol.types.custom.U128;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 @SuppressWarnings("unused")
 public class StaticAnalysis implements RootNodeProcessor<Void> {
@@ -34,15 +33,17 @@ public class StaticAnalysis implements RootNodeProcessor<Void> {
     private final Mangler mangler = new Mangler();
     private final AnalyseContext analyseContext = new AnalyseContext();
 
-    private final NumberRangeCheck I8_Check  = new NumberRangeCheck(0x7F,                -0x80);
-    private final NumberRangeCheck I16_Check = new NumberRangeCheck(0x7FFF,              -0x8000);
-    private final NumberRangeCheck I32_Check = new NumberRangeCheck(0x7FFFFFFF,          -0x80000000);
-    private final NumberRangeCheck I64_Check = new NumberRangeCheck(0x7fffffffffffffffL, -0x8000000000000000L);
+    private final NumberRangeCheck I8_Check   = new NumberRangeCheck(0x7F,                -0x80);
+    private final NumberRangeCheck I16_Check  = new NumberRangeCheck(0x7FFF,              -0x8000);
+    private final NumberRangeCheck I32_Check  = new NumberRangeCheck(0x7FFFFFFF,          -0x80000000);
+    private final NumberRangeCheck I64_Check  = new NumberRangeCheck(0x7fffffffffffffffL, -0x8000000000000000L);
+    private final NumberRangeCheck I128_Check = new NumberRangeCheck(I128.MAX_VALUE, I128.MIN_VALUE);
 
-    private final NumberRangeCheck U8_Check  = new NumberRangeCheck(0xFF,                0x00);
-    private final NumberRangeCheck U16_Check = new NumberRangeCheck(0xFFFF,              0x0000);
-    private final NumberRangeCheck U32_Check = new NumberRangeCheck(0xFFFFFFFFL,         0x00000000);
-    private final NumberRangeCheck U64_Check = new NumberRangeCheck(0xFFFFFFFFFFFFFFFFL, 0x0000000000000000);
+    private final NumberRangeCheck U8_Check   = new NumberRangeCheck(0xFF,                0x00);
+    private final NumberRangeCheck U16_Check  = new NumberRangeCheck(0xFFFF,              0x0000);
+    private final NumberRangeCheck U32_Check  = new NumberRangeCheck(0xFFFFFFFFL,         0x00000000);
+    private final NumberRangeCheck U64_Check  = new NumberRangeCheck(0xFFFFFFFFFFFFFFFFL, 0x0000000000000000);
+    private final NumberRangeCheck U128_Check = new NumberRangeCheck(U128.MAX_VALUE, U128.MIN_VALUE);
 
     private final NodeType[] definitionTypes = {
             NodeType.CLASS_TYPE_STATEMENT, NodeType.FUNCTION_STATEMENT,
@@ -71,9 +72,6 @@ public class StaticAnalysis implements RootNodeProcessor<Void> {
     @Override
     public RootNode process(RootNode rootNode) {
         SourceFile sourceFile = rootNode.getSourceFile();
-
-        // empty root scope bcs pathing
-        this.analyseDefinitions("", rootNode);
 
         for (Statement statement : rootNode.getStatements()) {
             this.processStatement(sourceFile, "", "global", new ArrayList<>(), statement);
@@ -185,59 +183,6 @@ public class StaticAnalysis implements RootNodeProcessor<Void> {
         }
     }
     //@formatter:on
-
-    private void analyseDefinitions(String scope, Statement statement) {
-        String splitElement = scope.isEmpty() ? "" : "/";
-        switch (statement.type()) {
-            case ROOT -> {
-                RootNode rootNode = (RootNode) statement;
-                for (Statement rootNodeStatement : rootNode.getStatements()) {
-                    this.analyseDefinitions("", rootNodeStatement);
-                }
-            }
-            case CLASS_TYPE_STATEMENT -> {
-                ClassTypeStatement classTypeStatement = (ClassTypeStatement) statement;
-                scope = scope + splitElement + classTypeStatement.getName();
-
-                this.analyseDefinitions(scope, classTypeStatement.getBodyStatement());
-                this.analyseContext.getClasses().put(scope, classTypeStatement.getReference());
-            }
-            case STRUCT_TYPE_STATEMENT -> {
-                StructTypeStatement structTypeStatement = (StructTypeStatement) statement;
-                scope = scope + splitElement + structTypeStatement.getName();
-
-                this.analyseContext.getStructures().put(scope, structTypeStatement.getReference());
-
-                for (Parameter parameter : structTypeStatement.getEntries()) {
-                    String scopeCopy = scope + splitElement + parameter.getName();
-                    this.analyseContext.getStructuresFields().put(scopeCopy, structTypeStatement.getReference());
-                }
-            }
-
-            case FUNCTION_STATEMENT -> {
-                FunctionStatement functionStatement = (FunctionStatement) statement;
-                scope = scope + splitElement + functionStatement.getName();
-                this.analyseDefinitions(scope, functionStatement.getBodyStatement());
-                this.analyseContext.getFunctions().put(scope, functionStatement.getReference());
-            }
-            case BODY_STATEMENT -> {
-                BodyStatement bodyStatement = (BodyStatement) statement;
-                for (Statement current : bodyStatement.getStatements()) {
-                    this.analyseDefinitions(scope, current);
-                }
-            }
-            case VAR_STATEMENT -> {
-                VariableStatement variableStatement = (VariableStatement) statement;
-                scope = scope + splitElement + variableStatement.getName();
-                this.analyseContext.getVariable().put(scope, variableStatement.getReference());
-            }
-            case UDT_DECLARE_STATEMENT -> {
-                UDTDeclareStatement udtDeclareStatement = (UDTDeclareStatement) statement;
-                scope = scope + splitElement + udtDeclareStatement.getReferenceName();
-                this.analyseContext.getUdt().put(scope, udtDeclareStatement.getReference());
-            }
-        }
-    }
 
     private void analyseClassType(SourceFile sourceFile, String scope, String scopeMangled, List<ScopeVariable> scopeVars, ClassTypeStatement statement) {
     }

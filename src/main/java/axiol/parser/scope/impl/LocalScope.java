@@ -1,6 +1,8 @@
 package axiol.parser.scope.impl;
 
+import axiol.mangler.Mangler;
 import axiol.parser.scope.*;
+import axiol.parser.scope.objects.Namespace;
 import axiol.parser.util.reference.Reference;
 import axiol.parser.util.reference.ReferenceType;
 import axiol.types.Type;

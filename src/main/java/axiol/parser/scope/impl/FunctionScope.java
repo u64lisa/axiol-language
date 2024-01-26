@@ -1,13 +1,14 @@
 package axiol.parser.scope.impl;
 
+import axiol.mangler.Mangler;
 import axiol.parser.scope.*;
+import axiol.parser.scope.objects.Namespace;
 import axiol.parser.statement.Parameter;
 import axiol.parser.util.reference.Reference;
 import axiol.parser.util.reference.ReferenceType;
 import axiol.types.Type;
 import axiol.utils.SuppliedStack;
 
-import java.sql.Ref;
 import java.util.List;
 
 public class FunctionScope extends ScopeReferenceStorage {
@@ -96,6 +97,7 @@ public class FunctionScope extends ScopeReferenceStorage {
             }
 
             Reference reference = new Reference(ReferenceType.FUNCTION, name, namespace, returnType);
+
             reference.setIdent(mangledName);
             reference.setIdentId(scopeStash.count++);
 

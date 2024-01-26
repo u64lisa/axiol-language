@@ -1,4 +1,4 @@
-package axiol.parser.scope;
+package axiol.parser.scope.objects;
 
 import java.util.Arrays;
 
