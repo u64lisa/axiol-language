@@ -5,9 +5,9 @@ import java.util.List;
 
 public class InstructionSet {
 
-    private final List<Instruction> instructions = new ArrayList<>();
+    private final List<ProgramElement> instructions = new ArrayList<>();
 
-    public List<Instruction> getInstructions() {
+    public List<ProgramElement> getInstructions() {
         return instructions;
     }
 

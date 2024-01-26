@@ -18,6 +18,9 @@ public class InstructionSetBuilder {
         instructionSet = new InstructionSet();
     }
 
+    public void addProgramElement(ProgramElement element) {
+        instructionSet.getInstructions().add(element);
+    }
 
     public InstructionReference createDataReference(String name, Type type, int referenceId) {
         return new InstructionReference(new Reference(ReferenceType.VAR, name, NONE, type), referenceId++);
@@ -47,24 +50,10 @@ public class InstructionSetBuilder {
         return createLocalReference(name, referenceId);
     }
 
-    public InstructionSetBuilder instruction(OpCode opCode, Consumer<InstructionBuilder> builder) {
-        InstructionBuilder instructionBuilder = new InstructionBuilder();
-        instructionBuilder.opcode(opCode);
-        builder.accept(instructionBuilder);
-        this.instructionSet.getInstructions().add(instructionBuilder.build());
-        return this;
-    }
-
-    public InstructionSetBuilder instructionWithoutOpCode(Consumer<InstructionBuilder> builder) {
-        InstructionBuilder instructionBuilder = new InstructionBuilder();
-        builder.accept(instructionBuilder);
-        this.instructionSet.getInstructions().add(instructionBuilder.build());
-        return this;
-    }
-
     public InstructionSet build() {
         return instructionSet;
     }
+
 
 
 }
