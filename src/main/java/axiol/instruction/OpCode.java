@@ -1,22 +1,42 @@
 package axiol.instruction;
 
 public enum OpCode {
+
+    // signed
+    SIGNED_GREATER_THAN,              // v1 = v2 >  v1
+    SIGNED_GREATER_THAN_EQUAL,        // v1 = v2 >= v1
+    SIGNED_LESS_THAN,                 // v1 = v2 <  v1
+    SIGNED_LESS_THAN_EQUAL,           // v1 = v2 <= v1
+
+    // signed operators
+    SIGNED_DIVIDE,                    // v1 = v2 *  v1
+    SIGNED_MULTIPLY,                  // v1 = v2 %  v1
+    SIGNED_MODULO,                    // v1 = v2 /  v1
+
+    // unsigned
+    UNSIGNED_GREATER_THAN,            // v1 = v2 >  v1
+    UNSIGNED_GREATER_THAN_EQUAL,      // v1 = v2 >= v1
+    UNSIGNED_LESS_THAN,               // v1 = v2 <  v1
+    UNSIGNED_LESS_THAN_EQUAL,         // v1 = v2 <= v1
+
+    // unsigned operators
+    UNSIGNED_MULTIPLY,                // v1 = v2 *  v1
+    UNSIGNED_MODULO,                  // v1 = v2 %  v1
+    UNSIGNED_DIVIDE,                  // v1 = v2 /  v1
+
     // operation
-    MOVE,                       // v1 = v2
-    ADD,                        // v1 = v2 +  v1
-    SUB,                        // v1 = v2 -  v1
-    AND,                        // v3 = v2 &  v1
-    XOR,                        // v3 = v2 ^  v1
-    BIT_OR,                     // v3 = v2 |  v1
-    OR,                         // v3 = v2 || v1
-    XOR_EQUAL,                  // v2 = v2 ^  v1
-    SHIFT_RIGHT,                // v1 = v2 >> v1
-    SHIFT_LEFT,                 // v1 = v2 << v1
-    EQUALS,                     // v1 = v2 == v1
-    NEGATED_EQUALS,             // v1 = v2 != v1
-    MULTIPLY,                   // v1 = v2 *  v1
-    MODULO,                     // v1 = v2 %  v1
-    DIVIDE,                     // v1 = v2 /  v1
+    MOVE,                             // v1 = v2
+    ADD,                              // v1 = v2 +  v1
+    SUB,                              // v1 = v2 -  v1
+    AND,                              // v3 = v2 &  v1
+    XOR,                              // v3 = v2 ^  v1
+    BIT_OR,                           // v3 = v2 |  v1
+    OR,                               // v3 = v2 || v1
+    XOR_EQUAL,                        // v2 = v2 ^  v1
+    SHIFT_RIGHT,                      // v1 = v2 >> v1
+    SHIFT_LEFT,                       // v1 = v2 << v1
+    EQUALS,                           // v1 = v2 == v1
+    NEGATED_EQUALS,                   // v1 = v2 != v1
 
     // floating operators
     FLOATING_ADD,
@@ -42,13 +62,6 @@ public enum OpCode {
     BIG_ZERO_EXTEND,
     BIG_TRUNCATE,
     FLOATING_EXTEND,
-
-    // compare
-    GREATER_THAN,               // v1 = v2 >  v1
-    GREATER_THAN_EQUAL,         // v1 = v2 >= v1
-
-    LESS_THAN,                  // v1 = v2 <  v1
-    LESS_THAN_EQUAL,            // v1 = v2 <= v1
 
     // unary
     NEGATE,                     // v1 = !v2

@@ -141,4 +141,5 @@ public class Type {
     public int getBits() {
         return this.bitSize;
     }
+
 }

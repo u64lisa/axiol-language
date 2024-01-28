@@ -21,6 +21,10 @@ public class NumberInstructionOperand extends InstructionOperand {
         return value;
     }
 
+    public Type getType() {
+        return type;
+    }
+
     @Override
     public String toString() {
         return "NumberInstructionOperand{" +

@@ -28,4 +28,16 @@ public class InstructionReference extends Reference {
         return id;
     }
 
+    public String toSimpleString() {
+       //String type = switch (flags & 0x1f) {
+       //    case VARIABLE -> "var";
+       //    case LABEL -> "lab";
+       //    case FUNCTION -> "fun";
+       //    case NAMESPACE -> "ns";
+       //    default -> "unk";
+       //};
+       //
+       //return type + "_" + id + (isExported() ? "_export" : "") + (isImported() ? "_import" : "" + (isConst() ? "_const" : ""));
+        return null; // todo implement
+    }
 }

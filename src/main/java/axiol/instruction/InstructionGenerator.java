@@ -437,32 +437,33 @@ public class InstructionGenerator {
     private OpCode chooseBinaryOpCode(Operator operator, boolean unsigned, boolean floating, boolean bigNumber) {
         if (unsigned && floating)
             throw new IllegalArgumentException("floating number can't be unsigned!");
-
+        //@formatter:off
         return switch (operator) { // unsigned - floating - signed
             case PLUS -> unsigned || !floating ? OpCode.ADD : OpCode.FLOATING_ADD;
             case MINUS -> unsigned || !floating ? OpCode.SUB : OpCode.FLOATING_SUB;
 
-            case MULTIPLE -> unsigned || !floating ? OpCode.MULTIPLY : OpCode.FLOATING_MULTIPLY;
-            case DIVIDE -> unsigned || !floating ? OpCode.DIVIDE : OpCode.FLOATING_DIVIDE;
-            case MOD -> unsigned || !floating ? OpCode.MODULO : OpCode.FLOATING_MODULO;
+            case MULTIPLE -> !floating ? (unsigned ? OpCode.UNSIGNED_MULTIPLY : OpCode.SIGNED_MULTIPLY) : OpCode.FLOATING_MULTIPLY;
+            case DIVIDE ->   !floating ? (unsigned ? OpCode.UNSIGNED_DIVIDE   : OpCode.SIGNED_DIVIDE)   : OpCode.FLOATING_DIVIDE;
+            case MOD ->      !floating ? (unsigned ? OpCode.UNSIGNED_MODULO   : OpCode.SIGNED_MODULO)   : OpCode.FLOATING_MODULO;
 
-            case AND -> OpCode.AND;
-            case OR -> OpCode.OR;
-            case XOR -> OpCode.XOR;
+            case AND ->       OpCode.AND;
+            case OR ->        OpCode.OR;                          // TODO ADD SIGNED OPS
+            case XOR ->       OpCode.XOR;                         // TODO ALL CURRENT OPS ARE UNSIGNED
             case NOT_EQUAL -> OpCode.NEGATED_EQUALS;
-            case BIT_OR -> OpCode.BIT_OR;
+            case BIT_OR ->    OpCode.BIT_OR;
 
-            case SHIFT_LEFT -> OpCode.SHIFT_LEFT;
+            case SHIFT_LEFT ->  OpCode.SHIFT_LEFT;
             case SHIFT_RIGHT -> OpCode.SHIFT_RIGHT;
 
-            case MORE_THAN -> unsigned || !floating ? OpCode.GREATER_THAN : OpCode.FLOATING_GREATER_THAN;
-            case MORE_EQUAL -> unsigned || !floating ? OpCode.GREATER_THAN_EQUAL : OpCode.FLOATING_LESS_THAN;
-            case LESS_THAN -> unsigned || !floating ? OpCode.LESS_THAN : OpCode.FLOATING_GREATER_THAN_EQUAL;
-            case LESS_EQUAL -> unsigned || !floating ? OpCode.LESS_THAN_EQUAL : OpCode.FLOATING_LESS_THAN_EQUAL;
+            case MORE_THAN ->   !floating ? (unsigned ? OpCode.UNSIGNED_GREATER_THAN       : OpCode.SIGNED_GREATER_THAN)       : OpCode.FLOATING_GREATER_THAN;
+            case MORE_EQUAL ->  !floating ? (unsigned ? OpCode.UNSIGNED_GREATER_THAN_EQUAL : OpCode.SIGNED_GREATER_THAN_EQUAL) : OpCode.FLOATING_LESS_THAN;
+            case LESS_THAN ->   !floating ? (unsigned ? OpCode.UNSIGNED_LESS_THAN          : OpCode.SIGNED_LESS_THAN)          : OpCode.FLOATING_GREATER_THAN_EQUAL;
+            case LESS_EQUAL ->  !floating ? (unsigned ? OpCode.UNSIGNED_LESS_THAN_EQUAL    : OpCode.SIGNED_LESS_THAN_EQUAL)    : OpCode.FLOATING_LESS_THAN_EQUAL;
             case EQUAL_EQUAL -> floating ? OpCode.FLOATING_EQUALS : OpCode.EQUALS;
 
             default -> null;
         };
+        //@formatter:on
     }
 
     private InstructionReference emitUnaryExpression(UnaryExpression statement, ProgramElement element) {

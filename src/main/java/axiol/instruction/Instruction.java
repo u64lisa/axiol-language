@@ -25,6 +25,10 @@ public class Instruction {
         return elements;
     }
 
+    public InstructionOperand getElementByIndex(int id) {
+        return elements.get(id);
+    }
+
     @Override
     public String toString() {
         return "Instruction{" +

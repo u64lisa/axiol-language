@@ -24,10 +24,6 @@ public class Mangler {
         return stringBuilder.toString();
     }
 
-    public static String mangleClass(String path, Accessibility... access) {
-        return new StringBuilder().append(path).append(SEPARATION_CHAR).append(mangleAccess(access)).toString();
-    }
-
     public static String mangleAccess(Accessibility... access) {
         StringBuilder builder = new StringBuilder();
         for (Accessibility accessibility : access) {
