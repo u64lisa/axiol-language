@@ -6,32 +6,32 @@ import java.util.Objects;
 
 public class Type {
 
-    public static final Type STRING =  new Type("str", 1, 0,8,false,false,true);
-    public static final Type CHAR =    new Type("u8",     0, 0, 8,false, false, true);
-    public static final Type BOOLEAN = new Type("u8",     0, 0, 8,false, false, true);
+    public static final Type STRING =  new Type("str", 1, 0, false, 8, false, false, true);
+    public static final Type CHAR =    new Type("u8",     0, 0, false, 8, false, false, true);
+    public static final Type BOOLEAN = new Type("u8",     0, 0, false, 8, false, false, true);
 
-    public static final Type NONE =    new Type("_none_", -1, -1, -1, false, false, false);
-    public static final Type VOID =    new Type("void",  0, 0, 0, false, false, false);
+    public static final Type NONE =    new Type("_none_", -1, -1, false, -1, false, false, false);
+    public static final Type VOID =    new Type("void",  0, 0, false, 0, false, false, false);
 
-    public static final Type I8 =      new Type("i8",     0, 0, 8,false, false, false);
-    public static final Type I16 =     new Type("i16",    0, 0, 16,false, false, false);
-    public static final Type I32 =     new Type("i32",    0, 0, 32,false, false, false);
-    public static final Type I64 =     new Type("i64",    0, 0, 64,false, false, false);
+    public static final Type I8 =      new Type("i8",     0, 0, false, 8, false, false, false);
+    public static final Type I16 =     new Type("i16",    0, 0, false , 16, false, false, false);
+    public static final Type I32 =     new Type("i32",    0, 0, false, 32, false, false, false);
+    public static final Type I64 =     new Type("i64",    0, 0, false, 64, false, false, false);
 
-    public static final Type U8 =      new Type("u8",     0, 0, 8,false, false, true);
-    public static final Type U16 =     new Type("u16",    0, 0, 16,false, false, true);
-    public static final Type U32 =     new Type("u32",    0, 0, 32,false, false, true);
-    public static final Type U64 =     new Type("u64",    0, 0, 64,false, false, true);
+    public static final Type U8 =      new Type("u8",     0, 0, false, 8, false, false, true);
+    public static final Type U16 =     new Type("u16",    0, 0, false, 16, false, false, true);
+    public static final Type U32 =     new Type("u32",    0, 0, false, 32, false, false, true);
+    public static final Type U64 =     new Type("u64",    0, 0, false, 64, false, false, true);
 
-    public static final Type I128 =    new Type("i128",  0, 0, 128,false, false, false);
-    public static final Type U128 =    new Type("u128",  0, 0, 128,false, false, true);
+    public static final Type I128 =    new Type("i128",  0, 0, false, 128, false, false, false);
+    public static final Type U128 =    new Type("u128",  0, 0, false, 128, false, false, true);
 
-    public static final Type F32 =     new Type("f32",    0, 0, 32,false, true, false);
-    public static final Type F64 =     new Type("f64",    0, 0, 64,false, true, false);
+    public static final Type F32 =     new Type("f32",    0, 0, false, 32, false, true, false);
+    public static final Type F64 =     new Type("f64",    0, 0, false, 64, false, true, false);
 
-    public static final Type U0 =      new Type("u0",     0, 0, 0,false, false, true);
+    public static final Type U0 =      new Type("u0",     0, 0, false, 0, false, false, true);
 
-    public static final Type MERGED =  new Type("MERGED_NO_TYPE",     0, 0, 0,false, false, true);
+    public static final Type MERGED =  new Type("MERGED_NO_TYPE",     0, 0, false, 0, false, false, true);
 
     public static final Type[] ALL = new Type[] {
             I8, I16, I32, I64,
@@ -48,7 +48,9 @@ public class Type {
 
     private final String name;
     private final int arrayDepth;
+
     private final int pointerDepth;
+    private final boolean varargs;
 
     private final int bitSize;
 
@@ -56,19 +58,20 @@ public class Type {
     private final boolean floating;
     private final boolean unsigned;
 
-    public Type(String name, int arrayDepth, int pointerDepth, int bitSize,
+    public Type(String name, int arrayDepth, int pointerDepth, boolean varargs, int bitSize,
                 boolean big, boolean floating, boolean unsigned) {
 
         this.name = name;
         this.arrayDepth = arrayDepth;
         this.pointerDepth = pointerDepth;
+        this.varargs = varargs;
         this.bitSize = bitSize;
         this.big = big;
         this.floating = floating;
         this.unsigned = unsigned;
     }
 
-    public Type(Type type, int arrayDepth, int pointerDepth) {
+    public Type(Type type, int arrayDepth, int pointerDepth, boolean varargs) {
         this.name = type.name;
         this.arrayDepth = arrayDepth;
         this.pointerDepth = pointerDepth;
@@ -76,6 +79,7 @@ public class Type {
         this.big = type.big;
         this.floating = type.floating;
         this.unsigned = type.unsigned;
+        this.varargs = varargs;
     }
 
     public static Type typeByToken(Token peak) {
@@ -103,11 +107,11 @@ public class Type {
 
     public Type increasePointerDepth(int size) {
         return new Type(name, arrayDepth,
-                pointerDepth + size, bitSize, big, floating, unsigned);
+                pointerDepth + size, varargs, bitSize, big, floating, unsigned);
     }
-    public Type increaseArrayDepth(int size) {
+    public Type increaseArrayDepth(int size, boolean varargs) {
         return new Type(name, arrayDepth + size,
-                pointerDepth, bitSize, big, floating, unsigned);
+                pointerDepth, varargs, bitSize, big, floating, unsigned);
     }
 
     public int getArrayDepth() {
@@ -130,6 +134,10 @@ public class Type {
         return floating;
     }
 
+    public boolean isVarargs() {
+        return varargs;
+    }
+
     public boolean isUnsigned() {
         return unsigned;
     }
@@ -142,4 +150,17 @@ public class Type {
         return this.bitSize;
     }
 
+    @Override
+    public String toString() {
+        return "Type{" +
+                "name='" + name + '\'' +
+                ", arrayDepth=" + arrayDepth +
+                ", pointerDepth=" + pointerDepth +
+                ", varargs=" + varargs +
+                ", bitSize=" + bitSize +
+                ", big=" + big +
+                ", floating=" + floating +
+                ", unsigned=" + unsigned +
+                '}';
+    }
 }

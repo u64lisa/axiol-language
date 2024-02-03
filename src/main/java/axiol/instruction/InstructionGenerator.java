@@ -83,33 +83,12 @@ public class InstructionGenerator {
                 default -> throw new RuntimeException("Invalid statement inside procedure: %s".formatted(statement.type()));
             });
 
-            referenceId = 0;
             generateStatement(statement, procedure);
             instructionSet.addProgramElement(procedure);
         }
 
         return instructionSet.build();
     }
-    //public InstructionSet emit(LinkedSources linkedSources) {
-    //
-    //    linkedSources.getStatements().removeIf(statement -> statement.type() == NodeType.LINKED_STATEMENT);
-    //
-    //    for (Statement statement : linkedSources.getStatements()) {
-    //        switch (statement.type()) {
-    //            case CLASS_TYPE_STATEMENT ->  emitClassType((ClassTypeStatement) statement);
-    //            case STRUCT_TYPE_STATEMENT -> emitStructureType((StructTypeStatement) statement);
-    //            case FUNCTION_STATEMENT ->    emitFunctionType((FunctionStatement) statement);
-    //            case VAR_STATEMENT ->         emitVarStatement((VariableStatement) statement);
-    //            case NAMESPACE_STATEMENT ->   emitNamespaceStatement((NamespaceStatement) statement);
-    //            // todo attribute
-    //            case ENUM_TYPE_STATEMENT ->   emitEnumType((EnumTypeStatement) statement);
-    //            default -> throw new IllegalArgumentException("unexpected statement '%s' at root of ast"
-    //                    .formatted(statement.type().name()));
-    //        }
-    //    }
-    //
-    //    return instructionSet.build();
-    //}
 
     public InstructionReference loopBodyStatement(BodyStatement bodyStatement, ProgramElement element) {
         for (Statement statement : bodyStatement.getStatements()) {
@@ -169,7 +148,7 @@ public class InstructionGenerator {
     //@formatter:on
 
     private InstructionReference emitElementReferenceExpression(ElementReferenceExpression statement, ProgramElement element) {
-        InstructionReference proprietor = this.instructionSet.createDataReference(".deref", statement.valuedType(), referenceId);
+        InstructionReference proprietor = this.instructionSet.createDataReference(".deref", statement.valuedType(), referenceId++);
         InstructionReference pointer = this.generateStatement(statement, element);
 
         element.instruction(OpCode.LOAD, builder -> builder
@@ -180,7 +159,7 @@ public class InstructionGenerator {
     }
 
     private InstructionReference emitBooleanExpression(BooleanExpression statement, ProgramElement element) {
-        InstructionReference reference = instructionSet.createBooleanReference(referenceId);
+        InstructionReference reference = instructionSet.createBooleanReference(referenceId++);
         element.instruction(OpCode.MOVE, builder -> builder
                 .referenceOperand(reference)
                 .booleanOperand(statement.isValue()));
@@ -189,7 +168,7 @@ public class InstructionGenerator {
     }
 
     private InstructionReference emitNumberExpression(NumberExpression statement, ProgramElement element) {
-        InstructionReference reference = instructionSet.createNumberReference(statement.getType(), referenceId);
+        InstructionReference reference = instructionSet.createNumberReference(statement.getType(), referenceId++);
         element.instruction(OpCode.MOVE, builder -> builder
                 .referenceOperand(reference)
                 .numberOperand(statement.valuedType(), statement.getNumberValue()));
@@ -198,7 +177,7 @@ public class InstructionGenerator {
     }
 
     private InstructionReference emitStringExpression(StringExpression statement, ProgramElement element) {
-        InstructionReference reference = instructionSet.createStringReference(referenceId);
+        InstructionReference reference = instructionSet.createStringReference(referenceId++);
         element.instruction(OpCode.MOVE, builder -> builder
                 .referenceOperand(reference)
                 .stringOperand(statement.getValue()));
@@ -206,9 +185,12 @@ public class InstructionGenerator {
     }
 
     private InstructionReference emitStackAllocExpression(StackAllocExpression statement, ProgramElement element) {
-        InstructionReference proprietor = this.instructionSet.createDataReference(".alloc", statement.valuedType(), referenceId);
+        InstructionReference proprietor = this.instructionSet.createDataReference(".alloc", statement.valuedType(), referenceId++);
 
-        InstructionReference size = this.instructionSet.createNumberReference(Type.I32, statement.getDepth().getNumberValue().intValue());
+        InstructionReference size = this.instructionSet.createNumberReference(Type.I32, referenceId++);
+        element.instruction(OpCode.MOVE, builder -> builder
+                .referenceOperand(size)
+                .numberOperand(Type.I32, statement.getDepth().getNumberValue()));
 
         element.instruction(OpCode.ALLOC, builder -> builder
                 .referenceOperand(proprietor)
@@ -218,7 +200,7 @@ public class InstructionGenerator {
     }
 
     private InstructionReference emitCastExpression(CastExpression statement, ProgramElement element) {
-        InstructionReference proprietor = this.instructionSet.createDataReference(".cast", statement.valuedType(), referenceId);
+        InstructionReference proprietor = this.instructionSet.createDataReference(".cast", statement.valuedType(), referenceId++);
         InstructionReference reference = generateStatement(statement.getValue(), element);
 
         Type from = statement.valuedType();
@@ -242,7 +224,7 @@ public class InstructionGenerator {
         InstructionReference rightArrayIndex = generateStatement(leftExpression.getRightAssociate(), element);
         InstructionReference right = generateStatement(leftExpression.getRightAssociate(), element);
 
-        assert right.getValueType().assetEqualityFor(leftArrayReference.getValueType().increaseArrayDepth(1));
+        assert right.getValueType().assetEqualityFor(leftArrayReference.getValueType().increaseArrayDepth(1, false));
 
         element.instruction(OpCode.STORE, builder -> builder
                 .referenceOperand(leftArrayReference)
@@ -254,7 +236,7 @@ public class InstructionGenerator {
 
     public InstructionReference emitArrayIndexRead(BinaryExpression binaryExpression, ProgramElement element) {
         InstructionReference proprietor = instructionSet.createDataReference(".arr",
-                binaryExpression.valuedType().increaseArrayDepth(1), referenceId);
+                binaryExpression.valuedType().increaseArrayDepth(1, false), referenceId++);
         InstructionReference left = generateStatement(binaryExpression.getLeftAssociate(), element);
         InstructionReference right = generateStatement(binaryExpression.getRightAssociate(), element);
 
@@ -286,14 +268,14 @@ public class InstructionGenerator {
 
     // reference = (stateExpression) ? (ternaryLeft : ternaryRight)
     private InstructionReference emitTernary(Expression stateExpression, BinaryExpression ternaryValues, ProgramElement element) {
-        InstructionReference proprietor = this.instructionSet.createDataReference(".ter", ternaryValues.valuedType(), referenceId);
+        InstructionReference proprietor = this.instructionSet.createDataReference(".ter", ternaryValues.valuedType(), referenceId++);
 
         InstructionReference condition = generateStatement(stateExpression, element);
 
         InstructionReference trueValue = generateStatement(ternaryValues.getRightAssociate(), element);
         InstructionReference falseValue = generateStatement(ternaryValues.getRightAssociate(), element);
 
-        InstructionReference endLabel = instructionSet.createLabel(".ter_end", referenceId);
+        InstructionReference endLabel = instructionSet.createLabel(".ter_end", referenceId++);
 
         element.instruction(OpCode.GOTO_IF, builder -> builder
                 .referenceOperand(condition)
@@ -311,8 +293,8 @@ public class InstructionGenerator {
     }
 
     public InstructionReference emitAndLogic(BinaryExpression binaryExpression, ProgramElement element) {
-        InstructionReference endingReference = instructionSet.createLabel(".and_end", referenceId);
-        InstructionReference proprietor = instructionSet.createDataReference(".and", binaryExpression.valuedType(), referenceId);
+        InstructionReference endingReference = instructionSet.createLabel(".and_end", referenceId++);
+        InstructionReference proprietor = instructionSet.createDataReference(".and", binaryExpression.valuedType(), referenceId++);
 
         element.instruction(OpCode.MOVE, builder -> builder
                 .referenceOperand(proprietor)
@@ -340,9 +322,9 @@ public class InstructionGenerator {
     }
 
     public InstructionReference emitOrLogic(BinaryExpression binaryExpression, ProgramElement element) {
-        InstructionReference endingReference = instructionSet.createLabel(".or_end", referenceId);
-        InstructionReference proprietor = instructionSet.createDataReference(".or", binaryExpression.valuedType(), referenceId);
-        InstructionReference orValue = instructionSet.createLabel(".or_val", referenceId);
+        InstructionReference endingReference = instructionSet.createLabel(".or_end", referenceId++);
+        InstructionReference proprietor = instructionSet.createDataReference(".or", binaryExpression.valuedType(), referenceId++);
+        InstructionReference orValue = instructionSet.createLabel(".or_val", referenceId++);
 
         element.instruction(OpCode.MOVE, builder -> builder
                 .referenceOperand(proprietor)
@@ -377,7 +359,7 @@ public class InstructionGenerator {
     }
 
     private InstructionReference emitBinaryExpression(BinaryExpression statement, ProgramElement element) {
-        InstructionReference proprietor = this.instructionSet.createDataReference(".bin", statement.valuedType(), referenceId);
+        InstructionReference proprietor = this.instructionSet.createDataReference(".bin", statement.valuedType(), referenceId++);
         Type type = statement.valuedType();
         Operator operator = statement.getOperator();
 
@@ -467,11 +449,11 @@ public class InstructionGenerator {
     }
 
     private InstructionReference emitUnaryExpression(UnaryExpression statement, ProgramElement element) {
-        InstructionReference proprietor = this.instructionSet.createDataReference(".unary", statement.valuedType(), referenceId);
+        InstructionReference proprietor = this.instructionSet.createDataReference(".unary", statement.valuedType(), referenceId++);
         InstructionReference value = this.generateStatement(statement.getValue(), element);
 
         if (statement.getOperator() == Operator.INCREASE || statement.getOperator() == Operator.DECREASE) {
-            InstructionReference oneReference = this.instructionSet.createNumberReference(Type.I32, referenceId);
+            InstructionReference oneReference = this.instructionSet.createNumberReference(Type.I32, referenceId++);
             element.instruction(OpCode.MOVE, builder -> builder
                     .referenceOperand(oneReference)
                     .numberOperand(Type.I32, 1));
@@ -504,16 +486,16 @@ public class InstructionGenerator {
 
     // wrapping references
     private InstructionReference emitLiteralExpression(LiteralExpression statement, ProgramElement element) {
-        InstructionReference proprietor = instructionSet.createDataReference(".lit", statement.valuedType(), referenceId);
+        InstructionReference proprietor = instructionSet.createDataReference(".lit", statement.valuedType(), referenceId++);
         element.instruction(OpCode.MOVE, builder -> builder
                 .referenceOperand(proprietor)
-                .referenceOperand(new InstructionReference(statement.getReference(), referenceId)));
+                .referenceOperand(new InstructionReference(statement.getReference(), referenceId++)));
 
         return proprietor;
     }
 
     private InstructionReference emitCallExpression(CallExpression statement, ProgramElement element) {
-        InstructionReference proprietor = instructionSet.createDataReference(".call", statement.valuedType(), referenceId);
+        InstructionReference proprietor = instructionSet.createDataReference(".call", statement.valuedType(), referenceId++);
 
         Map<Expression, InstructionReference> parameters = new HashMap<>();
         for (Expression parameter : statement.getParameters()) {
@@ -523,7 +505,7 @@ public class InstructionGenerator {
 
         //instructionSet.instruction(OpCode.CALL, builder -> {
         //    builder.referenceOperand(proprietor) todo fix this reference filtering
-        //            .referenceOperand(new InstructionReference(statement.getReference(), referenceId));
+        //            .referenceOperand(new InstructionReference(statement.getReference(), referenceId++));
         //
         //    parameters.forEach((expression, instructionReference) -> builder.referenceOperand(instructionReference));
         //});
@@ -532,7 +514,7 @@ public class InstructionGenerator {
     }
 
     private InstructionReference emitArrayExpression(ArrayInitExpression statement, ProgramElement element) {
-        InstructionReference proprietor = instructionSet.createDataReference(".arc", statement.valuedType(), referenceId);
+        InstructionReference proprietor = instructionSet.createDataReference(".arc", statement.valuedType(), referenceId++);
         element.instruction(OpCode.ALLOC, builder -> builder
                 .referenceOperand(proprietor)
                 .numberOperand(Type.I32, statement.getValues().size()));
@@ -555,7 +537,7 @@ public class InstructionGenerator {
     private InstructionReference emitVarStatement(VariableStatement statement, ProgramElement element) {
         Reference reference = statement.getReference(); //todo this.referenceStorage.getReferenceToStatement(statement);
 
-        InstructionReference proprietor = new InstructionReference(reference, referenceId);
+        InstructionReference proprietor = new InstructionReference(reference, referenceId++);
         InstructionReference value = generateStatement(statement.getValue(), element);
 
         assert statement.getValue().valuedType().assetEqualityFor(proprietor.getValueType());
@@ -566,6 +548,7 @@ public class InstructionGenerator {
 
         if (element.getType() == ProgramType.VARIABLE) {
             element.setReference(proprietor);
+            element.setParameters(new ArrayList<>());
         }
 
         return proprietor;
@@ -573,8 +556,8 @@ public class InstructionGenerator {
 
 
     private InstructionReference emitIfStatement(IfStatement statement, ProgramElement element) {
-        InstructionReference elseLabel = this.instructionSet.createLabel(".else", referenceId);
-        InstructionReference endLabel = this.instructionSet.createLabel(".if_end", referenceId);
+        InstructionReference elseLabel = this.instructionSet.createLabel(".else", referenceId++);
+        InstructionReference endLabel = this.instructionSet.createLabel(".if_end", referenceId++);
 
         InstructionReference condition = this.generateStatement(statement.getCondition(), element);
 
@@ -642,14 +625,15 @@ public class InstructionGenerator {
     }
 
     private InstructionReference emitWhileStatement(WhileStatement statement, ProgramElement element) {
-        InstructionReference gotoLabel = instructionSet.createLabel(".w_goto", referenceId);
-        InstructionReference endLabel = instructionSet.createLabel(".w_end", referenceId);
-        InstructionReference conditionLabel = instructionSet.createLabel(".w_check", referenceId);
+        InstructionReference gotoLabel = instructionSet.createLabel(".w_goto", referenceId++);
+        InstructionReference endLabel = instructionSet.createLabel(".w_end", referenceId++);
+        InstructionReference conditionLabel = instructionSet.createLabel(".w_check", referenceId++);
 
         this.currentContinueLabel = this.continueLabel;
         this.currentBrakeLabel = this.brakeLabel;
 
         InstructionReference conditionReference = generateStatement(statement.getCondition(), element);
+
         element.instruction(OpCode.MOVE, builder -> builder
                 .referenceOperand(conditionLabel)
                 .referenceOperand(conditionReference));
@@ -679,9 +663,9 @@ public class InstructionGenerator {
     }
 
     private InstructionReference emitDoWhileStatement(DoWhileStatement statement, ProgramElement element) {
-        InstructionReference gotoLabel = instructionSet.createLabel(".dw_goto", referenceId);
-        InstructionReference endLabel = instructionSet.createLabel(".dw_end", referenceId);
-        InstructionReference conditionLabel = instructionSet.createLabel(".dw_check", referenceId);
+        InstructionReference gotoLabel = instructionSet.createLabel(".dw_goto", referenceId++);
+        InstructionReference endLabel = instructionSet.createLabel(".dw_end", referenceId++);
+        InstructionReference conditionLabel = instructionSet.createLabel(".dw_check", referenceId++);
 
         this.currentContinueLabel = this.continueLabel;
         this.currentBrakeLabel = this.brakeLabel;
@@ -713,8 +697,8 @@ public class InstructionGenerator {
     }
 
     private InstructionReference emitLoopStatement(LoopStatement statement, ProgramElement element) {
-        InstructionReference gotoLabel = instructionSet.createLabel(".loop_goto", referenceId);
-        InstructionReference endLabel = instructionSet.createLabel(".loop_end", referenceId);
+        InstructionReference gotoLabel = instructionSet.createLabel(".loop_goto", referenceId++);
+        InstructionReference endLabel = instructionSet.createLabel(".loop_end", referenceId++);
 
         this.currentLoopContinueLabel = this.loopContinueLabel;
         this.currentLoopBrakeLabel = this.loopBrakeLabel;
@@ -742,9 +726,9 @@ public class InstructionGenerator {
 
     private InstructionReference emitForStatement(ForStatement statement, ProgramElement element) {
         if (statement.getCondition() instanceof ForStatement.NumberRangeCondition rangeCondition) {
-            InstructionReference gotoLabel = instructionSet.createLabel(".f_goto", referenceId);
-            InstructionReference loopLabel = instructionSet.createLabel(".f_b", referenceId);
-            InstructionReference endLabel = instructionSet.createLabel(".f_end", referenceId);
+            InstructionReference gotoLabel = instructionSet.createLabel(".f_goto", referenceId++);
+            InstructionReference loopLabel = instructionSet.createLabel(".f_b", referenceId++);
+            InstructionReference endLabel = instructionSet.createLabel(".f_end", referenceId++);
 
             this.currentContinueLabel = this.continueLabel;
             this.currentBrakeLabel = this.brakeLabel;
@@ -786,14 +770,14 @@ public class InstructionGenerator {
             continueLabel = currentContinueLabel;
         }
         if (statement.getCondition() instanceof ForStatement.IterateCondition iterateCondition) {
-            InstructionReference gotoLabel = instructionSet.createLabel(".f_goto", referenceId);
-            InstructionReference loopLabel = instructionSet.createLabel(".f_b", referenceId);
-            InstructionReference endLabel = instructionSet.createLabel(".f_end", referenceId);
+            InstructionReference gotoLabel = instructionSet.createLabel(".f_goto", referenceId++);
+            InstructionReference loopLabel = instructionSet.createLabel(".f_b", referenceId++);
+            InstructionReference endLabel = instructionSet.createLabel(".f_end", referenceId++);
 
             InstructionReference arrayReference = generateStatement(iterateCondition.getExpression(), element);
-            InstructionReference elementReference = new InstructionReference(iterateCondition.getReference(), referenceId);
+            InstructionReference elementReference = new InstructionReference(iterateCondition.getReference(), referenceId++);
 
-            InstructionReference index = instructionSet.createNumberReference(Type.I32, 0);
+            InstructionReference index = instructionSet.createNumberReference(Type.I32, referenceId++);
 
             this.currentContinueLabel = this.continueLabel;
             this.currentBrakeLabel = this.brakeLabel;
@@ -847,13 +831,13 @@ public class InstructionGenerator {
         boolean hasDefault = statement.hasDefaultCase();
 
         InstructionReference condition = this.generateStatement(statement.getCondition(), element);
-        InstructionReference defaultCase = instructionSet.createLabel(".sw_df", referenceId);
-        InstructionReference endLabel = instructionSet.createLabel(".sw_end", referenceId);
+        InstructionReference defaultCase = instructionSet.createLabel(".sw_df", referenceId++);
+        InstructionReference endLabel = instructionSet.createLabel(".sw_end", referenceId++);
         InstructionReference[] gotoLabels = new InstructionReference[statement.getCases().length];
 
         for (int i = 0; i < statement.getCases().length; i++) {
             SwitchStatement.CaseElement caseElement = statement.getCases()[i];
-            InstructionReference instructionReference = instructionSet.createLabel(".case_%s".formatted(i), referenceId);
+            InstructionReference instructionReference = instructionSet.createLabel(".case_%s".formatted(i), referenceId++);
 
             element.instruction(OpCode.LABEL, builder -> builder
                     .referenceOperand(instructionReference));
@@ -890,19 +874,19 @@ public class InstructionGenerator {
 
     private InstructionReference emitMatchExpression(MatchExpression statement, ProgramElement element) {
         boolean hasDefault = statement.hasDefaultCase();
-        InstructionReference proprietor = instructionSet.createDataReference(".match", statement.valuedType(), referenceId);
+        InstructionReference proprietor = instructionSet.createDataReference(".match", statement.valuedType(), referenceId++);
 
         InstructionReference condition = this.generateStatement(statement.getCondition(), element);
 
-        InstructionReference defaultCase = instructionSet.createLabel(".match_df", referenceId);
-        InstructionReference endLabel = instructionSet.createLabel(".match_end", referenceId);
+        InstructionReference defaultCase = instructionSet.createLabel(".match_df", referenceId++);
+        InstructionReference endLabel = instructionSet.createLabel(".match_end", referenceId++);
 
         InstructionReference[] gotoLabels = new InstructionReference[statement.getCases().length];
 
         for (int i = 0; i < statement.getCases().length; i++) {
             MatchExpression.CaseElement caseElement = statement.getCases()[i];
 
-            InstructionReference gotoLabel = instructionSet.createLabel(".match_case_%s".formatted(i), referenceId);
+            InstructionReference gotoLabel = instructionSet.createLabel(".match_case_%s".formatted(i), referenceId++);
             gotoLabels[i] = gotoLabel;
 
             for (Expression caseElementCondition : caseElement.getConditions()) {
@@ -956,13 +940,13 @@ public class InstructionGenerator {
     private InstructionReference emitFunctionType(FunctionStatement statement, ProgramElement element) {
         Reference reference = statement.getReference();// todo this.referenceStorage.getReferenceToStatement(statement);
 
-        InstructionReference functionReference = new InstructionReference(reference, referenceId);
+        InstructionReference functionReference = new InstructionReference(reference, referenceId++);
         element.instruction(OpCode.LABEL, builder -> {
             builder.referenceOperand(functionReference);
 
             for (Parameter parameter : statement.getParameters()) {
                 InstructionReference instructionReference = instructionSet.createDataReference(".fun_par_%s".formatted(parameter.getName()),
-                        parameter.getParsedType(), referenceId);
+                        parameter.getParsedType(), referenceId++);
 
                 if (parameter.getDefaultValue() != null) {
                     InstructionReference valueReference = generateStatement(parameter.getDefaultValue(), element);

@@ -7,10 +7,13 @@ import axiol.linker.LinkedSources;
 import axiol.linker.Linker;
 import axiol.parser.LanguageParser;
 import axiol.parser.tree.RootNode;
+import axiol.target.TargetFormat;
 import axiol.utils.Profiler;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 public class Main {
@@ -63,6 +66,11 @@ public class Main {
 
             PROFILER.endProfilingSection("instruction", "instruction gen. '" + testingCase + "' took %sms");
 
+            // assembly generation
+            PROFILER.startProfilingSection("asm", "ASM gen. '%s'".formatted(testingCase));
+            String code = new String(TargetFormat.X86.getGeneratorClass().getAssembler(instructionSet));
+            writeFile("/test/%s.asm".formatted(testingCase), code);
+            PROFILER.startProfilingSection("asm", "ASM gen. '%s'".formatted(testingCase));
         }
 
     }
@@ -86,6 +94,25 @@ public class Main {
             return fileContents.toString();
         }
         throw new RuntimeException("file not found in source!");
+    }
+    public static void writeFile(String name, String content) {
+        File file = new File("./" + name);
+
+        if (file.exists()) {
+            file.delete();
+        }
+        FileWriter writer = null;
+        try {
+            writer = new FileWriter(file);
+
+            writer.write(content);
+            writer.flush();
+            writer.close();
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     public static String readFileFromJar(String file) {
