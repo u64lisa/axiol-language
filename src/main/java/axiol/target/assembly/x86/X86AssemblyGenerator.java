@@ -281,8 +281,6 @@ public class X86AssemblyGenerator extends AssemblyGenerator {
                 regName = "RAX";
             } else {
                 if (src.asNumber().getType().getBits() / 8 > 4 && ((number >> 31) & 1) != 0) {
-                    // The top 32 bits are zero so this is allowed
-                    // If the 32nd bit is set it will be negative
                     elements.add("mov RAX, %s".formatted(value));
                     regName = "RAX";
                 } else {
@@ -604,9 +602,7 @@ public class X86AssemblyGenerator extends AssemblyGenerator {
             throw new RuntimeException("Function '" + fun + "' is unidentifiable!");
         }
 
-        //Mangler.MangledFunction mangledFunction = Mangler.demangleFunction(fun.getMangledName());
-        //boolean isVararg = mangledFunction.isVararg();
-        //int maxParam = mangledFunction.getParameterCount() - (isVararg ? 1 : 0);
+        // todo get theses infos from instruction
         boolean isVararg = false;
         int maxParam = 1;
 
