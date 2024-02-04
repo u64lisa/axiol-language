@@ -9,14 +9,17 @@ import axiol.target.assembly.AssemblyTranslation;
 
 class ARMAssemblyTranslation implements AssemblyTranslation {
 
+
     @Override
     public String getPointerName(int size) {
         return switch (size) {
             case 8 -> "byte";
-            case 16 -> "hword";
+            case 16 -> "halfword";
             case 32 -> "word";
-            case 0, 64 -> "quad";
-            default -> throw new RuntimeException("invalid pointer size for %s".formatted(size));
+            case 64 -> "doubleword";
+
+            case 128 -> "quadword"; // todo workaround
+            default -> throw new RuntimeException("Invalid pointer size for %s".formatted(size));
         };
     }
 
@@ -38,12 +41,15 @@ class ARMAssemblyTranslation implements AssemblyTranslation {
 
     @Override
     public String getRawStackPtr(InstructionReference ref, int offset, AssemblyProgramElement proc) {
-        return "[SP, #0x%x]".formatted(offset);
+        return "[SP, #-0x%x]!".formatted(proc.getStackOffset(ref) + offset);
     }
 
     @Override
     public String getStackPtr(InstructionReference ref, AssemblyProgramElement proc) {
-        return "%s [SP, #0x%x]".formatted(getPointerName(ref), proc.getStackOffset(ref));
+        return "%s [SP, #-0x%x]!".formatted(
+                getPointerName(ref),
+                proc.getStackOffset(ref)
+        );
     }
 
     @Override

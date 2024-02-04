@@ -1,17 +1,21 @@
-package axiol.target.assembly.x86;
+package axiol.target.assembly.sparc;
 
-import axiol.instruction.*;
+import axiol.instruction.Instruction;
+import axiol.instruction.InstructionOperand;
+import axiol.instruction.OpCode;
+import axiol.instruction.ProgramElement;
 import axiol.instruction.reference.InstructionReference;
 import axiol.instruction.value.ReferenceInstructionOperand;
 import axiol.parser.util.reference.ReferenceType;
 import axiol.target.assembly.AssemblyProgramElement;
 import axiol.target.assembly.AssemblyTranslation;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
-public class X86AssemblyProgramElement extends AssemblyProgramElement {
+public class SparcAssemblyProgramElement extends AssemblyProgramElement {
 
-    public X86AssemblyProgramElement(AssemblyTranslation translation, ProgramElement procedure) {
+    public SparcAssemblyProgramElement(AssemblyTranslation translation, ProgramElement procedure) {
         super(procedure);
 
         Set<InstructionReference> seenVariables = new HashSet<>();

@@ -7,6 +7,7 @@ import axiol.linker.LinkedSources;
 import axiol.linker.Linker;
 import axiol.parser.LanguageParser;
 import axiol.parser.tree.RootNode;
+import axiol.target.AssemblyGenerator;
 import axiol.target.TargetFormat;
 import axiol.utils.Profiler;
 
@@ -68,9 +69,28 @@ public class Main {
 
             // assembly generation
             PROFILER.startProfilingSection("asm", "ASM gen. '%s'".formatted(testingCase));
-            String code = new String(TargetFormat.X86.getGeneratorClass().getAssembler(instructionSet));
-            writeFile("/test/%s.asm".formatted(testingCase), code);
+            exportCode(testingCase, instructionSet);
+
+
             PROFILER.startProfilingSection("asm", "ASM gen. '%s'".formatted(testingCase));
+        }
+
+    }
+
+    static final TargetFormat[] formats = {
+            TargetFormat.X86,
+            TargetFormat.ARM,
+    };
+    public static void exportCode(String name, InstructionSet instructionSet) {
+        File file = new File("./test/build/");
+        file.mkdirs();
+
+        for (TargetFormat format : formats) {
+            AssemblyGenerator<?> generator = format.generatorClass;
+
+            String code = new String(generator.getAssembler(instructionSet));
+
+            writeFile("/test/build/%s_%s.asm".formatted(name, format.name()), code);
         }
 
     }

@@ -17,7 +17,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class X86AssemblyGenerator extends AssemblyGenerator {
+public class X86AssemblyGenerator extends AssemblyGenerator<X86AssemblyProgramElement> {
 
     private static final boolean REG_PARAM = true;
 
@@ -89,6 +89,7 @@ public class X86AssemblyGenerator extends AssemblyGenerator {
         return source.trim().getBytes(StandardCharsets.UTF_8);
     }
 
+    @Override
     public String createNullTerminatedStrings() {
         StringBuilder dataSection = new StringBuilder();
         for (Map.Entry<String, byte[]> entry : globalStrings.entrySet()) {
@@ -118,7 +119,8 @@ public class X86AssemblyGenerator extends AssemblyGenerator {
         return dataSection.toString();
     }
 
-    private String buildInstruction(X86AssemblyProgramElement proc, Instruction instruction) {
+    @Override
+    protected String buildInstruction(X86AssemblyProgramElement proc, Instruction instruction) {
         return switch (instruction.getOpCode()) {
             case LABEL -> emitLabel(proc, instruction);
             case ALLOC -> emitAlloc(proc, instruction);
@@ -156,7 +158,8 @@ public class X86AssemblyGenerator extends AssemblyGenerator {
         };
     }
 
-    private String emitLabel(X86AssemblyProgramElement proc, Instruction instruction) {
+    @Override
+    protected String emitLabel(X86AssemblyProgramElement proc, Instruction instruction) {
         InstructionReference reference = instruction.getElementByIndex(0).asReference().getReference();
         if (reference.getType() == ReferenceType.FUNCTION) {
             AssemblyEmitElement elements = new AssemblyEmitElement();
@@ -225,7 +228,8 @@ public class X86AssemblyGenerator extends AssemblyGenerator {
         return "  ." + reference.toSimpleString() + ':';
     }
 
-    private String emitAlloc(X86AssemblyProgramElement procedure, Instruction instruction) {
+    @Override
+    protected String emitAlloc(X86AssemblyProgramElement procedure, Instruction instruction) {
         AssemblyEmitElement elements = new AssemblyEmitElement();
 
         InstructionReference dst = instruction.getElementByIndex(0).asReference().getReference();
@@ -244,7 +248,8 @@ public class X86AssemblyGenerator extends AssemblyGenerator {
         return elements.export();
     }
 
-    private String emitInlineAssembly(X86AssemblyProgramElement procedure, Instruction instruction) {
+    @Override
+    protected String emitInlineAssembly(X86AssemblyProgramElement procedure, Instruction instruction) {
         AssemblyEmitElement elements = new AssemblyEmitElement();
 
         String targetType = instruction.getElementByIndex(0).asString().getValue();
@@ -265,7 +270,8 @@ public class X86AssemblyGenerator extends AssemblyGenerator {
         return elements.export();
     }
 
-    private String emitMove(X86AssemblyProgramElement procedure, Instruction instruction) {
+    @Override
+    protected String emitMove(X86AssemblyProgramElement procedure, Instruction instruction) {
         AssemblyEmitElement elements = new AssemblyEmitElement();
 
         InstructionReference dst = instruction.getElementByIndex(0).asReference().getReference();
@@ -313,7 +319,8 @@ public class X86AssemblyGenerator extends AssemblyGenerator {
         return elements.export();
     }
 
-    private String emitLoad(X86AssemblyProgramElement procedure, Instruction instruction) {
+    @Override
+    protected String emitLoad(X86AssemblyProgramElement procedure, Instruction instruction) {
         AssemblyEmitElement elements = new AssemblyEmitElement();
 
         InstructionReference dst = instruction.getElementByIndex(0).asReference().getReference();
@@ -356,7 +363,8 @@ public class X86AssemblyGenerator extends AssemblyGenerator {
         return elements.export();
     }
 
-    private String emitStore(X86AssemblyProgramElement procedure, Instruction instruction) {
+    @Override
+    protected String emitStore(X86AssemblyProgramElement procedure, Instruction instruction) {
         AssemblyEmitElement elements = new AssemblyEmitElement();
 
         InstructionReference dst = instruction.getElementByIndex(0).asReference().getReference();
@@ -410,7 +418,8 @@ public class X86AssemblyGenerator extends AssemblyGenerator {
         return elements.export();
     }
 
-    private String emitExtending(X86AssemblyProgramElement procedure, Instruction instruction) {
+    @Override
+    protected String emitExtending(X86AssemblyProgramElement procedure, Instruction instruction) {
         //  SIGN_EXTEND, ZERO_EXTEND, BIG_ZERO_EXTEND, FLOATING_EXTEND
 
         AssemblyEmitElement elements = new AssemblyEmitElement();
@@ -437,7 +446,8 @@ public class X86AssemblyGenerator extends AssemblyGenerator {
         return elements.export();
     }
 
-    private String emitReturn(X86AssemblyProgramElement procedure, Instruction instruction) {
+    @Override
+    protected String emitReturn(X86AssemblyProgramElement procedure, Instruction instruction) {
         AssemblyEmitElement elements = new AssemblyEmitElement();
 
         if (instruction.getElements().size() == 1) {
@@ -463,7 +473,8 @@ public class X86AssemblyGenerator extends AssemblyGenerator {
         return elements.export();
     }
 
-    private String emitOperators(X86AssemblyProgramElement procedure, Instruction instruction) {
+    @Override
+    protected String emitOperators(X86AssemblyProgramElement procedure, Instruction instruction) {
         // ADD, SUB, AND, XOR, OR
 
         AssemblyEmitElement elements = new AssemblyEmitElement();
@@ -510,7 +521,8 @@ public class X86AssemblyGenerator extends AssemblyGenerator {
         return elements.export();
     }
 
-    private String emitShifting(X86AssemblyProgramElement procedure, Instruction instruction) {
+    @Override
+    protected String emitShifting(X86AssemblyProgramElement procedure, Instruction instruction) {
         AssemblyEmitElement elements = new AssemblyEmitElement();
 
         InstructionReference dst = instruction.getElementByIndex(0).asReference().getReference();
@@ -542,7 +554,8 @@ public class X86AssemblyGenerator extends AssemblyGenerator {
         return elements.export();
     }
 
-    private String emitComparison(X86AssemblyProgramElement procedure, Instruction instruction) {
+    @Override
+    protected String emitComparison(X86AssemblyProgramElement procedure, Instruction instruction) {
         AssemblyEmitElement elements = new AssemblyEmitElement();
 
         InstructionReference dst = instruction.getElementByIndex(0).asReference().getReference();
@@ -592,7 +605,8 @@ public class X86AssemblyGenerator extends AssemblyGenerator {
         return elements.export();
     }
 
-    private String emitCall(X86AssemblyProgramElement procedure, Instruction instruction) {
+    @Override
+    protected String emitCall(X86AssemblyProgramElement procedure, Instruction instruction) {
         AssemblyEmitElement elements = new AssemblyEmitElement();
 
         InstructionReference dst = instruction.getElementByIndex(0).asReference().getReference();
@@ -606,8 +620,10 @@ public class X86AssemblyGenerator extends AssemblyGenerator {
         boolean isVararg = false;
         int maxParam = 1;
 
-        X86AssemblyRegister[] regs = {X86AssemblyRegister.DI, X86AssemblyRegister.SI, X86AssemblyRegister.DX,
-                X86AssemblyRegister.CX, X86AssemblyRegister.R8, X86AssemblyRegister.R9};
+        X86AssemblyRegister[] regs = {
+                X86AssemblyRegister.DI, X86AssemblyRegister.SI, X86AssemblyRegister.DX,
+                X86AssemblyRegister.CX, X86AssemblyRegister.R8, X86AssemblyRegister.R9
+        };
 
         int offset = 0;
         for (int i = 0; i < instruction.getElements().size() - 2; i++) {
@@ -669,7 +685,8 @@ public class X86AssemblyGenerator extends AssemblyGenerator {
         return elements.export();
     }
 
-    private String emitGotoIfNotEq(X86AssemblyProgramElement procedure, Instruction instruction) {
+    @Override
+    protected String emitGotoIfNotEq(X86AssemblyProgramElement procedure, Instruction instruction) {
         AssemblyEmitElement elements = new AssemblyEmitElement();
 
         InstructionReference src = instruction.getElementByIndex(0).asReference().getReference();
@@ -686,7 +703,8 @@ public class X86AssemblyGenerator extends AssemblyGenerator {
         return elements.export();
     }
 
-    private String emitGotoIf(X86AssemblyProgramElement procedure, Instruction instruction) {
+    @Override
+    protected String emitGotoIf(X86AssemblyProgramElement procedure, Instruction instruction) {
         AssemblyEmitElement elements = new AssemblyEmitElement();
 
         InstructionReference src = instruction.getElementByIndex(0).asReference().getReference();
@@ -703,7 +721,8 @@ public class X86AssemblyGenerator extends AssemblyGenerator {
         return elements.export();
     }
 
-    private String emitGoto(Instruction instruction) {
+    @Override
+    protected String emitGoto(Instruction instruction) {
         AssemblyEmitElement elements = new AssemblyEmitElement();
 
         InstructionReference dst = instruction.getElementByIndex(0).asReference().getReference();
@@ -712,7 +731,8 @@ public class X86AssemblyGenerator extends AssemblyGenerator {
         return elements.export();
     }
 
-    private String emitNegate(X86AssemblyProgramElement procedure, Instruction instruction) {
+    @Override
+    protected String emitNegate(X86AssemblyProgramElement procedure, Instruction instruction) {
         AssemblyEmitElement elements = new AssemblyEmitElement();
 
         InstructionReference dst = instruction.getElementByIndex(0).asReference().getReference();
@@ -732,7 +752,8 @@ public class X86AssemblyGenerator extends AssemblyGenerator {
         return elements.export();
     }
 
-    private String emitDivide(X86AssemblyProgramElement procedure, Instruction instruction) {
+    @Override
+    protected String emitDivide(X86AssemblyProgramElement procedure, Instruction instruction) {
         AssemblyEmitElement elements = new AssemblyEmitElement();
 
         boolean unsigned = instruction.getOpCode() == OpCode.UNSIGNED_DIVIDE;
@@ -757,7 +778,8 @@ public class X86AssemblyGenerator extends AssemblyGenerator {
         return elements.export();
     }
 
-    private String emitMultiply(X86AssemblyProgramElement procedure, Instruction instruction) {
+    @Override
+    protected String emitMultiply(X86AssemblyProgramElement procedure, Instruction instruction) {
         AssemblyEmitElement elements = new AssemblyEmitElement();
 
         boolean unsigned = instruction.getOpCode() == OpCode.UNSIGNED_MULTIPLY;
@@ -782,7 +804,8 @@ public class X86AssemblyGenerator extends AssemblyGenerator {
         return elements.export();
     }
 
-    private String emitModulo(X86AssemblyProgramElement procedure, Instruction instruction) {
+    @Override
+    protected String emitModulo(X86AssemblyProgramElement procedure, Instruction instruction) {
         AssemblyEmitElement elements = new AssemblyEmitElement();
 
         boolean unsigned = instruction.getOpCode() == OpCode.UNSIGNED_MODULO;
